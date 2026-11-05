@@ -1,0 +1,34 @@
+# Data & Artifacts
+data/*
+!data/.gitkeep
+models/*
+!models/.gitkeep
+outputs/*
+!outputs/.gitkeep
+submissions/*
+!submissions/.gitkeep
+*.parquet
+*.npy
+*.npz
+*.zip
+*.tar.gz
+*.db
+*.sqlite
+
+# Python & Environment
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.env
+
+# Jupyter & IDE
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
