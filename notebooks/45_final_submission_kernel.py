@@ -872,12 +872,41 @@ class FinalSubmissionPipeline:
 
         return p_final, test_clusters
 
-    def predict(self, test_df):
+    def predict(self, test_df, apply_sinkhorn=True, apply_guards=True):
         if len(test_df) == 0:
             return pd.DataFrame({"id": [], "model": []})
 
         probs, clusters = self.predict_proba(test_df)
-        pred_indices = hungarian_assignment(probs, clusters)
+
+        # 1. Soft Sinkhorn Class Balancing (target uniform 1/18 prior)
+        if apply_sinkhorn and len(probs) >= 18:
+            P = probs.copy()
+            target = np.ones(18) / 18.0
+            Q = P.copy()
+            for _ in range(50):
+                Q *= (len(Q) * target[None, :]) / np.clip(Q.sum(0, keepdims=True), 1e-12, None)
+                Q /= np.clip(Q.sum(1, keepdims=True), 1e-12, None)
+            tot_log_p = 0.70 * np.log(np.clip(P, 1e-12, None)) + 0.30 * np.log(np.clip(Q, 1e-12, None))
+        else:
+            tot_log_p = np.log(np.clip(probs, 1e-12, None))
+
+        # 2. Typography Hard Constraints
+        if apply_guards:
+            GUARDS = [
+                (' — ', {'claude-opus-4-6', 'claude-opus-5', 'glm-5.3', 'glm-5.3-flash'}),
+                ('’', {l for l in LABELS if not l.startswith(('claude', 'glm'))}),
+                ('“', {'gemini-3.8-flash', 'gpt-5.5', 'gpt-5.6-luna', 'gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-6-astra', 'kimi-k3', 'qwen3.8-max'}),
+                ('–', {'claude-opus-5', 'gemini-3.1-pro-preview', 'glm-5.3-flash', 'gpt-5.6-luna', 'gpt-5.6-sol', 'gpt-5.6-terra', 'kimi-k3'})
+            ]
+            test_texts = test_df["text"].values
+            for mark, allowed in GUARDS:
+                forb = np.array([l not in allowed for l in LABELS])
+                for i, t in enumerate(test_texts):
+                    if mark in str(t):
+                        tot_log_p[i, forb] = -1e9
+
+        probs_balanced = softmax(tot_log_p, axis=1)
+        pred_indices = hungarian_assignment(probs_balanced, clusters, min_cluster_size=2)
         pred_labels = [IDX_TO_LABEL[idx] for idx in pred_indices]
 
         sub = pd.DataFrame({
