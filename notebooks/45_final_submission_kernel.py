@@ -79,8 +79,23 @@ def resolve_model_path(model_identifier):
         for root, dirs, files in os.walk("/kaggle/input"):
             if "config.json" in files:
                 root_lower = root.lower()
-                if ("minilm" in short_name and ("minilm" in root_lower or "all-mini" in root_lower)) or \
-                   ("deberta" in short_name and ("deberta" in root_lower or "v3-small" in root_lower)):
+                matched = False
+                if "minilm" in short_name and ("minilm" in root_lower or "all-mini" in root_lower):
+                    matched = True
+                elif "deberta" in short_name and ("deberta" in root_lower or "v3-small" in root_lower):
+                    matched = True
+                else:
+                    try:
+                        cfg_path = os.path.join(root, "config.json")
+                        with open(cfg_path, "r", encoding="utf-8") as f:
+                            cfg_txt = f.read(1000).lower()
+                        if "minilm" in short_name and ("minilm" in cfg_txt or "bert" in cfg_txt):
+                            matched = True
+                        elif "deberta" in short_name and "deberta" in cfg_txt:
+                            matched = True
+                    except Exception:
+                        pass
+                if matched:
                     print(f">> [Offline Model Found] {model_identifier} -> {root}")
                     return root
 
@@ -99,6 +114,68 @@ def resolve_model_path(model_identifier):
         return None
 
     return model_identifier
+
+
+def find_pretrained_bundle(base_dir=None):
+    """Searches /kaggle/input and local repository for pre-fitted EXP_45 pipeline bundle."""
+    # 1. Search /kaggle/input
+    if os.path.exists("/kaggle/input"):
+        bundle_path = None
+        gat_path = None
+        for root, dirs, files in os.walk("/kaggle/input"):
+            for f in files:
+                f_lower = f.lower()
+                if f_lower in ["pipeline_bundle.joblib", "exp45_pipeline.joblib", "pipeline.joblib"]:
+                    bundle_path = os.path.join(root, f)
+                if f_lower in ["hybrid_gat.pt", "exp45_gat.pt", "gat.pt"]:
+                    gat_path = os.path.join(root, f)
+        if bundle_path:
+            return bundle_path, gat_path
+
+    # 2. Local search candidates
+    candidate_dirs = [
+        base_dir,
+        os.getcwd(),
+        os.path.dirname(os.path.abspath(__file__ if '__file__' in globals() else '.')),
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__ if '__file__' in globals() else '.'))),
+        "/home/rj2826/name-the-llm"
+    ]
+    for d in candidate_dirs:
+        if d:
+            b = os.path.join(d, "models/exp45/pipeline_bundle.joblib")
+            g = os.path.join(d, "models/exp45/hybrid_gat.pt")
+            if os.path.exists(b):
+                return b, (g if os.path.exists(g) else None)
+
+    return None, None
+
+
+def find_open_pool_path(base_dir=None):
+    """Searches /kaggle/input and local repository for balanced Open Pool parquet data."""
+    # 1. Search /kaggle/input recursively
+    if os.path.exists("/kaggle/input"):
+        for root, dirs, files in os.walk("/kaggle/input"):
+            for f in files:
+                f_lower = f.lower()
+                if f_lower.endswith(".parquet") and ("open_pool" in f_lower or "pool" in f_lower):
+                    candidate = os.path.join(root, f)
+                    return candidate
+
+    # 2. Local candidates
+    candidate_dirs = [
+        base_dir,
+        os.getcwd(),
+        os.path.dirname(os.path.abspath(__file__ if '__file__' in globals() else '.')),
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__ if '__file__' in globals() else '.'))),
+        "/home/rj2826/name-the-llm"
+    ]
+    for d in candidate_dirs:
+        if d:
+            for fname in ["open_pool_36k.parquet", "open_pool_clean.parquet", "open_pool.parquet"]:
+                p = os.path.join(d, "data/external", fname)
+                if os.path.exists(p):
+                    return p
+    return None
 
 
 def sanitize_text(text):
@@ -522,6 +599,50 @@ class FinalSubmissionPipeline:
         self.scaler = None
         self.is_fitted = False
 
+    @classmethod
+    def from_pretrained(cls, bundle_path, gat_path=None, device=None):
+        import joblib
+        device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        bundle = joblib.load(bundle_path)
+        
+        pipeline = cls(
+            alpha=bundle.get('alpha', 0.05),
+            w_gauss=bundle.get('w_gauss', 0.05),
+            w_pool=bundle.get('w_pool', 0.35),
+            device=device
+        )
+        pipeline.vec_char = bundle['vec_char']
+        pipeline.vec_word = bundle['vec_word']
+        pipeline.vec_shape = bundle['vec_shape']
+        pipeline.vec_func = bundle['vec_func']
+        pipeline.clf_svc = bundle['clf_svc']
+        pipeline.gauss_prm = bundle['gauss_prm']
+        pipeline.scaler = bundle.get('scaler', None)
+        
+        # Verify offline transformer availability for test inference
+        minilm_path = resolve_model_path("sentence-transformers/all-MiniLM-L6-v2")
+        deberta_path = resolve_model_path("microsoft/deberta-v3-small")
+        pipeline.has_minilm = minilm_path is not None
+        pipeline.has_deberta = deberta_path is not None
+        pipeline.has_gat = bundle.get('has_gat', False) and (pipeline.has_minilm or pipeline.has_deberta)
+
+        if pipeline.has_gat and gat_path and os.path.exists(gat_path):
+            try:
+                gat_model = PromptResidualGAT(in_features=1296, hidden_dim=128, num_classes=18, n_heads=4, dropout=0.2).to(device)
+                gat_model.load_state_dict(torch.load(gat_path, map_location=device))
+                gat_model.eval()
+                pipeline.gat_model = gat_model
+                print(">> [Model Loaded] Hybrid Prompt-Residual GAT (1296d) active.")
+            except Exception as e:
+                print(f">> [Warning] Failed to load GAT weights ({e}). Disabling GAT.")
+                pipeline.has_gat = False
+        else:
+            pipeline.gat_model = None
+            pipeline.has_gat = False
+
+        pipeline.is_fitted = True
+        return pipeline
+
     def fit(self, train_df, open_pool_df=None):
         print(f">> Fitting FinalSubmissionPipeline on {len(train_df)} official samples on {self.device}...")
         t0 = time.time()
@@ -748,18 +869,57 @@ def main():
     os.makedirs(work_dir, exist_ok=True)
     train_path = os.path.join(data_dir, "train.csv")
     test_path = os.path.join(data_dir, "test.csv")
-    pool_path = os.path.join(data_dir, "external/open_pool.parquet")
 
-    print(f"Data Directory: {data_dir}")
-    print(f"Working Directory: {work_dir}")
+    # Dynamic Component Detection
+    bundle_path, gat_path = find_pretrained_bundle(base_dir)
+    pool_path = find_open_pool_path(base_dir)
+    minilm_path = resolve_model_path("sentence-transformers/all-MiniLM-L6-v2")
+    deberta_path = resolve_model_path("microsoft/deberta-v3-small")
 
-    train_df = pd.read_csv(train_path)
+    has_bundle = bundle_path is not None
+    has_pool = pool_path is not None
+    has_minilm = minilm_path is not None
+    has_deberta = deberta_path is not None
+
+    print("\n" + "=" * 80)
+    print("EXP_45 PIPELINE DIAGNOSTIC REPORT")
+    print("=" * 80)
+    print(f"[{'✓' if has_bundle else '✗'}] Pretrained Model Bundle:  {bundle_path if has_bundle else 'NOT FOUND (Will fit on the fly)'}")
+    print(f"[{'✓' if has_pool else '✗'}] Balanced Open Pool (36k): {pool_path if has_pool else 'NOT FOUND'}")
+    print(f"[{'✓' if has_minilm else '✗'}] Offline MiniLM Model:     {minilm_path if has_minilm else 'NOT FOUND'}")
+    print(f"[{'✓' if has_deberta else '✗'}] Offline DeBERTa Model:    {deberta_path if has_deberta else 'NOT FOUND'}")
+    print("-" * 80)
+
+    if (has_bundle or has_pool) and has_minilm and has_deberta:
+        mode = "FULL HYBRID ATTRIBUTION (EXP_44-C / EXP_45)"
+        expected_ba = "0.6216 (0-DoF) / 0.6264 (OOF-selected)"
+    elif (has_bundle or has_pool):
+        mode = "LIGHTWEIGHT ATTRIBUTION (4-View SVC + 144d Stylometry Gaussian)"
+        expected_ba = "~0.536"
+    else:
+        mode = "FALLBACK OFFICIAL-ONLY ATTRIBUTION (LinearSVC only)"
+        expected_ba = "~0.348 (Baseline)"
+
+    print(f"ACTIVE EXECUTION REGIME:    {mode}")
+    print(f"EXPECTED BALANCED ACCURACY: {expected_ba}")
+    print("=" * 80 + "\n")
+
+    if not os.path.exists(test_path):
+        raise FileNotFoundError(f"test.csv not found in {data_dir}!")
+
     test_df = pd.read_csv(test_path)
-    pool_df = pd.read_parquet(pool_path) if os.path.exists(pool_path) else None
 
-    # 2. Fit and Predict
-    pipeline = FinalSubmissionPipeline(alpha=0.05, w_gauss=0.05, w_pool=0.35)
-    pipeline.fit(train_df, pool_df)
+    # 2. Pipeline Initialization & Fitting
+    if has_bundle:
+        print(f">> [Fast Inference] Loading pretrained model bundle from {bundle_path}...")
+        pipeline = FinalSubmissionPipeline.from_pretrained(bundle_path, gat_path)
+    else:
+        if not os.path.exists(train_path):
+            raise FileNotFoundError(f"train.csv not found in {data_dir}!")
+        train_df = pd.read_csv(train_path)
+        pool_df = pd.read_parquet(pool_path) if has_pool else None
+        pipeline = FinalSubmissionPipeline(alpha=0.05, w_gauss=0.05, w_pool=0.35)
+        pipeline.fit(train_df, pool_df)
 
     print(f"\n>> Scoring {len(test_df)} test samples...")
     t0 = time.time()
