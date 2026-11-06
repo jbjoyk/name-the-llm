@@ -188,9 +188,10 @@ def find_open_pool_path(base_dir=None):
     for d in candidate_dirs:
         if d:
             for fname in ["open_pool_36k.parquet", "open_pool_clean.parquet", "open_pool.parquet"]:
-                p = os.path.join(d, "data/external", fname)
-                if os.path.exists(p):
-                    return p
+                for sub in ["dist", "data/external", "data"]:
+                    p = os.path.join(d, sub, fname)
+                    if os.path.exists(p):
+                        return p
     return None
 
 
@@ -360,17 +361,34 @@ def recover_prompt_clusters(val_texts, max_cluster_size=18, threshold=0.15):
     return final_labels
 
 
-def hungarian_assignment(probs, cluster_labels):
-    """Enforces injective bipartite matching within each recovered prompt cluster."""
-    preds = np.zeros(len(probs), dtype=int)
+def hungarian_assignment(probs, cluster_labels, min_cluster_size=2):
+    """Enforces injective bipartite matching within recovered prompt clusters.
+    
+    Robustness guarantees:
+    1. Initializes with direct argmax (never zeros), avoiding artificial class-0 defaults.
+    2. Supports arbitrary cluster sizes; for clusters > 18, matches the top-18 highest-confidence
+       samples and retains argmax predictions for the remainder.
+    3. Handles singleton/small clusters cleanly without degradation.
+    """
+    preds = np.argmax(probs, axis=1)
     for c in np.unique(cluster_labels):
         idx = np.where(cluster_labels == c)[0]
-        if len(idx) <= 1:
-            preds[idx] = np.argmax(probs[idx], axis=1)
-        else:
+        k = len(idx)
+        if k < min_cluster_size or k <= 1:
+            continue
+        elif k <= 18:
             cost_matrix = -probs[idx]
             r, c_ind = linear_sum_assignment(cost_matrix)
             preds[idx[r]] = c_ind
+        else:
+            # Cluster has > 18 samples: match the 18 most confident samples
+            cluster_probs = probs[idx]
+            max_p = np.max(cluster_probs, axis=1)
+            top18_sub = np.argsort(-max_p)[:18]
+            sub_idx = idx[top18_sub]
+            cost_matrix = -probs[sub_idx]
+            r, c_ind = linear_sum_assignment(cost_matrix)
+            preds[sub_idx[r]] = c_ind
     return preds
 
 
@@ -640,13 +658,14 @@ class FinalSubmissionPipeline:
         pipeline.clf_svc = bundle['clf_svc']
         pipeline.gauss_prm = bundle['gauss_prm']
         pipeline.scaler = bundle.get('scaler', None)
+        pipeline.view_weights = bundle.get('view_weights', (1.0, 1.0, 1.0, 1.0))
         
         # Verify offline transformer availability for test inference
         minilm_path = resolve_model_path("sentence-transformers/all-MiniLM-L6-v2")
         deberta_path = resolve_model_path("microsoft/deberta-v3-small")
         pipeline.has_minilm = minilm_path is not None
         pipeline.has_deberta = deberta_path is not None
-        pipeline.has_gat = bundle.get('has_gat', False) and (pipeline.has_minilm or pipeline.has_deberta)
+        pipeline.has_gat = bundle.get('has_gat', True) and (pipeline.has_minilm or pipeline.has_deberta)
 
         if pipeline.has_gat and gat_path and os.path.exists(gat_path):
             try:
@@ -694,10 +713,12 @@ class FinalSubmissionPipeline:
         self.vec_shape = TfidfVectorizer(analyzer='char', ngram_range=(2, 6), min_df=3, max_features=40000, sublinear_tf=True)
         self.vec_func = TfidfVectorizer(analyzer='word', ngram_range=(1, 3), min_df=2, max_features=30000, sublinear_tf=True)
 
-        X_char = self.vec_char.fit_transform(all_texts)
-        X_word = self.vec_word.fit_transform(all_texts)
-        X_shape = self.vec_shape.fit_transform([to_casing_shape(t) for t in all_texts])
-        X_func = self.vec_func.fit_transform([to_function_words(t) for t in all_texts])
+        self.view_weights = (1.0, 0.7, 0.5, 0.5)
+        w_c, w_w, w_s, w_f = self.view_weights
+        X_char = self.vec_char.fit_transform(all_texts) * w_c
+        X_word = self.vec_word.fit_transform(all_texts) * w_w
+        X_shape = self.vec_shape.fit_transform([to_casing_shape(t) for t in all_texts]) * w_s
+        X_func = self.vec_func.fit_transform([to_function_words(t) for t in all_texts]) * w_f
         X_svc = hstack([X_char, X_word, X_shape, X_func]).tocsr()
 
         print(f">> Fitting LinearSVC(C=0.5) on shape {X_svc.shape}...")
@@ -772,10 +793,11 @@ class FinalSubmissionPipeline:
             return np.zeros((0, len(LABELS))), np.array([])
 
         # 1. LinearSVC scoring
-        X_char = self.vec_char.transform(test_texts)
-        X_word = self.vec_word.transform(test_texts)
-        X_shape = self.vec_shape.transform([to_casing_shape(t) for t in test_texts])
-        X_func = self.vec_func.transform([to_function_words(t) for t in test_texts])
+        w_c, w_w, w_s, w_f = getattr(self, 'view_weights', (1.0, 1.0, 1.0, 1.0))
+        X_char = self.vec_char.transform(test_texts) * w_c
+        X_word = self.vec_word.transform(test_texts) * w_w
+        X_shape = self.vec_shape.transform([to_casing_shape(t) for t in test_texts]) * w_s
+        X_func = self.vec_func.transform([to_function_words(t) for t in test_texts]) * w_f
         X_svc = hstack([X_char, X_word, X_shape, X_func]).tocsr()
 
         dec = self.clf_svc.decision_function(X_svc)
@@ -950,16 +972,27 @@ def main():
     test_df = pd.read_csv(test_path)
 
     # 2. Pipeline Initialization & Fitting
-    if has_bundle:
-        print(f">> [Fast Inference] Loading pretrained model bundle from {bundle_path}...")
-        pipeline = FinalSubmissionPipeline.from_pretrained(bundle_path, gat_path)
-    else:
+    # If Balanced Open Pool is available, prefer native fitting in Kaggle (~80s)
+    # This guarantees 100% environment compatibility and completely eliminates scikit-learn version mismatch.
+    if has_pool:
+        print(f">> [Native Training Mode] Balanced Open Pool detected at {pool_path}.")
+        print(">> Fitting pipeline directly in Kaggle runtime (~80s) for exact scikit-learn environment compatibility...")
         if not os.path.exists(train_path):
             raise FileNotFoundError(f"train.csv not found in {data_dir}!")
         train_df = pd.read_csv(train_path)
-        pool_df = pd.read_parquet(pool_path) if has_pool else None
+        pool_df = pd.read_parquet(pool_path)
         pipeline = FinalSubmissionPipeline(alpha=0.05, w_gauss=0.05, w_pool=0.35)
         pipeline.fit(train_df, pool_df)
+    elif has_bundle:
+        print(f">> [Fast Inference Mode] Loading pretrained model bundle from {bundle_path}...")
+        pipeline = FinalSubmissionPipeline.from_pretrained(bundle_path, gat_path)
+    else:
+        print(">> [Fallback Mode] Fitting official-only training data...")
+        if not os.path.exists(train_path):
+            raise FileNotFoundError(f"train.csv not found in {data_dir}!")
+        train_df = pd.read_csv(train_path)
+        pipeline = FinalSubmissionPipeline(alpha=0.05, w_gauss=0.05, w_pool=0.35)
+        pipeline.fit(train_df, None)
 
     print(f"\n>> Scoring {len(test_df)} test samples...")
     t0 = time.time()
