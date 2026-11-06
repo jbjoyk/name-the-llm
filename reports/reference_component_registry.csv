@@ -1,0 +1,21 @@
+component_id,component_name,source_notebook,source_dataset,model,feature_type,training_required,inference_required,GPU_required,estimated_runtime,validation_available,research_value,competition_value
+CMP_01,MultiView_LinearSVC,the-usual-suspects,name-that-llm + Open Pool,LinearSVC(C=0.5),4-View TFIDF (Char+Word+Shape+Function),True,True,False,45s,True,High,Very High
+CMP_02,Prefit_SuperSVC_V4n,ozertuu/0-672-dual-svc,nuridudak/ntl-svc-prefit-pool-v4n,LinearSVC,Pre-fitted multi-view n-grams,False,True,False,15s,False,Medium,High
+CMP_03,Top34_LightGBM,ozertuu/0-672-dual-svc,nuridudak/ntl-svc-prefit-pool-v4n,LightGBM Classifier,34 engineered surface/token statistics,False,True,False,20s,False,Medium,Medium
+CMP_04,Text_Distortion_LR,dhruvtibarewal/nlm-v27,name-that-llm,LogisticRegression,Masked text n-grams (Stamatatos 2017),True,True,False,30s,True,High,Medium
+CMP_05,Prompt_Recovery_Clustering,the-usual-suspects,name-that-llm test,Average-Linkage Hierarchical,Content-Word TF-IDF cosine distance,False,True,False,10s,True,Very High,Critical
+CMP_06,Centred_Twin_Heads,the-usual-suspects,name-that-llm,LogisticRegression,Feature prompt/cluster residuals (x - mean_p),True,True,False,40s,True,Critical,Critical
+CMP_07,Shared_Prompt_Gaussian_Head,prvsiyan / kirilltym,name-that-llm,Two-Way Gaussian Model (gauss.py),WPCA 128d + Ledoit-Wolf Shrinkage,True,True,False,60s,True,High,High
+CMP_08,Qwen3_14B_LoRA24,dhruvtibarewal/nlm-l24-adapters-v5,Qwen3-14B-Base + adapters,Qwen3-14B LoRA,Layer 2-24 hidden states,False,True,True,35m,False,Medium,Very High
+CMP_09,Qwen3_8B_LoRA24,dhruvtibarewal/nlm-l24-adapters-v5,Qwen3-8B-Base + adapters,Qwen3-8B LoRA,Layer 2-24 hidden states,False,True,True,20m,False,Medium,High
+CMP_10,Llama31_8B_LoRA24,dhruvtibarewal/nlm-l24-adapters-v5,alexchilton/llama-3-1-8b-base + adapters,Llama-3.1-8B LoRA,Layer 2-24 hidden states,False,True,True,20m,False,Medium,High
+CMP_11,TwoStage_Q14_Nishant,nishantdahal/two-stage-lora,nishantdahal/ntl-two-stage-lora,Qwen3-14B LoRA,Two-stage fine-tuned embeddings,False,True,True,35m,False,Medium,High
+CMP_12,TwoStage_Q25_14,nishantdahal/two-stage-lora,nishantdahal/ntl-handwriting-blend,Qwen2.5-14B LoRA,Two-stage fine-tuned embeddings,False,True,True,35m,False,Medium,High
+CMP_13,DeBERTa_Large_SeqClf,nishantdahal/ntl-handwriting-blend,nishantdahal/ntl-handwriting-blend,DeBERTa-v3-large,Transformer sequence classification logits,False,True,True,10m,False,Low,Medium
+CMP_14,Complementary_Stack,lucasboesen/glm4-9b-trunc25,extract-encoders2 + desklib,Truncated GLM4 + Electra + UltraBERT,Frozen multi-encoder + Token-Attention,False,True,True,15m,False,Medium,Medium
+CMP_15,ATLAS_Likelihood,josephadamski91/ntl-atlas-qwen3-8b-v1,josephadamski91/ntl-atlas-qwen3-8b-v1,Qwen3-8B-Base + ATLAS LoRA,Author-conditioned generative log-likelihood,False,True,True,4h,False,High,High
+CMP_16,Soft_Sinkhorn_Balancing,peterdreamhan/name-that-llm-soft-sinkhorn,None,Sinkhorn-Knopp Algorithm,Damped marginal probability balancing,False,True,False,5s,True,Medium,High
+CMP_17,Hierarchical_Beta_Typography,romantamrazov/name-that-llm-who-am-i,name-that-llm,Empirical Bayes Beta-Bernoulli,37 typographic mark presence vector,True,True,False,5s,True,High,High
+CMP_18,Sibling_Style_Residual,bgunshui/ntl-apex-e,name-that-llm,Grouped Logistic Regression,142d Stylometric & Function-word vector,True,True,False,15s,True,Very High,Very High
+CMP_19,Pairwise_SameAuthor_Verifier,synthreaper/ntl-sovereign-gold-apex,mercurydust/ntllm-chatgpt-a-b,Pairwise Logistic Regression,10d Multi-Modal Pair Alignment Vector,True,True,False,45s,True,High,High
+CMP_20,Hungarian_Prompt_Assignment,the-usual-suspects,name-that-llm,Linear Sum Assignment (scipy),Injective bipartite matching per cluster,False,True,False,2s,True,High,High

@@ -1,0 +1,45 @@
+{
+  "primary_fold_split_balanced_accuracy": 0.603432761620681,
+  "primary_fold_split_macro_f1": 0.6014263808529996,
+  "primary_fold_scores": [
+    0.5407,
+    0.6,
+    0.6204,
+    0.6426,
+    0.6132
+  ],
+  "primary_fold_std": 0.034229213077995924,
+  "multi_seed_5_shuffles": {
+    "seeds": [
+      42,
+      100,
+      2024,
+      7,
+      999
+    ],
+    "balanced_accuracies": [
+      0.6016,
+      0.5968,
+      0.5968,
+      0.5945,
+      0.5986
+    ],
+    "mean_balanced_accuracy": 0.59766,
+    "std_balanced_accuracy": 0.00234,
+    "ci95_balanced_accuracy": [
+      0.5956,
+      0.5997
+    ],
+    "mean_macro_f1": 0.59544
+  },
+  "r2_simulation_5_seeds": {
+    "mean_balanced_accuracy": 0.4771,
+    "std_balanced_accuracy": 0.006,
+    "standalone_svc_mean": 0.4336,
+    "gaussian_head_gain": 0.0364,
+    "hungarian_gain": 0.0071
+  },
+  "runtime_seconds": 20.4,
+  "peak_ram_gb": 4.2,
+  "vram_usage_gb": 0.8
+}

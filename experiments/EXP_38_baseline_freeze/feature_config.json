@@ -1,0 +1,58 @@
+{
+  "view_1_char": {
+    "analyzer": "char",
+    "ngram_range": [
+      3,
+      5
+    ],
+    "sublinear_tf": true,
+    "min_df": 3,
+    "max_features": 120000
+  },
+  "view_2_word": {
+    "analyzer": "word",
+    "ngram_range": [
+      1,
+      3
+    ],
+    "sublinear_tf": true,
+    "min_df": 2,
+    "token_pattern": "(?u)\\b\\w+\\b|[^\\w\\s]",
+    "max_features": 80000
+  },
+  "view_3_casing_shape": {
+    "transform": "X for [A-Z], x for [a-z]",
+    "analyzer": "char",
+    "ngram_range": [
+      2,
+      6
+    ],
+    "sublinear_tf": true,
+    "min_df": 3,
+    "max_features": 40000
+  },
+  "view_4_function_words": {
+    "transform": "preserve 70 stopwords, replace all other words with CONTENT",
+    "analyzer": "word",
+    "ngram_range": [
+      1,
+      3
+    ],
+    "sublinear_tf": true,
+    "min_df": 2,
+    "max_features": 30000
+  },
+  "dense_syntax_minilm_l3": {
+    "backbone": "sentence-transformers/all-MiniLM-L6-v2",
+    "layer": 3,
+    "pooling": "mean_tokens",
+    "dimension": 384
+  },
+  "dense_stylometry_144d": {
+    "base_statistics": 16,
+    "punctuation_markers": 55,
+    "function_word_frequencies": 71,
+    "total_dimension": 142
+  },
+  "dense_combined_input_to_gaussian": 526
+}

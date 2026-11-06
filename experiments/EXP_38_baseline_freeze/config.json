@@ -1,0 +1,67 @@
+{
+  "baseline_id": "EXP_38_baseline_freeze",
+  "derived_from": "EXP_36_shared_prompt_gaussian",
+  "validation_protocol": "5-Fold GroupKFold(group=prompt_id)",
+  "primary_metric": "Balanced Accuracy (Macro Recall)",
+  "dataset_hashes": {
+    "train_csv_sha256": "40a22ce8d88c5f46feb4637a099db815bef5f713ffe53e89dbe1b7b21de77707",
+    "open_pool_clean_parquet_sha256": "0c5b289e9f5f7c3f439462d09b3d1d7ef4648839db20309e3476066f3982d5c9"
+  },
+  "open_pool_sampling": {
+    "source": "crtproduction/name-that-llm-open-pool (cleaned v11)",
+    "samples_per_class": 2000,
+    "total_open_pool_samples": 36000,
+    "sample_weight": 0.35
+  },
+  "models": {
+    "linear_svc": {
+      "C": 0.5,
+      "class_weight": "balanced",
+      "loss": "squared_hinge",
+      "max_iter": 2000,
+      "random_state": 42
+    },
+    "shared_prompt_gaussian": {
+      "red": "wpca",
+      "d": 128,
+      "se_shrink": "lw",
+      "sp_shrink": "lw",
+      "lam_floor": 0.0001,
+      "n_exact": 3,
+      "inj": true,
+      "iters": 5,
+      "repel": true,
+      "sp_scale": 1.0
+    }
+  },
+  "prompt_recovery": {
+    "clustering_method": "average_linkage",
+    "metric": "cosine",
+    "distance_threshold": 0.85,
+    "max_cluster_size": 18,
+    "tfidf_parameters": {
+      "stop_words": "english",
+      "min_df": 2,
+      "max_df": 0.08,
+      "sublinear_tf": true
+    }
+  },
+  "fusion": {
+    "method": "log_probability_linear_blend",
+    "formula": "log_p_blend = log_p_svc + 0.05 * log_p_gauss",
+    "w_svc": 1.0,
+    "w_gauss": 0.05
+  },
+  "assignment": {
+    "method": "scipy.optimize.linear_sum_assignment",
+    "constraint": "injective bipartite matching within recovered prompt clusters",
+    "cost_matrix": "-prob_blend[cluster_indices]"
+  },
+  "random_seeds": [
+    42,
+    100,
+    2024,
+    7,
+    999
+  ]
+}
