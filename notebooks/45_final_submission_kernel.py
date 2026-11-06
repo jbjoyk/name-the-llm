@@ -80,21 +80,37 @@ def resolve_model_path(model_identifier):
             if "config.json" in files:
                 root_lower = root.lower()
                 matched = False
-                if "minilm" in short_name and ("minilm" in root_lower or "all-mini" in root_lower):
-                    matched = True
-                elif "deberta" in short_name and ("deberta" in root_lower or "v3-small" in root_lower):
-                    matched = True
-                else:
-                    try:
-                        cfg_path = os.path.join(root, "config.json")
-                        with open(cfg_path, "r", encoding="utf-8") as f:
-                            cfg_txt = f.read(1000).lower()
-                        if "minilm" in short_name and ("minilm" in cfg_txt or "bert" in cfg_txt):
-                            matched = True
-                        elif "deberta" in short_name and "deberta" in cfg_txt:
-                            matched = True
-                    except Exception:
-                        pass
+                
+                # Check for MiniLM (Strictly exclude DeBERTa)
+                if "minilm" in short_name:
+                    if "deberta" in root_lower or "v3-small" in root_lower:
+                        matched = False
+                    elif "minilm" in root_lower or "all-mini" in root_lower:
+                        matched = True
+                    else:
+                        try:
+                            import json
+                            with open(os.path.join(root, "config.json"), "r") as f:
+                                cfg = json.load(f)
+                            if cfg.get("hidden_size") == 384 and "deberta" not in str(cfg).lower():
+                                matched = True
+                        except Exception:
+                            pass
+                
+                # Check for DeBERTa
+                elif "deberta" in short_name:
+                    if "deberta" in root_lower or "v3-small" in root_lower:
+                        matched = True
+                    else:
+                        try:
+                            import json
+                            with open(os.path.join(root, "config.json"), "r") as f:
+                                cfg = json.load(f)
+                            if cfg.get("hidden_size") == 768 and ("deberta" in str(cfg).lower() or cfg.get("model_type") in ["deberta", "deberta-v2"]):
+                                matched = True
+                        except Exception:
+                            pass
+
                 if matched:
                     print(f">> [Offline Model Found] {model_identifier} -> {root}")
                     return root
@@ -270,7 +286,10 @@ def extract_minilm_l3(texts, batch_size=64, max_len=256, device=None):
             mask = tok["attention_mask"].unsqueeze(-1)
             mean_pool = (l3 * mask).sum(1) / mask.sum(1).clamp(min=1e-8)
             embeddings.append(mean_pool.cpu().numpy().astype(np.float32))
-    return np.vstack(embeddings)
+    res = np.vstack(embeddings)
+    if res.shape[1] != 384:
+        raise ValueError(f"Expected 384 dimensions from MiniLM-L3, but got {res.shape[1]}. Model path was: {model_path}")
+    return res
 
 
 def extract_deberta_v3(texts, batch_size=32, max_len=512, device=None):
@@ -295,7 +314,10 @@ def extract_deberta_v3(texts, batch_size=32, max_len=512, device=None):
             last_hidden = out.last_hidden_state
             mean_pool = (last_hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1e-9)
             embeddings.append(mean_pool.cpu().numpy().astype(np.float32))
-    return np.vstack(embeddings)
+    res = np.vstack(embeddings)
+    if res.shape[1] != 768:
+        raise ValueError(f"Expected 768 dimensions from DeBERTa-v3, but got {res.shape[1]}. Model path was: {model_path}")
+    return res
 
 
 def recover_prompt_clusters(val_texts, max_cluster_size=18, threshold=0.15):
@@ -784,32 +806,45 @@ class FinalSubmissionPipeline:
         X_sty_test = np.stack([extract_stylometry_row(t) for t in test_texts])
 
         # 4. Gaussian Head scoring
-        X_dense_test = np.hstack([X_syn_test, X_sty_test]) if self.has_minilm else X_sty_test
-        log_p_gauss = gauss_scores(X_dense_test, test_clusters, self.gauss_prm)
+        expected_gauss_dim = self.gauss_prm["mx"].shape[0] if (self.gauss_prm is not None and "mx" in self.gauss_prm) else None
+        has_valid_minilm = (X_syn_test is not None and X_syn_test.shape[1] == 384 and np.any(X_syn_test != 0))
 
-        # Base EXP_36 blend
-        log_blend_36 = log_p_svc + self.w_gauss * log_p_gauss
-        p_exp36 = softmax(log_blend_36, axis=1)
+        if has_valid_minilm and expected_gauss_dim == 528:
+            X_dense_test = np.hstack([X_syn_test, X_sty_test])
+            log_p_gauss = gauss_scores(X_dense_test, test_clusters, self.gauss_prm)
+            log_blend_36 = log_p_svc + self.w_gauss * log_p_gauss
+            p_exp36 = softmax(log_blend_36, axis=1)
+        elif not has_valid_minilm and expected_gauss_dim == 144:
+            X_dense_test = X_sty_test
+            log_p_gauss = gauss_scores(X_dense_test, test_clusters, self.gauss_prm)
+            log_blend_36 = log_p_svc + self.w_gauss * log_p_gauss
+            p_exp36 = softmax(log_blend_36, axis=1)
+        else:
+            p_exp36 = softmax(log_p_svc, axis=1)
 
         # 5. Hybrid Prompt-Residual GAT scoring if active
-        if self.has_gat:
-            X_hybrid_test = np.hstack([X_syn_test, X_deb_test, X_sty_test]).astype(np.float32)
-            R_test = compute_prompt_residuals(X_hybrid_test, test_clusters)
-            R_test_s = self.scaler.transform(R_test)
+        if self.has_gat and self.gat_model is not None:
+            try:
+                X_hybrid_test = np.hstack([X_syn_test, X_deb_test, X_sty_test]).astype(np.float32)
+                R_test = compute_prompt_residuals(X_hybrid_test, test_clusters)
+                R_test_s = self.scaler.transform(R_test)
 
-            bx_te, bmask_te, _, bvalid_te, mapping_te = pack_prompt_graph_batch(R_test_s, test_clusters)
-            bx_te, bmask_te = bx_te.to(self.device), bmask_te.to(self.device)
+                bx_te, bmask_te, _, bvalid_te, mapping_te = pack_prompt_graph_batch(R_test_s, test_clusters)
+                bx_te, bmask_te = bx_te.to(self.device), bmask_te.to(self.device)
 
-            with torch.no_grad():
-                logits_gat = self.gat_model(bx_te, bmask_te)
-                probs_gat_tensor = F.softmax(logits_gat, dim=-1)
+                with torch.no_grad():
+                    logits_gat = self.gat_model(bx_te, bmask_te)
+                    probs_gat_tensor = F.softmax(logits_gat, dim=-1)
 
-            p_gat = np.zeros((n_test, 18), dtype=np.float32)
-            for p_idx, (_, orig_idx) in enumerate(mapping_te):
-                k = len(orig_idx)
-                p_gat[orig_idx] = probs_gat_tensor[p_idx, :k].cpu().numpy()
+                p_gat = np.zeros((n_test, 18), dtype=np.float32)
+                for p_idx, (_, orig_idx) in enumerate(mapping_te):
+                    k = len(orig_idx)
+                    p_gat[orig_idx] = probs_gat_tensor[p_idx, :k].cpu().numpy()
 
-            p_final = (1.0 - self.alpha) * p_exp36 + self.alpha * p_gat
+                p_final = (1.0 - self.alpha) * p_exp36 + self.alpha * p_gat
+            except Exception as e:
+                print(f">> [Notice] GAT inference bypassed ({e}). Using base predictions.")
+                p_final = p_exp36
         else:
             p_final = p_exp36
 
