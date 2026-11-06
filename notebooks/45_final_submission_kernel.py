@@ -835,23 +835,28 @@ def main():
     print("EXP_45: KAGGLE OFFLINE SUBMISSION EXECUTION")
     print("=" * 80)
 
+    base_dir = None
+    data_dir = None
+    work_dir = "/kaggle/working" if os.path.exists("/kaggle") else "submissions"
+
     # 1. Discover Data Paths (Kaggle mount vs local repo)
-    if os.path.exists("/kaggle/input/name-that-llm/test.csv"):
-        data_dir = "/kaggle/input/name-that-llm"
-        work_dir = "/kaggle/working"
-    elif os.path.exists("/kaggle/input/name-the-llm/test.csv"):
-        data_dir = "/kaggle/input/name-the-llm"
-        work_dir = "/kaggle/working"
-    elif os.path.exists("/kaggle/input"):
+    for cand in [
+        "/kaggle/input/competitions/name-that-llm",
+        "/kaggle/input/name-that-llm",
+        "/kaggle/input/name-the-llm",
+    ]:
+        if os.path.exists(os.path.join(cand, "test.csv")):
+            data_dir = cand
+            break
+
+    if data_dir is None and os.path.exists("/kaggle/input"):
         # Search /kaggle/input for test.csv
-        found_dir = None
         for root, dirs, files in os.walk("/kaggle/input"):
             if "test.csv" in files:
-                found_dir = root
+                data_dir = root
                 break
-        data_dir = found_dir if found_dir else "/kaggle/input/name-that-llm"
-        work_dir = "/kaggle/working"
-    else:
+
+    if data_dir is None:
         # Local environment (safe against Jupyter NameError)
         try:
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
