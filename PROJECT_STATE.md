@@ -1,8 +1,8 @@
 # PROJECT STATE & AGENT HANDOFF: KAGGLE "NAME THAT LLM"
 
-**Last Updated**: 2026-11-07 12:06 UTC  
+**Last Updated**: 2026-11-07 13:45 UTC  
 **Primary Repository**: `/home/rj2826/name-the-llm`  
-**Current Active State**: **EXP49 Candidate Validated & Ready for Approval**  
+**Current Active State**: **EXP49 Evaluated on Kaggle (0.612 Public LB) | Best Remains EXP47 (0.620)**  
 **Current Best Verified Kaggle Score**: **0.620 Public LB (EXP47)**  
 
 ---
@@ -49,7 +49,7 @@
 | **EXP_46A** | Standalone Qwen3-8B LoRA24 | **0.5862** | **0.606** | **FROZEN BASELINE** |
 | **EXP_47** | Qwen3-8B Centred Twin Head | **0.5910** | **0.620** | **VERIFIED TOP ON KAGGLE** |
 | **EXP_48** | EXP47 + Damped Sinkhorn Calibration | **0.5910** (+0.0000) | *Not Submitted* | **YELLOW** (Ensemble regularizer) |
-| **EXP_49** | EXP47 + 4-View Open-Pool LinearSVC | **0.6976** (nested raw) / **0.7054** (nested + SK) | **CANDIDATE READY** | **GREEN (Passed Validation Gate)** |
+| **EXP_49** | EXP47 + 4-View Open-Pool LinearSVC ($w=0.85$) + SK | **0.6976** (nested raw) / **0.7054** (nested + SK) | **0.612** | **EVALUATED (Surface Domain Shift)** |
 
 ---
 
@@ -62,21 +62,19 @@
 
 ---
 
-## 5. Exact Next Action & Step-by-Step Instructions
+## 5. Kaggle Evaluation & Exact Next Campaign Actions
 
-1. **User Kaggle Submission Review (EXP49)**:
-   - Candidate package is prepared in [`submissions/candidates/EXP49/`](file:///home/rj2826/name-the-llm/submissions/candidates/EXP49/).
-   - Kernel notebook: [`submissions/candidates/EXP49/submission_kernel_exp49.ipynb`](file:///home/rj2826/name-the-llm/submissions/candidates/EXP49/submission_kernel_exp49.ipynb).
-   - Recommended fixed weight: $w_{\text{svc}} = 0.850$, with soft Sinkhorn ($\alpha=0.30, \rho=0.35$).
-   - Expected Public LB: **0.655 – 0.672** (vs 0.620 current best).
-   - **STRICT PROTOCOL**: Do NOT submit automatically. Await explicit user authorization.
-2. **If Approved**:
-   - Upload notebook to Kaggle on **GPU T4 x2**.
-   - Attachments: `qwen-lm/qwen-3 (8b-base)`, `dhruvtibarewal/nlm-l24-adapters-v5`, `crtproduction/open-pool-passages` (or bundled parquet), and competition data.
-   - Commit and submit. Record score.
-3. **Subsequent Sequential Experiments (Local First)**:
-   - **EXP50**: Best validated combination (EXP49) + 37 Typography Markers + V40A Sibling Style Residual.
+1. **EXP49 Evaluated on Kaggle**:
+   - **Score**: **0.612 Public LB**
+   - **Baseline Comparison**: Outperforms standalone EXP46A (0.606), but falls slightly below pure EXP47 (0.620).
+   - **Empirical Finding**: Giving 85% decision mass to surface n-grams ($w_{\text{svc}}=0.850$) over-indexes on vocabulary features that suffer domain shift on unseen prompts. The deep Qwen representations must remain the primary anchor ($w_{\text{qwen}} \ge 0.70$) rather than being subordinated to 15%.
+2. **Next Sequential Experiment (EXP50 - Local First)**:
+   - Combine verified EXP47 (deep anchor) with audited typography markers and V40A sibling style residuals.
+   - Enforce **deep-dominant conservative weighting** ($w_{\text{deep}} \ge 0.75$, $w_{\text{surface}} \le 0.25$).
+   - Run local 5-fold prompt-disjoint `GroupKFold` cross-validation sweeps before proposing any Kaggle candidate.
+3. **Subsequent Sequential Experiments**:
    - **EXP51**: LoRA Multi-Model Scaling (add Qwen3-14B `q14v5`).
+   - **EXP52+**: Multi-model deep ensemble + conservative regularizers.
 
 ---
 

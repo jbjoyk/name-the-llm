@@ -13,8 +13,7 @@ Official project scoreboard tracking local 5-fold prompt-disjoint GroupKFold val
 | **EXP_46A** | Standalone Qwen3-8B LoRA24 (6 Merged Adapters) | **0.5862** | 0.5866 | **0.606** | +0.1340 | Baseline | ~16–18 min | **FROZEN BASELINE** |
 | **EXP_47** | Qwen3-8B + Centred Twin Head ($w_{\text{twin}}=0.35$) | **0.5910** | 0.5915 | **0.620** | +0.0048 | +0.0048 | ~16–18 min | **VERIFIED TOP** |
 | **EXP_48** | EXP47 + Damped Sinkhorn Marginal Calibration | **0.5910** | 0.5915 | *Not Submitted* | +0.0000 | +0.0048 | 2.4s (CPU) | **VALID REGULARIZER** |
-| **EXP_49** | EXP47 + 4-View Open-Pool LinearSVC ($w=0.85$) | **0.6976** | 0.6964 | **CANDIDATE READY** | **+0.1066** | **+0.1114** | ~18.5 min | **VALIDATED GATE PASS** |
-| **EXP_49 + SK** | EXP49 + Soft Sinkhorn ($\alpha=0.30, \rho=0.35$) | **0.7054** | **0.7042** | **CANDIDATE READY** | **+0.1144** | **+0.1192** | ~18.5 min | **VALIDATED GATE PASS** |
+| **EXP_49** | EXP47 + 4-View Open-Pool LinearSVC ($w=0.85$) + SK | **0.7054** | **0.7042** | **0.612** | **+0.1144** | **+0.1192** | ~18.5 min | **EVALUATED (Over-weighted SVC)** |
 
 ---
 

@@ -4,7 +4,7 @@
 **Date**: 2026-11-07  
 **Validation Gate**: **PASSED (Selection-Safe 5-Fold Nested GroupKFold)**  
 **Parent Submission Baseline**: EXP47 (Kaggle Public LB: **0.620**)  
-**Status**: **VALIDATED AND READY FOR EXPLICIT APPROVAL**
+**Status**: **EVALUATED ON KAGGLE: 0.612 PUBLIC LB**
 
 ---
 

@@ -87,13 +87,13 @@ flowchart TD
 - **Components**: EXP47 (Qwen3-8B LoRA24 Centred Twin) + EXP28 (4-View Open-Pool LinearSVC) + EXP48 (Damped Sinkhorn Regularisation).
 - **Baseline**: EXP47 (0.5910 Local / 0.620 Kaggle LB).
 - **Local Score**: **0.6354** (Conservative $w=0.50$) / **0.7028** (Optimal $w=0.85$).
-- **Kaggle Score**: **CANDIDATE READY (Awaiting Approval)**.
-- **Delta**: **+0.0445 to +0.1118 Local**.
+- **Kaggle Score**: **0.612** Public LB (+0.006 over EXP46A 0.606, -0.008 vs EXP47 0.620).
+- **Delta**: **+0.1144 Local / -0.0080 Kaggle vs EXP47**.
 - **Seeds**: 42.
 - **Validation Protocol**: 5-Fold `GroupKFold(group=prompt_id)` on `train.csv`.
 - **Leakage Status**: PASSED (Strict prompt isolation, NFKC deduplicated open pool passages, zero validation contamination).
 - **Runtime**: ~18.5 min total on Kaggle 2x T4 (LinearSVC inference ~2.5 min on CPU).
 - **GPU Memory**: 9.8 GB VRAM.
-- **Decision**: **GREEN (Highest-Priority Kaggle Submission Candidate)**.
-- **Key Lesson**: Representation orthogonality between deep generative models and shallow tokenization models produces massive complementary gains.
-- **Next Step**: Prepare submission candidate in `submissions/candidates/EXP49/` and request user approval.
+- **Decision**: **YELLOW (Evaluated; Confirms Surface Shift Hypothesis)**.
+- **Key Lesson**: At $w_{\text{svc}}=0.85$, assigning 85% decision mass to surface n-grams over-indexes on vocabulary features that suffer domain shift on unseen prompts. The deep Qwen representations (0.620 standalone) must remain the primary anchor ($w_{\text{qwen}} \ge 0.70$) rather than being subordinated to 15%.
+- **Next Step**: Build EXP50 (incorporating audited typography and sibling residuals with conservative deep-dominant weighting) or test calibrated conservative weighting ($w_{\text{qwen}}=0.80, w_{\text{svc}}=0.20$).

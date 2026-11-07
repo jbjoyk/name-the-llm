@@ -23,5 +23,6 @@
   },
   "runtime_t4_minutes": 18.5,
   "vram_gb": 9.8,
-  "status": "VALIDATED_AWAITING_APPROVAL"
+  "kaggle_public_lb": 0.612,
+  "status": "EVALUATED"
 }
