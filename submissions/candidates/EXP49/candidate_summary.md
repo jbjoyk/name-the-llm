@@ -1,58 +1,48 @@
-# Kaggle Submission Candidate Summary: EXP49
+# Kaggle Submission Candidate Summary: EXP49 (Validated)
 
 **Candidate ID**: `EXP49_stylometric_svc_fusion`  
 **Date**: 2026-11-07  
+**Validation Gate**: **PASSED (Selection-Safe 5-Fold Nested GroupKFold)**  
 **Parent Submission Baseline**: EXP47 (Kaggle Public LB: **0.620**)  
-**Status**: **AWAITING USER EXPLICIT APPROVAL**
+**Status**: **VALIDATED AND READY FOR EXPLICIT APPROVAL**
 
 ---
 
-## 1. Expected Local & Leaderboard Score
-- **Previous Best Kaggle Public LB (EXP47)**: **0.620**
-- **EXP47 Local Balanced Accuracy**: **0.5910**
-- **EXP49 Local Balanced Accuracy (Conservative $w=0.50$)**: **0.6354** (+0.0445 gain)
-- **EXP49 Local Balanced Accuracy (Optimal $w=0.85$)**: **0.7028** (+0.1118 gain)
+## 1. Validated Performance Summary
+- **Current Verified Kaggle Best (EXP47)**: **0.620 Public LB** (Local: **0.5910**)
+- **EXP49 Standalone LinearSVC**: **0.4630 Local BA**
+- **EXP49 Selection-Safe Nested CV (No Sinkhorn)**: **0.6976 Local BA** (Mean fold: **0.6977 ± 0.0145**)
+- **EXP49 Selection-Safe Nested CV (+ Sinkhorn $\alpha=0.30, \rho=0.35$)**: **0.7054 Local BA** (Mean fold: **0.7055 ± 0.0144**)
+- **Final Recommended Fixed Weight**: **$w_{\text{svc}} = 0.850$** (Median across all outer folds)
 - **Expected Kaggle Public LB Range**: **0.655 – 0.672**
 
 ---
 
-## 2. Reason for Submission
-1. **Orthogonal Representation Synergy**: EXP47 relies exclusively on deep transformer latent states. While strong (0.620 LB), it frequently confuses intra-family sibling models. Adding the 4-view LinearSVC introduces an orthogonal surface-level feature space (subword character n-grams, markdown habits, punctuation statistics) that reduces sibling confusion by 59% to 71%.
-2. **Reproduces the Proven Reference Architecture**: In the audited 0.672+ winning solution (`0-672-dual-svc-residual-refinement-apex`), the Dual-SVC layer was the primary driver that lifted scores from 0.65 to 0.67.
-3. **Cross-Validation Robustness**: Standard deviation across all 5 prompt-disjoint folds dropped from ±0.0244 to **±0.0149**, showing the highest stability of any model tested in the campaign.
+## 2. Selection-Safe Validation Audit
+1. **Zero Selection Bias**: Blend weight $w$ was tuned strictly on inner 4-fold CV using only training prompts, frozen, and evaluated once on outer validation prompts.
+2. **Outer Fold Stability**:
+   - Fold 1: Selected $w=0.87$ $\rightarrow$ Val BA: **0.7037**
+   - Fold 2: Selected $w=0.82$ $\rightarrow$ Val BA: **0.6963**
+   - Fold 3: Selected $w=0.87$ $\rightarrow$ Val BA: **0.7074**
+   - Fold 4: Selected $w=0.82$ $\rightarrow$ Val BA: **0.6704**
+   - Fold 5: Selected $w=0.85$ $\rightarrow$ Val BA: **0.7106**
+3. **Error Independence**: Pearson error correlation between Qwen3-8B and LinearSVC is **$r = 0.0005$**.
+4. **Leakage & Overlap Audit**: Zero string matches and zero normalized whitespace matches between Open Pool and official data.
 
 ---
 
-## 3. Exact Changes from Previous Kaggle Submission (EXP47)
-1. **Preserved Components**:
-   - Identical `Qwen3-8B-Base` backbone truncated to 24 layers in fp16.
-   - Identical LoRA24 adapters (`dhruvtibarewal/nlm-l24-adapters-v5`) and hidden state pooling across layers `[2, 4, 6, 8, 12, 16, 20, 24]`.
-   - Identical unsupervised prompt recovery (`capped_agglo`, thr=0.15, cap=18).
-   - Identical Centred Twin Head evaluation ($w_{\text{twin}}=0.35$).
-2. **Newly Added Components**:
-   - Added 4-view stylometric feature extractor (Word 1-3 TF-IDF, Char 3-5 TF-IDF, Word shape/casing, Function-word punctuation).
-   - Added 4-View LinearSVC classifier trained on official data + Clean Open Pool passages.
-   - Added Bayesian log-probability fusion combining deep Qwen logits with surface SVC logits.
-   - Added soft Sinkhorn marginal regularisation ($\alpha = 0.30, \rho = 0.35$).
+## 3. Exact Kernel Implementation & Attachments
+- **Kernel File**: [`submissions/candidates/EXP49/submission_kernel_exp49.ipynb`](file:///home/rj2826/name-the-llm/submissions/candidates/EXP49/submission_kernel_exp49.ipynb)
+- **Kaggle Hardware**: GPU T4 x2
+- **Required Kaggle Attachments**:
+  1. `qwen-lm/qwen-3` (Variation: `8b-base`, Framework: `Transformers`)
+  2. `dhruvtibarewal/nlm-l24-adapters-v5` (LoRA weights & heads.pt)
+  3. `crtproduction/open-pool-passages` (or bundled `open_pool_clean.parquet`)
+  4. `Name That LLM` (Competition dataset)
+- **Runtime on 2x T4**: ~18.5 minutes (FAST_COMMIT passes in < 60s).
+- **VRAM**: 9.8 GB (peak 5.0 GB per GPU). Zero OOM risk.
 
 ---
 
-## 4. Comprehensive Risk Assessment
-
-| Risk Category | Severity | Mitigation & Verification |
-| :--- | :---: | :--- |
-| **GPU VRAM / OOM** | **LOW (0%)** | LinearSVC runs entirely on CPU. Qwen3-8B VRAM footprint remains identical to EXP47 at **9.8 GB** (safe on 2x T4). |
-| **Kaggle Timeout** | **LOW (< 1%)** | LinearSVC inference takes ~2.5 min on CPU. Total pipeline runtime is **~18.5 min**, well within the 9-hour limit. |
-| **Data Leakage** | **NONE (0%)** | Vectorizers and classifiers are fit strictly on training/pool data; test text is transformed unsupervised. Zero test labels accessed. |
-| **Commit Failure** | **NONE (0%)** | FAST_COMMIT detection intact (< 60s commit time). Verified schema `['id', 'model']`. |
-| **Weight Sensitivity** | **LOW** | We provide both a conservative blend ($w=0.50$, guaranteeing deep neural dominance) and the optimal blend ($w=0.85$, equalizing entropy). Local CV proves both outperform EXP47 by +0.04 to +0.11. |
-
----
-
-## 5. Kaggle Hardware & Dataset Attachments Required
-- **Accelerator**: GPU T4 x2
-- **Model**: `qwen-lm/qwen-3` (Variation: `8b-base`, Framework: `Transformers`)
-- **Datasets**:
-  1. `dhruvtibarewal/nlm-l24-adapters-v5` (LoRA weights & heads)
-  2. `crtproduction/open-pool-passages` or bundled `open_pool_clean` (Clean Open Pool passages for SVC)
-  3. `Name That LLM` (Competition dataset)
+## 4. Strict Protocol Reminder
+This candidate kernel has NOT been submitted to Kaggle. It is staged in the repository awaiting your explicit approval.

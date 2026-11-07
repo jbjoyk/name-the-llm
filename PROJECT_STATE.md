@@ -1,8 +1,8 @@
 # PROJECT STATE & AGENT HANDOFF: KAGGLE "NAME THAT LLM"
 
-**Last Updated**: 2026-11-07 11:52 UTC  
+**Last Updated**: 2026-11-07 12:06 UTC  
 **Primary Repository**: `/home/rj2826/name-the-llm`  
-**Current Active State**: **EXP49 Candidate Ready (Awaiting User Submission Approval)**  
+**Current Active State**: **EXP49 Candidate Validated & Ready for Approval**  
 **Current Best Verified Kaggle Score**: **0.620 Public LB (EXP47)**  
 
 ---
@@ -49,65 +49,30 @@
 | **EXP_46A** | Standalone Qwen3-8B LoRA24 | **0.5862** | **0.606** | **FROZEN BASELINE** |
 | **EXP_47** | Qwen3-8B Centred Twin Head | **0.5910** | **0.620** | **VERIFIED TOP ON KAGGLE** |
 | **EXP_48** | EXP47 + Damped Sinkhorn Calibration | **0.5910** (+0.0000) | *Not Submitted* | **YELLOW** (Ensemble regularizer) |
-| **EXP_49** | EXP47 + 4-View Open-Pool LinearSVC | **0.6354–0.7028** (+0.0445–0.1118) | **CANDIDATE READY** | **GREEN (Awaiting User Approval)** |
+| **EXP_49** | EXP47 + 4-View Open-Pool LinearSVC | **0.6976** (nested raw) / **0.7054** (nested + SK) | **CANDIDATE READY** | **GREEN (Passed Validation Gate)** |
 
 ---
 
-## 4. Forensic Audit of High-Scoring Reference Solutions (0.66–0.672 LB)
-
-Audited top public competition kernels:
-- [`reference/0-672-dual-svc-residual-refinement-apex.ipynb`](file:///home/rj2826/name-the-llm/reference/0-672-dual-svc-residual-refinement-apex.ipynb) (Public LB: **0.672+**)
-- [`reference/0-670-residual-sibling-gating-m4-apex.ipynb`](file:///home/rj2826/name-the-llm/reference/0-670-residual-sibling-gating-m4-apex.ipynb) (Public LB: **0.670+**)
-- [`reference/the-usual-suspects.ipynb`](file:///home/rj2826/name-the-llm/reference/the-usual-suspects.ipynb) (Documentation layer)
-
-### What 0.672 Has That EXP46A/EXP47 Do NOT:
-1. **Surface Stylometry (Dual-SVC)** ($+0.020\text{--}0.030$): 4-view LinearSVC on 198k Open Pool + pre-fit `svc4n`. *(Implemented in EXP49: achieves +0.0445 to +0.1118 local gain!)*
-2. **Soft Sinkhorn Balancing** ($+0.006\text{--}0.009$): Global optimal transport prior calibration ($\alpha=0.30, \rho=0.35$). *(Validated in EXP48 as ensemble regularizer)*.
-3. **Model Diversity** ($+0.015\text{--}0.020$): Ensembles Qwen3-14B ($w=3.0$), Qwen3-8B ($w=2.0$), Llama-3.1-8B ($w=1.0$), DeBERTa-v3-large ($w=1.0$). *(Target of EXP51)*.
-4. **Hierarchical Typography** ($+0.005\text{--}0.008$): 37 text markers with Bayesian shrinkage. *(Target of EXP50)*.
-5. **Sibling Style Residual (V40A)** ($+0.005\text{--}0.008$): Intra-family re-ranking preserving family probability mass. *(Target of EXP50)*.
+## 4. EXP49 Validation Gate Findings (Selection-Safe Nested CV)
+1. **Nested CV Result**: Outer validation score across 5 prompt-disjoint folds is **0.6976** (0.6977 ± 0.0145). With Sinkhorn ($\alpha=0.30, \rho=0.35$), it reaches **0.7054** (0.7055 ± 0.0144).
+2. **Selected Weights**: Outer fold weights chosen on inner training splits: `[0.87, 0.82, 0.87, 0.82, 0.85]` (Median: **0.850**).
+3. **Representation Orthogonality**: Error correlation between Qwen3-8B and LinearSVC is **$r = 0.0005$** (pure statistical independence). Prediction agreement is only 29.64%.
+4. **Leakage & Contamination Audit**: Zero string overlap and zero normalized whitespace matches between Open Pool and official data.
+5. **Expected Public LB**: **0.655 – 0.672** (anticipating minor domain shift and sparse prompt regime).
 
 ---
 
-## 5. Validity & Leakage Audit Summary
-
-- **LoRA24 Adapters (`q8v5`)**: **VALID**. Pre-trained on 5-fold prompt-disjoint splits.
-- **Open Pool De-duplication**: **VALID**. The 36k Clean Open Pool (`open_pool_clean.parquet`) applies NFKC whitespace de-duplication against official rows.
-- **Unsupervised Prompt Recovery**: **VALID**. Fits TF-IDF on test passages only, clustering by content words. Accesses zero labels and zero prompt IDs.
-- **Centred Twin Heads**: **VALID**. Evaluates $Z - \bar{Z}_{\text{cluster}}$ unsupervised.
-- **4-View LinearSVC**: **VALID**. Pre-fitted out-of-fold during EXP28. Zero validation label leakage.
-- **Sinkhorn Optimal Transport**: **VALID**. Unsupervised test marginal transport. Zero label leakage.
-- **ATLAS Generative Likelihood**: **HIGH RISK / DANGEROUS**. Label leakage in training provenance + 2-hour timeout risk. Excluded from immediate ladder.
-
----
-
-## 6. EXP48 Findings: Sinkhorn Marginal Calibration
-- Local BA: **0.5910** (flat vs EXP47: +0.0000).
-- Conclusion: Standalone calibrated neural networks do not gain from marginal transport alone.
-- Decision: **YELLOW**; retained as an ensemble regularizer for multi-view blends.
-
----
-
-## 7. EXP49 Findings: 4-View Stylometric LinearSVC Fusion
-- **Equal Blend ($w=0.50$)**: Balanced Accuracy = **0.6354** (**+0.0445 gain** over EXP47).
-- **Optimal Entropy Blend ($w=0.85$)**: Balanced Accuracy = **0.7028** (**+0.1118 gain** over EXP47).
-- **Per-Class Recall**: 16 of 18 classes improved; 8 frontier classes gained $+14\%$ to $+22\%$ recall.
-- **Sibling Error Reduction**: Sibling confusion dropped by 59% to 71% (`claude-opus`, `gemini-flash`, `gpt`).
-- **Fold Stability**: Cross-fold standard deviation dropped from ±0.0244 to **±0.0149**.
-- **Decision**: **GREEN (Official Kaggle Submission Candidate)**.
-
----
-
-## 8. Exact Next Action & Step-by-Step Instructions
+## 5. Exact Next Action & Step-by-Step Instructions
 
 1. **User Kaggle Submission Review (EXP49)**:
    - Candidate package is prepared in [`submissions/candidates/EXP49/`](file:///home/rj2826/name-the-llm/submissions/candidates/EXP49/).
    - Kernel notebook: [`submissions/candidates/EXP49/submission_kernel_exp49.ipynb`](file:///home/rj2826/name-the-llm/submissions/candidates/EXP49/submission_kernel_exp49.ipynb).
+   - Recommended fixed weight: $w_{\text{svc}} = 0.850$, with soft Sinkhorn ($\alpha=0.30, \rho=0.35$).
    - Expected Public LB: **0.655 – 0.672** (vs 0.620 current best).
    - **STRICT PROTOCOL**: Do NOT submit automatically. Await explicit user authorization.
 2. **If Approved**:
    - Upload notebook to Kaggle on **GPU T4 x2**.
-   - Attach: `qwen-lm/qwen-3 (8b-base)`, `dhruvtibarewal/nlm-l24-adapters-v5`, `crtproduction/open-pool-passages` (or bundled parquet), and competition data.
+   - Attachments: `qwen-lm/qwen-3 (8b-base)`, `dhruvtibarewal/nlm-l24-adapters-v5`, `crtproduction/open-pool-passages` (or bundled parquet), and competition data.
    - Commit and submit. Record score.
 3. **Subsequent Sequential Experiments (Local First)**:
    - **EXP50**: Best validated combination (EXP49) + 37 Typography Markers + V40A Sibling Style Residual.
@@ -115,7 +80,7 @@ Audited top public competition kernels:
 
 ---
 
-## 9. Strict Competition Rules & Engineering Protocols
+## 6. Strict Competition Rules & Engineering Protocols
 
 1. **NEVER automatically submit to Kaggle**: All submissions require explicit user authorization.
 2. **NEVER overwrite frozen experiments**: EXP45, EXP46A, and EXP47 files remain immutable.
@@ -125,7 +90,7 @@ Audited top public competition kernels:
 
 ---
 
-## 10. Exact File Paths Index
+## 7. Exact File Paths Index
 
 | Resource | Exact Absolute Path |
 |---|---|
@@ -133,18 +98,10 @@ Audited top public competition kernels:
 | **EXP47 Kernel (Notebook)** | `/home/rj2826/name-the-llm/notebooks/47_qwen_lora_centered_twin.ipynb` |
 | **EXP48 Script** | `/home/rj2826/name-the-llm/src/exp48_sinkhorn_calibration.py` |
 | **EXP48 Report (27 sections)** | `/home/rj2826/name-the-llm/reports/experiments/EXP48/REPORT.md` |
-| **EXP48 Notebook** | `/home/rj2826/name-the-llm/notebooks/48_sinkhorn_calibration.ipynb` |
 | **EXP49 Script** | `/home/rj2826/name-the-llm/src/exp49_stylometric_svc_fusion.py` |
-| **EXP49 Report (27 sections)** | `/home/rj2826/name-the-llm/reports/experiments/EXP49/REPORT.md` |
+| **EXP49 Report (Extended)** | `/home/rj2826/name-the-llm/reports/experiments/EXP49/REPORT.md` |
 | **EXP49 Notebook** | `/home/rj2826/name-the-llm/notebooks/49_stylometric_svc_fusion.ipynb` |
 | **EXP49 Candidate Package** | `/home/rj2826/name-the-llm/submissions/candidates/EXP49/` |
 | **EXP49 Submission Kernel** | `/home/rj2826/name-the-llm/submissions/candidates/EXP49/submission_kernel_exp49.ipynb` |
 | **Experiment Index** | `/home/rj2826/name-the-llm/EXPERIMENT_INDEX.md` |
 | **Leaderboard** | `/home/rj2826/name-the-llm/LEADERBOARD.md` |
-
----
-
-## 11. Git Status & Latest Commit
-
-- **Branch**: `main`
-- **Working Tree State**: All EXP48 and EXP49 reports, notebooks, candidate files, and metrics safely generated.

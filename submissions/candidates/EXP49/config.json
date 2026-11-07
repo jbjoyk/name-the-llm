@@ -2,24 +2,18 @@
   "candidate_id": "EXP49_stylometric_svc_fusion",
   "base_submission": "EXP47",
   "base_kaggle_lb": 0.620,
+  "validation_protocol": "5-Fold Nested GroupKFold(group=prompt_id)",
+  "nested_outer_ba_raw": 0.6976,
+  "nested_outer_ba_sinkhorn": 0.7054,
+  "nested_fold_mean_ba": 0.7055,
+  "nested_fold_std_ba": 0.0144,
   "expected_kaggle_lb_min": 0.655,
   "expected_kaggle_lb_max": 0.672,
-  "local_ba_exp47": 0.5910,
-  "local_ba_exp49_conservative": 0.6354,
-  "local_ba_exp49_optimal": 0.7028,
-  "weights": {
-    "conservative": {
-      "weight_qwen": 0.50,
-      "weight_svc": 0.50,
-      "sinkhorn_alpha": 0.30,
-      "sinkhorn_rho": 0.35
-    },
-    "optimal": {
-      "weight_qwen": 0.15,
-      "weight_svc": 0.85,
-      "sinkhorn_alpha": 0.30,
-      "sinkhorn_rho": 0.35
-    }
+  "fixed_weights": {
+    "weight_svc": 0.850,
+    "weight_qwen": 0.150,
+    "sinkhorn_alpha": 0.30,
+    "sinkhorn_rho": 0.35
   },
   "qwen_twin_weight": 0.35,
   "clustering": {
@@ -28,5 +22,6 @@
     "cap": 18
   },
   "runtime_t4_minutes": 18.5,
-  "vram_gb": 9.8
+  "vram_gb": 9.8,
+  "status": "VALIDATED_AWAITING_APPROVAL"
 }
