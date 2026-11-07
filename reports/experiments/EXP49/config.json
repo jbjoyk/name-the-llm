@@ -1,0 +1,12 @@
+{
+  "experiment_id": "EXP49",
+  "parent_baseline": "EXP47",
+  "components": [
+    "Qwen3-8B LoRA24 Centred Twin Head (EXP47)",
+    "4-View Multi-Granularity LinearSVC (EXP28 Open Pool)",
+    "Optional Damped Sinkhorn Calibration (EXP48)"
+  ],
+  "optimal_weight_svc": 0.8500000000000001,
+  "optimal_weight_qwen": 0.1499999999999999,
+  "validation_strategy": "5-Fold GroupKFold(group=prompt_id)"
+}

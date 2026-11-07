@@ -1,0 +1,17 @@
+{
+  "EXP46A": {
+    "local_ba": 0.5862,
+    "kaggle_lb": 0.606,
+    "delta": 0.0
+  },
+  "EXP47": {
+    "local_ba": 0.591,
+    "kaggle_lb": 0.62,
+    "delta": 0.0048
+  },
+  "EXP48": {
+    "local_ba": 0.590981854337559,
+    "kaggle_lb": "NOT_SUBMITTED",
+    "delta": -1.8145662440960386e-05
+  }
+}

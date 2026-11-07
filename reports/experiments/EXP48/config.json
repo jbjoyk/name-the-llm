@@ -1,0 +1,32 @@
+{
+  "experiment_id": "EXP48",
+  "parent_baseline": "EXP47",
+  "component": "Damped Sinkhorn-Knopp Global Marginal Calibration",
+  "alphas_tested": [
+    0.0,
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.42,
+    0.5,
+    0.6
+  ],
+  "rhos_tested": [
+    0.0,
+    0.15,
+    0.25,
+    0.35,
+    0.5,
+    0.7,
+    1.0
+  ],
+  "selected_alpha": 0.0,
+  "selected_rho": 0.0,
+  "max_iter": 100,
+  "validation_strategy": "5-Fold GroupKFold(group=prompt_id)"
+}

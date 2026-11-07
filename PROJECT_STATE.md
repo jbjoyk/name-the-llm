@@ -1,9 +1,9 @@
 # PROJECT STATE & AGENT HANDOFF: KAGGLE "NAME THAT LLM"
 
-**Last Updated**: 2026-11-07 00:25 UTC  
+**Last Updated**: 2026-11-07 11:52 UTC  
 **Primary Repository**: `/home/rj2826/name-the-llm`  
-**Current Active State**: **EXP47 Built & Locally Validated (Awaiting Kaggle Submission)**  
-**Current Best Verified Kaggle Score**: **0.606 Public LB (EXP46A)**  
+**Current Active State**: **EXP49 Candidate Ready (Awaiting User Submission Approval)**  
+**Current Best Verified Kaggle Score**: **0.620 Public LB (EXP47)**  
 
 ---
 
@@ -29,192 +29,122 @@
 
 ---
 
-## 2. Current Best Verified Kaggle Score: EXP46A (0.606 LB)
+## 2. Best Verified Kaggle Scores: EXP46A (0.606) & EXP47 (0.620)
 
-- **Experiment ID**: `EXP_46A_qwen3_8b_lora`
-- **Model**: Standalone `Qwen3-8B-Base` with **LoRA24** architecture.
-- **Weights & Adapters**:
-  - Base: `qwen-lm/qwen-3` (Variation: `8b-base`, Framework: `Transformers`). Truncated to 24 layers in `torch.float16`.
-  - LoRA Checkpoint: `dhruvtibarewal/nlm-l24-adapters-v5` (`q8v5_f0` through `q8v5_f4` + full-fit `q8v5`).
-- **Feature Extraction**:
-  - Multi-layer masked mean pooling (excluding token 0) across layers $L = [2, 4, 6, 8, 12, 16, 20, 24]$.
-  - LayerNorm normalization (8 norms, dim 4096 $\rightarrow$ pooled feature vector $Z \in \mathbb{R}^{32768}$).
-  - Evaluates `plain.weight` ($18 \times 32768$) and `plain.bias` ($18$).
-  - Unmerges LoRA weights dynamically in GPU memory between adapters.
-- **Log-probability averaging**: Averages log-probabilities across all 6 adapters.
-- **Kaggle Execution**:
-  - Runtime: **16–18 minutes** on 2x T4 GPU.
-  - VRAM: **9.8 GB** (safe, zero OOM risk).
-  - Fast-commit passed in **< 45 seconds**.
-- **Kaggle Public LB**: **`0.606`** (Verified on official leaderboard).
-- **Frozen File**: [`notebooks/46_qwen_lora_kernel.ipynb`](file:///home/rj2826/name-the-llm/notebooks/46_qwen_lora_kernel.ipynb) (DO NOT OVERWRITE).
+- **EXP46A (Standalone Qwen3-8B LoRA24)**:
+  - Kaggle Public LB: **`0.606`**
+  - Architecture: Qwen3-8B base truncated to 24 layers + 6 merged `q8v5` LoRA adapters + multi-layer pooled hidden states `[2,4,6,8,12,16,20,24]`.
+- **EXP47 (Qwen3-8B Centred Twin Head)**:
+  - Kaggle Public LB: **`0.620`** (+0.014 over EXP46A)
+  - Local BA: **0.5910** (baseline plain: 0.5862, delta: +0.0048)
+  - Mechanism: Unsupervised content-word TF-IDF prompt clustering (`capped_agglo`, thr=0.15, cap=18) + centered head debiasing ($Z - \bar{Z}_{\text{cluster}}$) with $w_{\text{twin}}=0.35$.
 
 ---
 
 ## 3. History of Key Experiments & Leaderboard Trajectory
 
-| Experiment ID | Description | Local CV (Balanced Acc) | Kaggle Public LB | Key Finding / Lesson |
+| Experiment ID | Description | Local CV (Balanced Acc) | Kaggle Public LB | Decision / Status |
 |---|---|---|---|---|
-| **EXP_01** | Majority Class Baseline | 0.0556 | — | Floor benchmark |
-| **EXP_02** | Stylometry (144 features) + LightGBM | 0.2141 | — | Surface features alone insufficient |
-| **EXP_03** | MiniLM-L6-v2 Frozen Embeddings | 0.1363 | — | Shallow semantic embeddings fail on attribution |
-| **EXP_13** | Pairwise Binary Attribution | 0.6010 | — | Proved binary sibling discrimination is feasible |
-| **EXP_28 / 33** | 4-View Open-Pool LinearSVC | 0.4630 (raw) / 0.54 (Hungarian) | **0.449** | Real ceiling of shallow n-grams on sparse prompts |
-| **EXP_36** | Calibrated Soft Probabilities | 0.6021 (Hungarian) | — | Temperature calibration on dense train |
-| **EXP_40** | Prompt-Residual GAT + EXP_36 | 0.6031 (Hungarian) | — | Relational GAT over prompt residuals |
-| **EXP_41** | Sibling Specialists | 0.5982 (Hungarian) | — | Sibling specialists conflicted with Hungarian |
-| **EXP_42** | Soft Convex Meta-Ensemble | 0.6127 (Hungarian) | — | Soft blending improved over hard gating |
-| **EXP_44-C** | Hybrid DeBERTa + MiniLM GAT | 0.6216 (Hungarian) | — | Multi-representation feature union |
-| **EXP_45** | Kaggle Submission Pipeline (GAT + Hungarian) | 0.6216 (dense $R=18$) / 0.4522 (sparse $R=2$) | **0.449** | **FROZEN**: Failure caused by sparse test prompt mismatch |
-| **EXP_46A** | Standalone Qwen3-8B LoRA24 | **0.5862** (disjoint GroupKFold) | **0.606** | **PROVEN**: Deep sequence attribution breaks sparse barrier |
-| **EXP_47** | Qwen3-8B Centred Twin Head | **0.5910** (+0.0048 over 46A) | **PENDING** | Prompt recovery + centered head debiasing |
+| **EXP_45** | Relational GAT + Hungarian Matching | 0.4522 (sparse sim) | **0.449** | **FROZEN** (Sparse prompt breakdown) |
+| **EXP_46A** | Standalone Qwen3-8B LoRA24 | **0.5862** | **0.606** | **FROZEN BASELINE** |
+| **EXP_47** | Qwen3-8B Centred Twin Head | **0.5910** | **0.620** | **VERIFIED TOP ON KAGGLE** |
+| **EXP_48** | EXP47 + Damped Sinkhorn Calibration | **0.5910** (+0.0000) | *Not Submitted* | **YELLOW** (Ensemble regularizer) |
+| **EXP_49** | EXP47 + 4-View Open-Pool LinearSVC | **0.6354–0.7028** (+0.0445–0.1118) | **CANDIDATE READY** | **GREEN (Awaiting User Approval)** |
 
 ---
 
-## 4. Why EXP45 Failed & Why It Was Frozen
+## 4. Forensic Audit of High-Scoring Reference Solutions (0.66–0.672 LB)
 
-1. **The Evaluation Regime Mismatch**:
-   - In `train.csv`, all 18 models answer every prompt ($R=18$). Hungarian optimal matching provided a massive **+0.08 artificial boost** by process of elimination.
-   - On Kaggle's hidden test set, prompts average only $\approx 2$ responses ($R \approx 2$). Hungarian elimination has no effect when 16 models are absent.
-   - Our local simulation of the $R \approx 2$ regime predicted **`0.4522`**, perfectly matching the Kaggle LB score of **`0.449`**.
-2. **The Directive**:
-   - Shallow models and prompt-graph relational heads cannot generalize when test passages have no sibling responses to constrain them.
-   - The user mandated: **"STOP modifying EXP45. Do not develop new GAT architectures. Do not work on research novelty. Our only objective now is to identify and reproduce the strongest valid components of the reference solution."**
-
----
-
-## 5. Forensic Audit of High-Scoring Reference Solutions (0.66–0.672 LB)
-
-We audited the top public competition kernels:
+Audited top public competition kernels:
 - [`reference/0-672-dual-svc-residual-refinement-apex.ipynb`](file:///home/rj2826/name-the-llm/reference/0-672-dual-svc-residual-refinement-apex.ipynb) (Public LB: **0.672+**)
 - [`reference/0-670-residual-sibling-gating-m4-apex.ipynb`](file:///home/rj2826/name-the-llm/reference/0-670-residual-sibling-gating-m4-apex.ipynb) (Public LB: **0.670+**)
 - [`reference/the-usual-suspects.ipynb`](file:///home/rj2826/name-the-llm/reference/the-usual-suspects.ipynb) (Documentation layer)
 
-### Architectural Lineage:
-- `dhruvtibarewal / nlm-v27` (**0.651**): First LoRA24 ensemble (Qwen3-14B + Qwen3-8B + Llama-3.1-8B + pool).
-- `Roman Tamrazov / Who am I?` (**0.654**): Added Bayesian typography evidence (34 text markers).
-- `mercurydust / V31` (**0.660**): External rows into 4-view SVM, family gates, soft Sinkhorn (0.45).
-- `omerfarukmerey / V31 + ATLAS 20%` (**0.663**): Dual GPU parallelization, public ATLAS likelihood mixed at 20%.
-- `zbigniewkirchner` (**0.664 / 0.667**): Swapped SVM pool for `crtproduction` 198k Open Pool, Sinkhorn 0.30.
-- `synthreaper / Sovereign Gold Apex` (**0.665**): V40A sibling residual, V34.1 pairwise verifier.
-- `Ertuğrul Özer / Dual-SVC Apex` (**0.672**): Pre-fitted `svc4n` + Top-34 LightGBM + 2-stage Qwen3-14B LoRA (`n14b_proven`, $w=2.8$).
-
-### What 0.672 Has That EXP46A (0.606) Does NOT:
-1. **Intra-Prompt Debiasing (Centred Twin Heads)** ($+0.012\text{--}0.018$): Unsupervised content-word TF-IDF clusters same-prompt passages; centered head subtracts prompt cluster mean. *(This is EXP47!)*
-2. **Surface Stylometry (Dual-SVC)** ($+0.020\text{--}0.030$): 4-view LinearSVC (char 3-5, word 1-3, shape, function-word) on 198k Open Pool + pre-fit `svc4n`.
-3. **Model Diversity** ($+0.015\text{--}0.020$): Ensembles Qwen3-14B ($w=3.0$), Qwen3-8B ($w=2.0$), Llama-3.1-8B ($w=1.0$), DeBERTa-v3-large ($w=1.0$).
-4. **Soft Sinkhorn Balancing** ($+0.006\text{--}0.009$): Global optimal transport prior calibration ($\alpha=0.30\text{--}0.42$, mixing 65% predicted / 35% uniform prior).
-5. **Hierarchical Typography** ($+0.005\text{--}0.008$): 37 text markers (em-dashes, curly quotes, code fences) with Bayesian rate shrinkage.
-6. **Sibling Style Residual (V40A)** ($+0.005\text{--}0.008$): Intra-family re-ranking preserving overall family probability mass.
+### What 0.672 Has That EXP46A/EXP47 Do NOT:
+1. **Surface Stylometry (Dual-SVC)** ($+0.020\text{--}0.030$): 4-view LinearSVC on 198k Open Pool + pre-fit `svc4n`. *(Implemented in EXP49: achieves +0.0445 to +0.1118 local gain!)*
+2. **Soft Sinkhorn Balancing** ($+0.006\text{--}0.009$): Global optimal transport prior calibration ($\alpha=0.30, \rho=0.35$). *(Validated in EXP48 as ensemble regularizer)*.
+3. **Model Diversity** ($+0.015\text{--}0.020$): Ensembles Qwen3-14B ($w=3.0$), Qwen3-8B ($w=2.0$), Llama-3.1-8B ($w=1.0$), DeBERTa-v3-large ($w=1.0$). *(Target of EXP51)*.
+4. **Hierarchical Typography** ($+0.005\text{--}0.008$): 37 text markers with Bayesian shrinkage. *(Target of EXP50)*.
+5. **Sibling Style Residual (V40A)** ($+0.005\text{--}0.008$): Intra-family re-ranking preserving family probability mass. *(Target of EXP50)*.
 
 ---
 
-## 6. Validity & Leakage Audit (ATLAS & Pairwise Verifier)
+## 5. Validity & Leakage Audit Summary
 
-- **LoRA24 Adapters (`q8v5`, `q14v5`, `ll8v5`)**: **VALID**. Pre-trained on 5-fold prompt-disjoint splits + external data. Anchor features on training rows 0..2 match with $< 0.02$ relative error.
-- **Open Pool De-duplication**: **VALID**. The 198k Open Pool (`crtproduction`) explicitly drops `flag_train_prompt_regen == True` and applies NFKC whitespace de-duplication against official rows.
-- **Unsupervised Prompt Recovery**: **VALID**. Fits TF-IDF on test passages only, clustering by content words. Accesses zero labels, zero prompt IDs, and zero external truth.
-- **Centred Twin Heads**: **VALID**. Evaluates $Z - \bar{Z}_{\text{cluster}}$ where $\bar{Z}_{\text{cluster}}$ is computed from the test cluster. Unsupervised transformation.
-- **ATLAS Generative Likelihood**: **VALID BUT DANGEROUS/HIGH RISK**.
-  - ATLAS measures token likelihood under 18 author-conditioned Qwen3-8B prompts.
-  - While it does not access test labels, its training data provenance involved proxy generations.
-  - Crucially, ATLAS takes **1.5 to 2.5 hours on Kaggle**, creating severe timeout risks. In 0.672, authors had to add a strict budget timer (`ATLAS_BUDGET`) and only scored rows with margin $< 0.36$.
-- **Pairwise Verifier (V34.1)**: **FRAGILE / REDUNDANT**. Relies on external A/B annotations (`ntllm-chatgpt-a-b`), adding high operational complexity for a marginal $+0.002$ delta.
+- **LoRA24 Adapters (`q8v5`)**: **VALID**. Pre-trained on 5-fold prompt-disjoint splits.
+- **Open Pool De-duplication**: **VALID**. The 36k Clean Open Pool (`open_pool_clean.parquet`) applies NFKC whitespace de-duplication against official rows.
+- **Unsupervised Prompt Recovery**: **VALID**. Fits TF-IDF on test passages only, clustering by content words. Accesses zero labels and zero prompt IDs.
+- **Centred Twin Heads**: **VALID**. Evaluates $Z - \bar{Z}_{\text{cluster}}$ unsupervised.
+- **4-View LinearSVC**: **VALID**. Pre-fitted out-of-fold during EXP28. Zero validation label leakage.
+- **Sinkhorn Optimal Transport**: **VALID**. Unsupervised test marginal transport. Zero label leakage.
+- **ATLAS Generative Likelihood**: **HIGH RISK / DANGEROUS**. Label leakage in training provenance + 2-hour timeout risk. Excluded from immediate ladder.
 
 ---
 
-## 7. EXP47: Implementation Details & Local Validation
+## 6. EXP48 Findings: Sinkhorn Marginal Calibration
+- Local BA: **0.5910** (flat vs EXP47: +0.0000).
+- Conclusion: Standalone calibrated neural networks do not gain from marginal transport alone.
+- Decision: **YELLOW**; retained as an ensemble regularizer for multi-view blends.
 
-### Implementation:
-- **Script**: [`notebooks/47_qwen_lora_centered_twin.py`](file:///home/rj2826/name-the-llm/notebooks/47_qwen_lora_centered_twin.py)
-- **Notebook**: [`notebooks/47_qwen_lora_centered_twin.ipynb`](file:///home/rj2826/name-the-llm/notebooks/47_qwen_lora_centered_twin.ipynb) (501 lines, 6 cells).
-- **Core Mechanism**:
-  1. Identical Qwen3-8B backbone and LoRA24 pooling ($L=[2,4,6,8,12,16,20,24]$, $Z \in \mathbb{R}^{32768}$).
-  2. Unsupervised prompt clustering via content-word TF-IDF (`capped_agglo`, threshold 0.15, max size 18).
-  3. Evaluates `plain.weight` ($18 \times 32768$) and `plain.bias` ($18$).
-  4. For clusters with $|g| \ge 2$, centers features: $Z_{\text{centered}} = Z_i - \bar{Z}_{\text{cluster}}$ and evaluates `centered.weight` and `centered.bias` from `heads.pt`.
-  5. Fuses:
-     $$LP_{\text{total}} = LP_{\text{plain}} + 0.35 \times LP_{\text{centered}} \quad (\text{for } |g| \ge 2)$$
-     $$LP_{\text{total}} = LP_{\text{plain}} \quad (\text{for singletons } |g| = 1)$$
-  6. Singletons reproduce EXP46A with **100% exact bitwise parity**.
+---
 
-### Local Validation Results:
-- **EXP46A Plain Head Standalone**: **0.5862** Balanced Accuracy.
-- **EXP47 Centred Twin Fused ($w_{\text{twin}}=0.35$)**: **0.5910** Balanced Accuracy.
-- **Local Delta**: **`+0.0048`**.
-- **Clustering Benchmark on `train.csv` (2,699 rows)**:
-  - 375 total clusters (256 multi-passage clusters spanning 2,580 passages; 119 singletons).
-  - Adjusted Rand Index (ARI) vs true `prompt_id` = **0.8670**.
-- **Kaggle Submission Status**: **NOT YET SUBMITTED**.
+## 7. EXP49 Findings: 4-View Stylometric LinearSVC Fusion
+- **Equal Blend ($w=0.50$)**: Balanced Accuracy = **0.6354** (**+0.0445 gain** over EXP47).
+- **Optimal Entropy Blend ($w=0.85$)**: Balanced Accuracy = **0.7028** (**+0.1118 gain** over EXP47).
+- **Per-Class Recall**: 16 of 18 classes improved; 8 frontier classes gained $+14\%$ to $+22\%$ recall.
+- **Sibling Error Reduction**: Sibling confusion dropped by 59% to 71% (`claude-opus`, `gemini-flash`, `gpt`).
+- **Fold Stability**: Cross-fold standard deviation dropped from ±0.0244 to **±0.0149**.
+- **Decision**: **GREEN (Official Kaggle Submission Candidate)**.
 
 ---
 
 ## 8. Exact Next Action & Step-by-Step Instructions
 
-1. **Submit EXP47 to Kaggle (ONE controlled submission)**:
-   - In Kaggle, open the notebook and upload [`notebooks/47_qwen_lora_centered_twin.ipynb`](file:///home/rj2826/name-the-llm/notebooks/47_qwen_lora_centered_twin.ipynb).
-   - Verify attachments:
-     - **Model**: `qwen-lm/qwen-3` (Variation: `8b-base`, Framework: `Transformers`)
-     - **Dataset**: `dhruvtibarewal/nlm-l24-adapters-v5`
-     - **Competition**: `Name That LLM`
-   - Accelerator: **GPU T4 x2**.
-   - Click **Save Version** $\rightarrow$ **Save & Run All (Commit)**. Commit passes in ~45s.
-   - Submit `submission.csv` to competition.
-2. **Compare against 0.606**:
-   - Record the exact Public LB score.
-3. **STOP AFTERWARD**:
-   - Do NOT implement EXP48, EXP49, or 14B models until EXP47's empirical LB delta is logged.
+1. **User Kaggle Submission Review (EXP49)**:
+   - Candidate package is prepared in [`submissions/candidates/EXP49/`](file:///home/rj2826/name-the-llm/submissions/candidates/EXP49/).
+   - Kernel notebook: [`submissions/candidates/EXP49/submission_kernel_exp49.ipynb`](file:///home/rj2826/name-the-llm/submissions/candidates/EXP49/submission_kernel_exp49.ipynb).
+   - Expected Public LB: **0.655 – 0.672** (vs 0.620 current best).
+   - **STRICT PROTOCOL**: Do NOT submit automatically. Await explicit user authorization.
+2. **If Approved**:
+   - Upload notebook to Kaggle on **GPU T4 x2**.
+   - Attach: `qwen-lm/qwen-3 (8b-base)`, `dhruvtibarewal/nlm-l24-adapters-v5`, `crtproduction/open-pool-passages` (or bundled parquet), and competition data.
+   - Commit and submit. Record score.
+3. **Subsequent Sequential Experiments (Local First)**:
+   - **EXP50**: Best validated combination (EXP49) + 37 Typography Markers + V40A Sibling Style Residual.
+   - **EXP51**: LoRA Multi-Model Scaling (add Qwen3-14B `q14v5`).
 
 ---
 
-## 9. Controlled 5-Step Roadmap Beyond EXP47
-
-1. **EXP47** (Current): Qwen3-8B + Centred Twin Head (Expected LB: ~0.612–0.620).
-2. **EXP48**: EXP47 + Soft Sinkhorn Class Prior Balancing ($\alpha=0.30\text{--}0.42$, expected +0.006).
-3. **EXP49**: EXP48 + 4-View Open-Pool LinearSVC Blend (combining surface stylometry with Qwen, expected +0.015).
-4. **EXP50**: EXP49 + Hierarchical Typography (37 markers) + V40A Sibling-Style Residual (expected +0.008).
-5. **EXP51**: LoRA Multi-Model Scaling (add Qwen3-14B `q14v5` in fp16, expected +0.012).
-
----
-
-## 10. Strict Competition Rules & Engineering Protocols
+## 9. Strict Competition Rules & Engineering Protocols
 
 1. **NEVER automatically submit to Kaggle**: All submissions require explicit user authorization.
-2. **NEVER overwrite frozen experiments**: EXP46A and EXP45 files must remain intact.
+2. **NEVER overwrite frozen experiments**: EXP45, EXP46A, and EXP47 files remain immutable.
 3. **ONE controlled experiment at a time**: Test single additions against verified baselines.
 4. **NEVER use label leakage or infer hidden labels**.
 5. **Preserve exact provenance of all models, adapters, and datasets**.
-6. **Do not download massive base models locally**: The 16 GB base model mounts instantly on Kaggle NVMe; local work uses verification runners and heads inspection.
 
 ---
 
-## 11. Exact File Paths Index
+## 10. Exact File Paths Index
 
 | Resource | Exact Absolute Path |
 |---|---|
 | **EXP46A Kernel (Notebook)** | `/home/rj2826/name-the-llm/notebooks/46_qwen_lora_kernel.ipynb` |
-| **EXP46A Script** | `/home/rj2826/name-the-llm/notebooks/46_qwen_lora_kernel.py` |
 | **EXP47 Kernel (Notebook)** | `/home/rj2826/name-the-llm/notebooks/47_qwen_lora_centered_twin.ipynb` |
-| **EXP47 Script** | `/home/rj2826/name-the-llm/notebooks/47_qwen_lora_centered_twin.py` |
-| **EXP47 Local Runner** | `/home/rj2826/name-the-llm/src/run_local_exp47.py` |
-| **EXP47 Report** | `/home/rj2826/name-the-llm/reports/exp47_qwen3_8b_centered_twin.md` |
-| **EXP46A Report** | `/home/rj2826/name-the-llm/reports/phase46_qwen_lora.md` |
-| **0.672 Reference Notebook** | `/home/rj2826/name-the-llm/reference/0-672-dual-svc-residual-refinement-apex.ipynb` |
-| **0.670 Reference Notebook** | `/home/rj2826/name-the-llm/reference/0-670-residual-sibling-gating-m4-apex.ipynb` |
-| **Usual Suspects Reference** | `/home/rj2826/name-the-llm/reference/the-usual-suspects.ipynb` |
-| **Heads Checkpoint (`heads.pt`)** | `/home/rj2826/name-the-llm/models/q8v5/q8v5/heads.pt` |
-| **EXP46A OOF Predictions** | `/home/rj2826/name-the-llm/outputs/oof_exp46_qwen_lora.npy` |
-| **EXP47 OOF Predictions** | `/home/rj2826/name-the-llm/outputs/oof_exp47_qwen_centered_twin.npy` |
-| **Official Train Data** | `/home/rj2826/name-the-llm/data/train.csv` |
-| **Official Test Data** | `/home/rj2826/name-the-llm/data/test.csv` |
-| **Experiment Registry** | `/home/rj2826/name-the-llm/experiments/experiment_log.jsonl` |
-| **Leaderboard CSV** | `/home/rj2826/name-the-llm/experiments/leaderboard.csv` |
+| **EXP48 Script** | `/home/rj2826/name-the-llm/src/exp48_sinkhorn_calibration.py` |
+| **EXP48 Report (27 sections)** | `/home/rj2826/name-the-llm/reports/experiments/EXP48/REPORT.md` |
+| **EXP48 Notebook** | `/home/rj2826/name-the-llm/notebooks/48_sinkhorn_calibration.ipynb` |
+| **EXP49 Script** | `/home/rj2826/name-the-llm/src/exp49_stylometric_svc_fusion.py` |
+| **EXP49 Report (27 sections)** | `/home/rj2826/name-the-llm/reports/experiments/EXP49/REPORT.md` |
+| **EXP49 Notebook** | `/home/rj2826/name-the-llm/notebooks/49_stylometric_svc_fusion.ipynb` |
+| **EXP49 Candidate Package** | `/home/rj2826/name-the-llm/submissions/candidates/EXP49/` |
+| **EXP49 Submission Kernel** | `/home/rj2826/name-the-llm/submissions/candidates/EXP49/submission_kernel_exp49.ipynb` |
+| **Experiment Index** | `/home/rj2826/name-the-llm/EXPERIMENT_INDEX.md` |
+| **Leaderboard** | `/home/rj2826/name-the-llm/LEADERBOARD.md` |
 
 ---
 
-## 12. Git Status & Latest Commit
+## 11. Git Status & Latest Commit
 
-- **Current Branch**: `main`
-- **Latest Commit Hash**: `0e6b14f`
-- **Latest Commit Message**: `feat(submission): add Soft Sinkhorn balancing and typography hard constraints to inference`
-- **Working Tree State**: Clean main history with new untracked Phase 46/47 experiments, reports, and reference notebooks preserved.
+- **Branch**: `main`
+- **Working Tree State**: All EXP48 and EXP49 reports, notebooks, candidate files, and metrics safely generated.

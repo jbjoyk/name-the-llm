@@ -1,0 +1,27 @@
+{
+  "EXP46A": {
+    "local_ba": 0.5862,
+    "kaggle_lb": 0.606,
+    "delta": 0.0
+  },
+  "EXP47": {
+    "local_ba": 0.591,
+    "kaggle_lb": 0.62,
+    "delta": 0.0048
+  },
+  "EXP48": {
+    "local_ba": 0.591,
+    "kaggle_lb": "NOT_SUBMITTED",
+    "delta": 0.0048
+  },
+  "EXP49_equal_weights": {
+    "local_ba": 0.6354,
+    "kaggle_lb": "PENDING_APPROVAL",
+    "delta": 0.0492
+  },
+  "EXP49_optimal_weights": {
+    "local_ba": 0.7028287347750436,
+    "kaggle_lb": "PENDING_APPROVAL",
+    "delta": 0.11662873477504354
+  }
+}
