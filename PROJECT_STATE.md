@@ -64,10 +64,16 @@
 
 ## 5. Kaggle Evaluation & Exact Next Campaign Actions
 
-1. **EXP49 Evaluated on Kaggle**:
-   - **Score**: **0.612 Public LB**
+1. **EXP49 Evaluated on Kaggle & Forensic Audit Completed**:
+   - **Official Public LB**: **0.612**
    - **Baseline Comparison**: Outperforms standalone EXP46A (0.606), but falls slightly below pure EXP47 (0.620).
-   - **Empirical Finding**: Giving 85% decision mass to surface n-grams ($w_{\text{svc}}=0.850$) over-indexes on vocabulary features that suffer domain shift on unseen prompts. The deep Qwen representations must remain the primary anchor ($w_{\text{qwen}} \ge 0.70$) rather than being subordinated to 15%.
+   - **Forensic Audit Report**: [`reports/experiments/EXP49/KAGGLE_0612_FORENSIC_AUDIT.md`](file:///home/rj2826/name-the-llm/reports/experiments/EXP49/KAGGLE_0612_FORENSIC_AUDIT.md).
+   - **Key Findings**:
+     - Qwen3-8B LoRA24 inference engine, 24-layer truncation, manual LoRA injection, LayerNorms, and prompt clustering are **100% bitwise identical** between EXP47 and EXP49.
+     - **Decision Mass Inversion**: In EXP49, $w_{\text{svc}} = 0.850$ gave 85% linear voting weight to the shallow LinearSVC, reducing the 8B Qwen model to 15%.
+     - **Logit Scale Mismatch**: Qwen's logit margins are $8.2\times$ sharper than the LinearSVC's flat softmax logits (mean top-2 gap: 1.955 nats vs 0.237 nats). Local tuning pushed $w_{\text{svc}}=0.85$ to balance scales on `train.csv`, but on unseen test passages, surface n-grams suffer domain shift.
+     - **Reference Ensemble Contrast**: In the 0.672 reference notebook, 6 transformer backbones totaled $>10.5$ weight while the SVM represented only $\approx 12\%$ of total mass. EXP49 inverted this by making the SVM 85% of the ensemble.
+   - **Protocol Update**: Moving forward, deep sequence models must constitute $\ge 75\%$ of voting mass ($w_{\text{deep}} \ge 0.75$), with surface features acting strictly as conservative regularizers ($\le 25\%$).
 2. **Next Sequential Experiment (EXP50 - Local First)**:
    - Combine verified EXP47 (deep anchor) with audited typography markers and V40A sibling style residuals.
    - Enforce **deep-dominant conservative weighting** ($w_{\text{deep}} \ge 0.75$, $w_{\text{surface}} \le 0.25$).
@@ -101,5 +107,6 @@
 | **EXP49 Notebook** | `/home/rj2826/name-the-llm/notebooks/49_stylometric_svc_fusion.ipynb` |
 | **EXP49 Candidate Package** | `/home/rj2826/name-the-llm/submissions/candidates/EXP49/` |
 | **EXP49 Submission Kernel** | `/home/rj2826/name-the-llm/submissions/candidates/EXP49/submission_kernel_exp49.ipynb` |
+| **EXP49 Kaggle 0.612 Forensic Audit** | `/home/rj2826/name-the-llm/reports/experiments/EXP49/KAGGLE_0612_FORENSIC_AUDIT.md` |
 | **Experiment Index** | `/home/rj2826/name-the-llm/EXPERIMENT_INDEX.md` |
 | **Leaderboard** | `/home/rj2826/name-the-llm/LEADERBOARD.md` |
