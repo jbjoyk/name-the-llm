@@ -29,6 +29,7 @@ flowchart TD
     EXP59 --> EXP60["EXP60: Sparse Test-Regime Calibration<br/>(Density Effect +0.0057 / Explains 6.4% of Gap)"]
     EXP60 --> EXP61["EXP61: Hidden-Surface Forensics<br/>(Manifold Distance rho=+0.0071 / Error Correlation Gap)"]
     EXP61 --> EXP62["EXP62: Cross-Architecture Test<br/>(RED: ModernBERT Nested BA 0.7858, delta=-0.0015)"]
+    EXP62 --> EXP63["EXP63: Prompt-Relative & Assignment<br/>(YELLOW: R=18 Hungarian +0.1167 / R=2 collapses to +0.0052)"]
 ```
 
 ---
@@ -57,6 +58,7 @@ flowchart TD
 | **EXP60** | Sparse inference density ($R=2$ vs $R=18$) degrades prompt recovery and explains the 0.155 gap | 5-Seed subsampling + sweep $R \in [2..18]$ | **DENSE R=18**: 0.7873 BA (Plain: 0.7829)<br/>**SPARSE R=2**: 0.7774 BA (Plain: 0.7786)<br/>**DID EFFECT**: +0.0057 BA (Explains 6.39% of gap; 93.61% unexplained) | **YELLOW / PARTIALLY SUPPORTED** | **NO** (Retain EXP52) | **NO** |
 | **EXP61** | The large OOF-to-LB gap is caused primarily by measurable representation/distribution shift between training and test surfaces | 5-Fold OOF Stratification, Covariate KS tests, Adversarial Domain Classifier, Matched Local Surface Sweep | **REPRESENTATION DISTANCE**: $\rho = +0.0071$ ($p = 0.712$)<br/>**MATCHED SURFACE**: 0.7858 $\pm$ 0.0153 BA ($\Delta = -0.0015$)<br/>**AGREEMENT SHIFT**: Agree 0.9318 BA, Disagree 0.6871 BA ($\rho = +0.3142$) | **PARTIALLY SUPPORTED** | **NO** (Retain EXP52) | **NO** |
 | **EXP62** | Distinct architecture (ModernBERT-base) provides complementary errors to dual-Qwen | 5-Fold Nested CV (5 outer $\times$ 4 inner) + 2000 Bootstrap | **STANDALONE BA**: 0.3093 (LR) / 0.2371 (SVM)<br/>**NESTED BA**: 0.7858 ($\Delta = -0.0015$)<br/>**95% CI**: $[-0.0039, +0.0006]$, $P(\Delta>0)=9.4\%$ | **RED** | **NO** (Retain EXP52) | **NO** |
+| **EXP63** | Prompt-conditional relative attribution and set assignment improve classification | 5-Fold Prompt-Disjoint + Sparse Scaling $R \in [18..2]$ (5 seeds) + Nested CV | **HUNGARIAN R=18**: 0.9040 BA ($\Delta = +0.1167$)<br/>**HUNGARIAN R=2**: 0.8021 BA ($\Delta = +0.0052$)<br/>**NESTED FUSED**: 0.7995 BA ($\Delta = +0.0122$ at $R=18$; $-0.0085$ at $R=2$) | **YELLOW** | **NO** (Retain EXP52) | **NO** |
 
 ---
 
@@ -560,3 +562,35 @@ flowchart TD
   - Plots: `exp62_model_comparison.png`, `exp62_error_correlation.png`, `exp62_oracle_complementarity.png`, `exp62_fusion_curve.png`, `exp62_disagreement_analysis.png` (also mirrored in `plots/`)
   - Report: `reports/EXP62_REPORT.md`
 - **Decision**: **RED (Refuted cross-architecture complementarity hypothesis; STOP un-fine-tuned cross-architecture model stacking; retain EXP52 as frozen production champion at 0.632 LB)**.
+
+---
+
+## EXP63 — Prompt-Conditional Relative Attribution & Set Assignment
+- **Hypothesis**: Modeling LLM attribution as a prompt-conditional relative comparison problem (removing prompt bias via global/LOO centering, pairwise peer attribution, and Hungarian one-to-one assignment) improves attribution accuracy and provides complementary signal to independent classification.
+- **Methodology**: 5-fold prompt-disjoint CV and selection-safe nested CV (5 outer $\times$ 4 inner folds). Audited prompt structure: 149 of 150 training prompts contain exactly 18 responses from 18 distinct classes (prompt `p002` contains 17 responses, missing `claude-fable-5`); `test.csv` does not provide `prompt_id` and averages only $\approx 2$ responses/prompt. Evaluated global centering ($\mu_p$), leave-one-out centering ($\mu_{p,-i}$), pairwise difference features ($z_i - z_j$, $|z_i - z_j|$), Hungarian 1-to-1 bipartite matching across dense ($R=18$) and sparse ($R \in [12, 8, 4, 2]$) regimes across 5 random seeds (42, 123, 2024, 3407, 7777), and paired bootstrap (2,000 resamples).
+- **Key Findings**:
+  - **LOO Centering Mathematical Equivalence**: For any prompt with $N$ responses, leave-one-out centered vectors $c_i^{\text{LOO}}$ are an exact positive scalar multiple $\frac{N}{N-1}$ of simple centered vectors $c_i^{\text{simple}}$, yielding identical argmax predictions (0.7488 BA). Standalone LR on LOO centered representations achieves 0.7869 BA.
+  - **Dense Hungarian Matching Exploitation ($R=18$)**: On dense 18-response prompts, Hungarian assignment solves bipartite matching on the EXP52 score matrix, achieving **0.9040 BA** ($\Delta = \mathbf{+0.1167}$ BA over EXP52). It fixes 382 of EXP52's 574 errors (66.55%) by forbidding intra-prompt duplicate classes.
+  - **Precipitous Evaporation Under Sparse Regimes ($R=2$)**: When prompt response density $R$ is scaled down toward realistic test conditions, Hungarian delta collapses:
+    - $R=18$: $+0.1167$ BA
+    - $R=12$: $+0.0534 \pm 0.0032$ BA
+    - $R=8$: $+0.0234 \pm 0.0041$ BA
+    - $R=4$: $+0.0102 \pm 0.0060$ BA
+    - $R=2$: $\mathbf{+0.0052 \pm 0.0047}$ BA.
+    Furthermore, LOO relative centering delta collapses to $\mathbf{-0.0085 \pm 0.0159}$ BA at $R=2$ (net degradation).
+  - **Nested Cross-Validation**: While inner validation selects $w^* = 0.40$ on dense training prompts (yielding 0.7995 BA, $\Delta = +0.0122$), this gain is an artifact of dense 18-sample centroids that degrades under sparse evaluation.
+  - **Scientific Conclusion**: Relative centering and Hungarian matching exploit an artificial structure of the dense 18-permutation training construction. Because Kaggle test prompts are un-prompted and average only $\approx 2$ responses per prompt, these mechanisms cannot transfer to hidden evaluation.
+- **Artifacts**:
+  - Directory: `experiments/EXP63_prompt_relative/`
+  - Script: `src/exp63_prompt_relative_attribution.py`
+  - Results CSV: `experiments/EXP63_prompt_relative/results.csv`
+  - Fold Results CSV: `experiments/EXP63_prompt_relative/fold_results.csv`
+  - Sparse Results CSV: `experiments/EXP63_prompt_relative/sparse_results.csv`
+  - Pairwise Results CSV: `experiments/EXP63_prompt_relative/pairwise_results.csv`
+  - Assignment Results CSV: `experiments/EXP63_prompt_relative/assignment_results.csv`
+  - Complementarity CSV: `experiments/EXP63_prompt_relative/complementarity.csv`
+  - Config JSON: `experiments/EXP63_prompt_relative/config.json`
+  - README: `experiments/EXP63_prompt_relative/README.md`
+  - Plots: `exp63_baseline_vs_relative.png`, `exp63_assignment_gain.png`, `exp63_sparse_regime.png`, `exp63_error_correction.png`, `exp63_complementarity.png` (also mirrored in `plots/`)
+  - Report: `reports/EXP63_REPORT.md`
+- **Decision**: **YELLOW (Gains exist strongly at dense R=18 [+0.1167 BA], but collapse under sparse R=2 [+0.0052 BA, and LOO relative delta is negative at -0.0085 BA]; exploits training-only structure; retain EXP52 as frozen production champion at 0.632 LB)**.

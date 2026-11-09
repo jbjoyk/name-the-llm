@@ -1,0 +1,53 @@
+{
+  "experiment_id": "EXP63_prompt_relative",
+  "description": "Prompt-Conditional Relative Attribution & Assignment",
+  "date": "2026-11-09 15:30:28",
+  "hardware": {
+    "gpu": "2x NVIDIA GeForce RTX 3060 (12GB VRAM)",
+    "cuda": "13.2",
+    "pytorch": "2.15.0+cu132",
+    "python": "3.14.7"
+  },
+  "baselines": {
+    "exp52_oof_ba": 0.7873129505344271,
+    "q8_plain_ba": 0.5861645538155605,
+    "q8_twin_ba": 0.590981854337559,
+    "q14_plain_ba": 0.6346085011185683
+  },
+  "prompt_centering": {
+    "simple_centered_lr_ba": 0.787312950534427,
+    "loo_centered_lr_ba": 0.7869425801640566,
+    "pairwise_lr_ba": 0.765446184439473
+  },
+  "hungarian_assignment": {
+    "r18_full_ba": 0.9040293313447676,
+    "r18_delta": 0.11671638081034053,
+    "r2_sparse_ba": 0.8020772707187807,
+    "r2_sparse_delta": 0.005155749059257753
+  },
+  "nested_validation": {
+    "nested_ba": 0.7995376584638328,
+    "delta": 0.012224707929405776,
+    "ci_95_lower": 0.0058427168135196435,
+    "ci_95_upper": 0.018315944187577593,
+    "p_positive": 1.0,
+    "selected_weights": [
+      0.4,
+      0.4,
+      0.4,
+      0.4,
+      0.4
+    ]
+  },
+  "error_correction": {
+    "total_exp52_errors": 574,
+    "relative_fixes": 147,
+    "hungarian_fixes": 382,
+    "both_correct_fixes": 121,
+    "neither_fixes": 166
+  },
+  "verdict": "YELLOW",
+  "verdict_reason": "Strong improvement under dense R=18 Hungarian matching (+0.1167 BA), but completely collapses under sparse R=2 simulation (+0.0052 BA, and LOO relative delta is negative at -0.0085 BA). The gain exploits an artificial artifact of the dense R=18 training set and is not robust for test conditions.",
+  "kaggle_submission": "NO",
+  "exp52_modified": false
+}

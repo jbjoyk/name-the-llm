@@ -1,15 +1,15 @@
 # PROJECT STATE & AGENT HANDOFF: KAGGLE "NAME THAT LLM"
 
-**Last Updated**: 2026-11-09 13:52 UTC
+**Last Updated**: 2026-11-09 15:30 UTC
 **Primary Repository**: `/home/rj2826/name-that-llm`
-**Current Active State**: **EXP62 Cross-Architecture Complementarity Test Completed (Verdict: RED; Retain EXP52 as frozen production champion at 0.632 LB)**
+**Current Active State**: **EXP63 Prompt-Conditional Relative Attribution & Set Assignment Completed (Verdict: YELLOW; Retain EXP52 as frozen production champion at 0.632 LB)**
 **Current Production Baseline**: **EXP52**
 - **Kaggle Public LB**: **0.632**
 - **Prompt-Disjoint OOF BA**: **0.7873**
 - **Status**: **EXP52 frozen**
-- **Latest Completed Experiment**: **EXP62**
-- **Latest Experiment Verdict**: **RED**
-- **Next Research Priority**: **Stop un-fine-tuned cross-architecture model stacking. Focus on prompt-invariant calibration or sequence fine-tuning.**
+- **Latest Completed Experiment**: **EXP63**
+- **Latest Experiment Verdict**: **YELLOW**
+- **Next Research Priority**: **Hungarian matching gains (+0.1167 at R=18) evaporate under realistic sparse test regime (+0.0052 at R=2). Do not rely on dense prompt-relative assignment for Kaggle test inference. Retain EXP52.**
 - **Kaggle Submissions**: **No Kaggle submission after EXP52.**
 
 ---
@@ -73,6 +73,7 @@
 | **EXP_60** | Sparse Test-Regime Calibration ($R=2$ vs $R=18$) | **0.7774** (Sparse R=2) / **0.7873** (Dense R=18) | *Not Submitted* | **YELLOW / PARTIALLY SUPPORTED (Density $\Delta\Delta=+0.0057$, Explains 6.4% Gap)** |
 | **EXP_61** | Hidden-Surface / Representation-Shift Forensics | **0.7858** (Matched $R=2$) / **0.7873** (Dense OOF) | *Not Submitted* | **YELLOW / PARTIALLY SUPPORTED (Manifold distance $\rho=+0.0071$, error correlation drives gap)** |
 | **EXP_62** | Cross-Architecture Complementarity Test (ModernBERT-base) | **0.7858** (Nested CV) / **0.3093** (ModernBERT standalone) | *Not Submitted* | **RED (Refuted cross-architecture hypothesis, nested $\Delta=-0.0015$; Retain EXP52)** |
+| **EXP_63** | Prompt-Conditional Relative Attribution & Set Assignment | **0.9040** ($R=18$ Hungarian) / **0.8021** ($R=2$ Sparse) / **0.7873** (Baseline) | *Not Submitted* | **YELLOW (Hungarian +0.1167 at R=18 collapses to +0.0052 at R=2; training-only artifact; Retain EXP52)** |
 
 ---
 
@@ -254,3 +255,14 @@
 | **EXP62 Prediction Disag** | `/home/rj2826/name-that-llm/experiments/EXP62_cross_architecture/prediction_disagreement.csv` |
 | **EXP62 Config JSON** | `/home/rj2826/name-that-llm/experiments/EXP62_cross_architecture/config.json` |
 | **EXP62 README** | `/home/rj2826/name-that-llm/experiments/EXP62_cross_architecture/README.md` |
+| **EXP63 Script** | `/home/rj2826/name-that-llm/src/exp63_prompt_relative_attribution.py` |
+| **EXP63 Report** | `/home/rj2826/name-that-llm/reports/EXP63_REPORT.md` |
+| **EXP63 Directory** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/` |
+| **EXP63 Results CSV** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/results.csv` |
+| **EXP63 Fold Results** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/fold_results.csv` |
+| **EXP63 Sparse Results** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/sparse_results.csv` |
+| **EXP63 Pairwise CSV** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/pairwise_results.csv` |
+| **EXP63 Assignment CSV** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/assignment_results.csv` |
+| **EXP63 Complementarity** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/complementarity.csv` |
+| **EXP63 Config JSON** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/config.json` |
+| **EXP63 README** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/README.md` |
