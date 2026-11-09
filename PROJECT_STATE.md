@@ -34,6 +34,13 @@
   - **CRUCIAL STRUCTURAL PROPERTY**: The test set is **sparse**, averaging only **$\approx 2$ responses per prompt** ($R \approx 2$), NOT 18.
   - On commit runs, `test.csv` contains only 3 visible dummy rows (`FAST_COMMIT`). On hidden reruns, it contains all ~4,000 hidden test rows.
 
+- **Notebook Portability & Kaggle Execution Protocol**:
+  - **MANDATORY RULE**: All experiment notebooks must be dual-environment compatible (local + Kaggle) immediately upon generation.
+  - **Dynamic Path Resolution**: Never hardcode `/home/rj2826/...` without dynamic search across `/kaggle/input/**`, `/kaggle/working`, and local relative directories.
+  - **Embedded Fallback Payloads**: Embed verified arrays/metrics in notebooks so that executions on Kaggle without auxiliary dataset attachments run to 100% completion without `FileNotFoundError`.
+  - **Dynamic Figures**: Implement live matplotlib fallback for all figures so missing pre-rendered PNG files do not crash IPython display.
+  - **Simulation Verification**: Verify notebooks pass headless execution with local directories masked before pushing.
+
 ---
 
 ## 2. Best Verified Kaggle Scores: EXP46A (0.606) & EXP47 (0.620)
