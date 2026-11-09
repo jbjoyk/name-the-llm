@@ -1,9 +1,15 @@
 """
 Script to build and execute the EXP64 Jupyter Notebook:
 notebooks/64_disagreement_confidence_routing.ipynb
+
+Ensures 100% portable, robust execution on:
+- Local server / workstation (/home/rj2826/name-that-llm)
+- Kaggle Notebooks (with or without external dataset attachments)
+- Google Colab / Docker containers
 """
 
 import pathlib
+import json
 import nbformat
 from nbclient import NotebookClient
 
@@ -12,6 +18,9 @@ NOTEBOOKS_DIR = REPO_DIR / "notebooks"
 EXP_DIR = REPO_DIR / "experiments" / "EXP64_confidence_router"
 NOTEBOOKS_DIR.mkdir(parents=True, exist_ok=True)
 EXP_DIR.mkdir(parents=True, exist_ok=True)
+
+with open(EXP_DIR / "embedded_payload.json") as f:
+    payload = json.load(f)
 
 nb = nbformat.v4.new_notebook()
 
@@ -42,12 +51,15 @@ cells.append(nbformat.v4.new_markdown_cell(r"""# Kaggle "Name That LLM" Competit
 - **Production Decision**: **Retain EXP52 as frozen champion**.
 """))
 
-# Cell 2: Imports
-cells.append(nbformat.v4.new_code_cell(r"""# 1. Environment & Imports Setup
+# Cell 2: Imports, Dynamic Path Discovery & Embedded Fallback
+code_cell2 = f"""# 1. Environment, Imports & Dynamic Path Discovery
 import os
 import sys
+import io
 import json
 import time
+import zlib
+import base64
 import pathlib
 import numpy as np
 import pandas as pd
@@ -60,18 +72,92 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from IPython.display import Image, display
 
+# Ensure reproducible figures
 plt.style.use('seaborn-v0_8-whitegrid' if 'seaborn-v0_8-whitegrid' in plt.style.available else 'default')
 %matplotlib inline
 
-REPO_DIR = pathlib.Path("/home/rj2826/name-that-llm")
-DATA_DIR = REPO_DIR / "data"
-OUTPUTS_DIR = REPO_DIR / "outputs"
-EXP_DIR = REPO_DIR / "experiments" / "EXP64_confidence_router"
-PLOTS_DIR = REPO_DIR / "plots"
+# Embedded Verified Data (Enables 100% Standalone Execution in Kaggle Kernels)
+EMBEDDED_PAYLOAD = {json.dumps(payload)}
 
-print(f"Working Directory: {REPO_DIR}")
-print(f"EXP64 Directory:   {EXP_DIR}")
-"""))
+# Dynamic Environment & Path Resolution (Supports Kaggle & Local)
+def resolve_file(filename, candidate_dirs):
+    for d in candidate_dirs:
+        if d is not None and os.path.exists(d):
+            p = os.path.join(d, filename)
+            if os.path.exists(p):
+                return pathlib.Path(p)
+            for root, dirs, files in os.walk(d):
+                if filename in files:
+                    return pathlib.Path(os.path.join(root, filename))
+    return None
+
+def resolve_exp64_file(filename, candidate_dirs, signature=None):
+    for d in candidate_dirs:
+        if d is not None and os.path.exists(d):
+            p = os.path.join(d, filename)
+            if os.path.exists(p):
+                if signature is None:
+                    return pathlib.Path(p)
+                try:
+                    with open(p) as f:
+                        if signature in f.read():
+                            return pathlib.Path(p)
+                except Exception:
+                    pass
+            for root, dirs, files in os.walk(d):
+                if filename in files:
+                    p = os.path.join(root, filename)
+                    if signature is None:
+                        return pathlib.Path(p)
+                    try:
+                        with open(p) as f:
+                            if signature in f.read():
+                                return pathlib.Path(p)
+                    except Exception:
+                        pass
+    return None
+
+CANDIDATE_SEARCH_DIRS = [
+    "/kaggle/input/competitions/name-that-llm",
+    "/kaggle/input/name-that-llm",
+    "/kaggle/input/name-the-llm",
+    "/kaggle/input",
+    "/kaggle/working",
+    "/home/rj2826/name-that-llm",
+    "/home/rj2826/name-that-llm/data",
+    "/home/rj2826/name-that-llm/outputs",
+    "/home/rj2826/name-that-llm/experiments/EXP64_confidence_router",
+    "/home/rj2826/name-that-llm/plots",
+    str(pathlib.Path.cwd()),
+    str(pathlib.Path.cwd() / "data"),
+    str(pathlib.Path.cwd() / "outputs"),
+    str(pathlib.Path.cwd() / "experiments" / "EXP64_confidence_router"),
+    str(pathlib.Path.cwd() / "plots"),
+    str(pathlib.Path.cwd().parent / "data"),
+    str(pathlib.Path.cwd().parent / "outputs"),
+    str(pathlib.Path.cwd().parent / "experiments" / "EXP64_confidence_router"),
+]
+
+train_path = resolve_file("train.csv", CANDIDATE_SEARCH_DIRS)
+q14_path = resolve_file("oof_q14v5_antopil_lora.csv", CANDIDATE_SEARCH_DIRS)
+p8_twin_path = resolve_file("oof_exp47_qwen_centered_twin.npy", CANDIDATE_SEARCH_DIRS)
+comp_table_path = resolve_exp64_file("comparison_table.csv", CANDIDATE_SEARCH_DIRS, "EXP64")
+fold_results_path = resolve_exp64_file("fold_results.csv", CANDIDATE_SEARCH_DIRS, "router_ba")
+disagreement_path = resolve_exp64_file("disagreement_results.csv", CANDIDATE_SEARCH_DIRS, "q8_only_potential")
+deciles_path = resolve_exp64_file("decile_results.csv", CANDIDATE_SEARCH_DIRS, "decile")
+coeffs_path = resolve_exp64_file("router_coefficients.csv", CANDIDATE_SEARCH_DIRS, "feature")
+diag_path = resolve_exp64_file("diagnostics_groups.csv", CANDIDATE_SEARCH_DIRS, "Group A")
+boot_path = resolve_exp64_file("bootstrap_results.json", CANDIDATE_SEARCH_DIRS, "p_positive")
+cfg_path = resolve_exp64_file("config.json", CANDIDATE_SEARCH_DIRS, "EXP64_confidence_router")
+
+print("Environment:", "Kaggle Container" if os.path.exists("/kaggle") else "Local / Server")
+print("Resolved train.csv:            ", train_path if train_path else "[Embedded Fallback]")
+print("Resolved q14v5 OOF:            ", q14_path if q14_path else "[Embedded Fallback]")
+print("Resolved q8v5 Centered Twin:   ", p8_twin_path if p8_twin_path else "[Embedded Fallback]")
+print("Resolved Comparison Table CSV: ", comp_table_path if comp_table_path else "[Embedded Fallback]")
+print("Resolved Fold Results CSV:     ", fold_results_path if fold_results_path else "[Embedded Fallback]")
+"""
+cells.append(nbformat.v4.new_code_cell(code_cell2))
 
 # Cell 3: Markdown - Baseline Reproduction
 cells.append(nbformat.v4.new_markdown_cell(r"""### 2. Dataset Loading & EXP52 Reproduction Audit
@@ -79,21 +165,39 @@ Load `train.csv` (2,699 samples, 150 prompts) and verified out-of-fold logits fo
 """))
 
 # Cell 4: Code - Load & Verify
-cells.append(nbformat.v4.new_code_cell(r"""# 2. Load Train Dataset and EXP52 Baseline
-train_df = pd.read_csv(DATA_DIR / "train.csv")
-LABELS = sorted(train_df["model"].unique())
-L2I = {m: i for i, m in enumerate(LABELS)}
-y_true = np.array([L2I[m] for m in train_df["model"].values])
-prompts = train_df["prompt_id"].values
+code_cell4 = r"""# 2. Load Train Dataset and EXP52 Baseline
+LABELS = EMBEDDED_PAYLOAD["labels"]
 
-q14_df = pd.read_csv(OUTPUTS_DIR / "oof_q14v5_antopil_lora.csv")
-p8_twin_raw = np.load(OUTPUTS_DIR / "oof_exp47_qwen_centered_twin.npy")
-outer_folds = q14_df["fold"].values
+if train_path is not None and train_path.exists():
+    train_df = pd.read_csv(train_path)
+    L2I = {m: i for i, m in enumerate(LABELS)}
+    y_true = np.array([L2I[m] for m in train_df["model"].values], dtype=np.int8)
+    prompts = train_df["prompt_id"].values
+    print(f"Loaded train.csv from: {train_path} ({len(train_df)} rows)")
+else:
+    print("[INFO] train.csv not found on disk; activating embedded verified train data...")
+    y_true = np.frombuffer(zlib.decompress(base64.b64decode(EMBEDDED_PAYLOAD["b_y"])), dtype=np.int8)
+    prompts = np.array(json.loads(zlib.decompress(base64.b64decode(EMBEDDED_PAYLOAD["b_prompts"])).decode()))
+    train_df = pd.DataFrame({"prompt_id": prompts, "model": [LABELS[i] for i in y_true]})
+    print(f"Loaded train data from payload ({len(train_df)} rows)")
+
+if q14_path is not None and q14_path.exists() and p8_twin_path is not None and p8_twin_path.exists():
+    q14_df = pd.read_csv(q14_path)
+    p8_twin_raw = np.load(p8_twin_path)
+    outer_folds = q14_df["fold"].values
+    p8 = p8_twin_raw / p8_twin_raw.sum(axis=1, keepdims=True)
+    p14 = q14_df[LABELS].values / q14_df[LABELS].values.sum(axis=1, keepdims=True)
+    print(f"Loaded OOF predictions from disk: {q14_path.name}, {p8_twin_path.name}")
+else:
+    print("[INFO] External OOF files not found on disk; activating embedded verified OOF payload...")
+    outer_folds = np.frombuffer(zlib.decompress(base64.b64decode(EMBEDDED_PAYLOAD["b_folds"])), dtype=np.int8)
+    p8_twin_raw = np.frombuffer(zlib.decompress(base64.b64decode(EMBEDDED_PAYLOAD["b_p8_twin"])), dtype=np.float32).reshape(2699, 18)
+    p14_norm = np.frombuffer(zlib.decompress(base64.b64decode(EMBEDDED_PAYLOAD["b_p14"])), dtype=np.float32).reshape(2699, 18)
+    p8 = p8_twin_raw / p8_twin_raw.sum(axis=1, keepdims=True)
+    p14 = p14_norm / p14_norm.sum(axis=1, keepdims=True)
+    print("Loaded OOF predictions from verified payload (2,699 samples)")
+
 eps = 1e-15
-
-p8 = p8_twin_raw / p8_twin_raw.sum(axis=1, keepdims=True)
-p14 = q14_df[LABELS].values / q14_df[LABELS].values.sum(axis=1, keepdims=True)
-
 lp8 = np.log(np.clip(p8, eps, 1.0))
 lp14 = np.log(np.clip(p14, eps, 1.0))
 lp52 = 0.60 * lp8 + 0.40 * lp14
@@ -106,7 +210,8 @@ ba_exp52 = balanced_accuracy_score(y_true, pred_exp52)
 print(f"Q8 Standalone BA:   {ba_q8:.6f}")
 print(f"Q14 Standalone BA:  {ba_q14:.6f}")
 print(f"EXP52 Baseline BA:  {ba_exp52:.6f} (Exact reproduction verified)")
-"""))
+"""
+cells.append(nbformat.v4.new_code_cell(code_cell4))
 
 # Cell 5: Markdown - Feature Extraction
 cells.append(nbformat.v4.new_markdown_cell(r"""### 3. Required Single-Sample Features
@@ -117,62 +222,81 @@ Construct 37 continuous features from single response outputs:
 """))
 
 # Cell 6: Code - Features
-cells.append(nbformat.v4.new_code_cell(r"""# 3. Load Feature Definitions & Statistics
-with open(EXP_DIR / "feature_definitions.json") as f:
-    feat_defs = json.load(f)
-print(f"Total single-sample features defined: {len(feat_defs)}")
+code_cell6 = r"""# 3. Load Feature Definitions & Router Coefficients
+if coeffs_path is not None and coeffs_path.exists():
+    df_coeffs = pd.read_csv(coeffs_path)
+else:
+    df_coeffs = pd.read_csv(io.StringIO(EMBEDDED_PAYLOAD["router_coefficients_csv"]))
 
-# Display top coefficients from the trained router
-df_coeffs = pd.read_csv(EXP_DIR / "router_coefficients.csv")
-print("\nTop 10 Most Influential Routing Features:")
-display(df_coeffs.head(10)[["feature", "mean_coef", "std_coef", "abs_mean_coef"]])
-"""))
+print(f"Total Features Extracted: {len(df_coeffs)}")
+print("\nTop Features Favoring Q14 Over Q8:")
+display(df_coeffs.sort_values(by="mean_coef", ascending=False).head(8))
 
-# Cell 7: Markdown - Diagnostics
-cells.append(nbformat.v4.new_markdown_cell(r"""### 4. Baseline Diagnostics: Correctness Groups
-Partition the 2,699 samples into 4 correctness groups:
-- **Group A (Both Correct)**: 1,026 samples (38.0%)
-- **Group B (Q8 Only Correct)**: 569 samples (21.1%)
-- **Group C (Q14 Only Correct)**: 687 samples (25.5%)
-- **Group D (Both Wrong)**: 417 samples (15.5%)
+print("\nTop Features Favoring Q8 Over Q14:")
+display(df_coeffs.sort_values(by="mean_coef", ascending=True).head(8))
+"""
+cells.append(nbformat.v4.new_code_cell(code_cell6))
+
+# Cell 7: Markdown - Diagnostics Across Groups
+cells.append(nbformat.v4.new_markdown_cell(r"""### 4. Diagnostics Across Correctness Groups
+Partition training samples into four mutually exclusive groups:
+- **Group A (Both Correct)**: 1,026 samples (38.01%)
+- **Group B (Q8 Only Correct)**: 569 samples (21.08%)
+- **Group C (Q14 Only Correct)**: 687 samples (25.45%)
+- **Group D (Both Wrong)**: 417 samples (15.45%)
 """))
 
 # Cell 8: Code - Diagnostics
-cells.append(nbformat.v4.new_code_cell(r"""# 4. Correctness Groups Comparison
-df_diag = pd.read_csv(EXP_DIR / "diagnostics_groups.csv")
-display(df_diag[["group", "count", "pct", "q8_margin_mean", "q14_margin_mean", "q8_entropy_mean", "q14_entropy_mean", "agree_mean"]])
+code_cell8 = r"""# 4. Correctness Group Diagnostics
+if diag_path is not None and diag_path.exists():
+    df_diag = pd.read_csv(diag_path)
+else:
+    df_diag = pd.read_csv(io.StringIO(EMBEDDED_PAYLOAD["diagnostics_groups_csv"]))
+display(df_diag[["group", "count", "pct", "q8_margin_mean", "q14_margin_mean", "q8_entropy_mean", "q14_entropy_mean"]])
+"""
+cells.append(nbformat.v4.new_code_cell(code_cell8))
+
+# Cell 9: Markdown - Pre-Specified Rules
+cells.append(nbformat.v4.new_markdown_cell(r"""### 5. Pre-Specified Routing Rules Comparison
+Compare heuristic routing rules against the fixed EXP52 fusion baseline.
 """))
 
-# Cell 9: Markdown - Comparison Table
-cells.append(nbformat.v4.new_markdown_cell(r"""### 5. Critical Comparison Table: Routing Rules vs Learned Router
-Compare static rules (Rule A through F), learned router (nested CV), calibrated router, and random negative control.
-"""))
-
-# Cell 10: Code - Comparison Table
-cells.append(nbformat.v4.new_code_cell(r"""# 5. Critical Comparison Table
-df_comp = pd.read_csv(EXP_DIR / "comparison_table.csv")
+# Cell 10: Code - Rules Table
+code_cell10 = r"""# 5. Method Comparison Table
+if comp_table_path is not None and comp_table_path.exists():
+    df_comp = pd.read_csv(comp_table_path)
+else:
+    df_comp = pd.read_csv(io.StringIO(EMBEDDED_PAYLOAD["comparison_table_csv"]))
 display(df_comp)
-"""))
+"""
+cells.append(nbformat.v4.new_code_cell(code_cell10))
 
-# Cell 11: Markdown - Nested CV & Statistical Testing
-cells.append(nbformat.v4.new_markdown_cell(r"""### 6. Strict Nested Cross-Validation & Bootstrap Testing
+# Cell 11: Markdown - Nested CV
+cells.append(nbformat.v4.new_markdown_cell(r"""### 6. Selection-Safe Nested Cross-Validation & Bootstrap Testing
 - 5 outer prompt-disjoint folds $\times$ 4 inner prompt-disjoint folds
 - Inner grid search over $C \in [0.001, 10.0]$ and $\alpha \in [0.0, 0.4]$
 - Paired bootstrap test ($B = 2,000$ resamples)
 """))
 
 # Cell 12: Code - Fold & Bootstrap Results
-cells.append(nbformat.v4.new_code_cell(r"""# 6. Fold Results and Bootstrap Confidence Interval
-df_folds = pd.read_csv(EXP_DIR / "fold_results.csv")
+code_cell12 = r"""# 6. Fold Results and Bootstrap Confidence Interval
+if fold_results_path is not None and fold_results_path.exists():
+    df_folds = pd.read_csv(fold_results_path)
+else:
+    df_folds = pd.read_csv(io.StringIO(EMBEDDED_PAYLOAD["fold_results_csv"]))
 display(df_folds[["outer_fold", "best_C", "best_alpha", "exp52_ba", "router_ba", "router_delta", "random_router_delta"]])
 
-with open(EXP_DIR / "bootstrap_results.json") as f:
-    boot = json.load(f)
+if boot_path is not None and boot_path.exists():
+    with open(boot_path) as f:
+        boot = json.load(f)
+else:
+    boot = json.loads(EMBEDDED_PAYLOAD["bootstrap_results_json"])
 
 print(f"Paired Bootstrap Delta: Mean = {boot['mean_delta']:+.4f}")
 print(f"95% Confidence Interval: [{boot['ci_95_lower']:+.4f}, {boot['ci_95_upper']:+.4f}]")
 print(f"P(delta > 0):           {boot['p_positive'] * 100:.1f}%")
-"""))
+"""
+cells.append(nbformat.v4.new_code_cell(code_cell12))
 
 # Cell 13: Markdown - Disagreement Analysis
 cells.append(nbformat.v4.new_markdown_cell(r"""### 7. Disagreement Subset Analysis ($\arg\max(Q8) \neq \arg\max(Q14)$)
@@ -184,42 +308,73 @@ On the 1,612 samples (59.7% of total data) where Q8 and Q14 disagree:
 """))
 
 # Cell 14: Code - Disagreement & Deciles
-cells.append(nbformat.v4.new_code_cell(r"""# 7. Disagreement & Decile Metrics
-df_dis = pd.read_csv(EXP_DIR / "disagreement_results.csv")
+code_cell14 = r"""# 7. Disagreement & Decile Metrics
+if disagreement_path is not None and disagreement_path.exists():
+    df_dis = pd.read_csv(disagreement_path)
+else:
+    df_dis = pd.read_csv(io.StringIO(EMBEDDED_PAYLOAD["disagreement_results_csv"]))
 display(df_dis)
 
 print("\n--- Confidence Deciles ---")
-df_deciles = pd.read_csv(EXP_DIR / "decile_results.csv")
+if deciles_path is not None and deciles_path.exists():
+    df_deciles = pd.read_csv(deciles_path)
+else:
+    df_deciles = pd.read_csv(io.StringIO(EMBEDDED_PAYLOAD["decile_results_csv"]))
 display(df_deciles[["decile", "sample_count", "mean_confidence", "exp52_ba", "router_ba", "router_delta"]])
-"""))
+"""
+cells.append(nbformat.v4.new_code_cell(code_cell14))
 
 # Cell 15: Markdown - Visualizations
 cells.append(nbformat.v4.new_markdown_cell(r"""### 8. Publication Figures (300 DPI)
 """))
 
 # Cell 16: Code - Display Figures
-cells.append(nbformat.v4.new_code_cell(r"""# 8. Render Key Figures Inline
-print("--- Figure 1: Confidence Distributions by Correctness Group ---")
-display(Image(filename=str(PLOTS_DIR / "exp64_confidence_distributions.png")))
+code_cell16 = r"""# 8. Render Key Figures Inline
+def show_or_render_fig(img_name, render_fn):
+    p = resolve_file(img_name, CANDIDATE_SEARCH_DIRS)
+    if p is not None and p.exists():
+        display(Image(filename=str(p)))
+    else:
+        render_fn()
 
-print("--- Figure 2: Router Performance Comparison ---")
-display(Image(filename=str(PLOTS_DIR / "exp64_router_performance.png")))
+def render_fig_perf():
+    plt.figure(figsize=(8, 5))
+    methods = ["EXP52 Fixed (0.60/0.40)", "Learned Router (Nested)", "Calibrated Router", "Hard Margin Routing"]
+    scores = [0.7873, 0.7906, 0.7829, 0.7213]
+    colors = ["#2ECC71", "#3498DB", "#F39C12", "#E74C3C"]
+    bars = plt.bar(methods, scores, color=colors, edgecolor="black", width=0.45)
+    for b in bars:
+        h = b.get_height()
+        plt.annotate(f"{h:.4f}", xy=(b.get_x() + b.get_width() / 2, h), xytext=(0, 5), textcoords="offset points", ha="center", weight="bold")
+    plt.ylim(0.70, 0.81)
+    plt.axhline(0.7873, color="green", linestyle="--", alpha=0.7)
+    plt.title("EXP64: Single-Sample Attribution Performance", weight="bold", fontsize=13)
+    plt.ylabel("Balanced Accuracy", weight="bold")
+    plt.xticks(rotation=15, ha="right")
+    plt.tight_layout()
+    plt.show()
 
-print("--- Figure 3: Disagreement Subset Performance ---")
-display(Image(filename=str(PLOTS_DIR / "exp64_disagreement_analysis.png")))
+def render_fig_disag():
+    plt.figure(figsize=(8, 5))
+    cats = ["EXP52 Disagree", "Learned Router", "Oracle Bound"]
+    scores = [0.6871, 0.6945, 0.8425]
+    bars = plt.bar(cats, scores, color=["#95A5A6", "#3498DB", "#2ECC71"], edgecolor="black", width=0.45)
+    for b in bars:
+        h = b.get_height()
+        plt.annotate(f"{h:.4f}", xy=(b.get_x() + b.get_width() / 2, h), xytext=(0, 5), textcoords="offset points", ha="center", weight="bold")
+    plt.ylim(0.60, 0.88)
+    plt.title("Attribution on Disagreement Subset (1,612 Samples, 59.7% of Data)", weight="bold", fontsize=13)
+    plt.ylabel("Balanced Accuracy", weight="bold")
+    plt.tight_layout()
+    plt.show()
 
-print("--- Figure 4: Confidence Decile Analysis ---")
-display(Image(filename=str(PLOTS_DIR / "exp64_confidence_deciles.png")))
+print("--- Figure 1: Router Performance Comparison ---")
+show_or_render_fig("exp64_router_performance.png", render_fig_perf)
 
-print("--- Figure 5: Corrections vs Degradations ---")
-display(Image(filename=str(PLOTS_DIR / "exp64_correction_degradation.png")))
-
-print("--- Figure 6: Router Feature Importance ---")
-display(Image(filename=str(PLOTS_DIR / "exp64_router_feature_importance.png")))
-
-print("--- Figure 7: Temperature Calibration Reliability Curves ---")
-display(Image(filename=str(PLOTS_DIR / "exp64_calibration.png")))
-"""))
+print("--- Figure 2: Disagreement Subset Performance ---")
+show_or_render_fig("exp64_disagreement_analysis.png", render_fig_disag)
+"""
+cells.append(nbformat.v4.new_code_cell(code_cell16))
 
 # Cell 17: Markdown - Verdict & Decision
 cells.append(nbformat.v4.new_markdown_cell(r"""### 9. Final Verdict & Scientific Conclusions
@@ -236,7 +391,7 @@ cells.append(nbformat.v4.new_markdown_cell(r"""### 9. Final Verdict & Scientific
 
 nb.cells.extend(cells)
 
-# Save unexecuted
+# Save unexecuted first
 out_nb_path = NOTEBOOKS_DIR / "64_disagreement_confidence_routing.ipynb"
 with open(out_nb_path, "w", encoding="utf-8") as f:
     nbformat.write(nb, f)
@@ -247,7 +402,7 @@ print("Executing notebook with NotebookClient...")
 client = NotebookClient(nb, timeout=600, kernel_name="python3")
 client.execute()
 
-# Save fully executed
+# Save fully executed notebook
 with open(out_nb_path, "w", encoding="utf-8") as f:
     nbformat.write(nb, f)
 print(f"Successfully executed and saved notebook to {out_nb_path}")
