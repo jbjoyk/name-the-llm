@@ -266,3 +266,4 @@
 | **EXP63 Complementarity** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/complementarity.csv` |
 | **EXP63 Config JSON** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/config.json` |
 | **EXP63 README** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/README.md` |
+| **EXP63 Notebook** | `/home/rj2826/name-that-llm/notebooks/63_prompt_relative_attribution.ipynb` |
