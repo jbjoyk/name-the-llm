@@ -1,0 +1,10 @@
+check,status
+q8_blend_weight,PASS
+q14_blend_weight,PASS
+twin_weight,PASS
+q8_keep_layers,PASS
+q14_keep_layers,PASS
+eos_token_id,PASS
+class_labels_count,PASS
+sequential_execution,PASS
+offline_only_guard,PASS

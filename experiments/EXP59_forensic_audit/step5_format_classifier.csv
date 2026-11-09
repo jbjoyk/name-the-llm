@@ -1,0 +1,2 @@
+classifier,mean_ba,std_ba,mean_macro_f1,chance_baseline
+Length_and_Formatting_LogisticRegression,0.1307,0.0107,0.1015,0.0556

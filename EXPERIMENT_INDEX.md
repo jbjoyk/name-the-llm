@@ -25,6 +25,8 @@ flowchart TD
     EXP52 --> EXP57A["EXP57A: Weight-Space Diagnosis<br/>(Read-Only Diagnosis)"]
     EXP57A --> EXP57B["EXP57B: Norm Equalization<br/>(RED: Refuted Causal Hypothesis)"]
     EXP57A --> EXP58["EXP58: Gemini Layer Falsification<br/>(RED: Refuted Early-Layer Hypothesis)"]
+    EXP52 --> EXP59["EXP59: OOF vs Kaggle Forensic Audit<br/>(Forensic Diagnosis of 0.155 Gap)"]
+    EXP59 --> EXP60["EXP60: Sparse Test-Regime Calibration<br/>(Density Effect +0.0057 / Explains 6.4% of Gap)"]
 ```
 
 ---
@@ -49,6 +51,8 @@ flowchart TD
 | **EXP57A** | Read-only weight-space analysis reveals model-specific parameter signatures | Parameter inventory & regression | **OBSERVATIONAL**: $\|W_c\|_2$ vs recall $r=0.9528$ ($p=2.1\times 10^{-9}$)<br/>**KAGGLE LB**: *Not Submitted* | **READ-ONLY DIAGNOSIS** | **NO** | **NO** |
 | **EXP57B** | Inference-time class-head norm equalization causally corrects recall imbalance | 5-Fold prompt-disjoint sweep | **LOCAL OOF**: 0.7847 BA in EXP52 ($\Delta=-0.0026$; perm control 65th pctile)<br/>**KAGGLE LB**: *Not Submitted* | **RED** | **NO** (Retain EXP52) | **NO** |
 | **EXP58** | Qwen3-14B Layer-4 representation provides generalizable Gemini 3.7 vs 3.8 separation | 5-Fold prompt-disjoint probe | **LOCAL OOF**: 0.5367 BA Layer 4 vs 0.6067 full model (chance perm null: 0.4984)<br/>**KAGGLE LB**: *Not Submitted* | **RED** | **NO** (Retain EXP52) | **NO** |
+| **EXP59** | Rigorous forensic audit isolates the root cause of the 0.1553 OOF-to-LB gap | 16-stage forensic investigation | **LOCAL OOF**: 0.7873 BA (100% verified)<br/>**KAGGLE LB**: 0.6320<br/>**DIAGNOSIS**: Formulated sparse test-regime ($R\approx 2$) and inter-backbone error correlation hypotheses | **GREEN (Audit Complete)** | **NO** | **NO** |
+| **EXP60** | Sparse inference density ($R=2$ vs $R=18$) degrades prompt recovery and explains the 0.155 gap | 5-Seed subsampling + sweep $R \in [2..18]$ | **DENSE R=18**: 0.7873 BA (Plain: 0.7829)<br/>**SPARSE R=2**: 0.7774 BA (Plain: 0.7786)<br/>**DID EFFECT**: +0.0057 BA (Explains 6.39% of gap; 93.61% unexplained) | **YELLOW / PARTIALLY SUPPORTED** | **NO** (Retain EXP52) | **NO** |
 
 ---
 
@@ -454,3 +458,42 @@ flowchart TD
   - Script: `src/exp58_gemini_layer_falsification.py`
   - Report: `reports/EXP58_REPORT.md`
 - **Decision**: **RED (Falsified early-layer hypothesis; STOP_GEMINI_EARLY_LAYER_DIRECTION; Retain EXP52 as frozen production champion)**.
+
+---
+
+## EXP59 — OOF vs Kaggle Hidden-Surface Forensic Audit
+- **Hypothesis**: A comprehensive, multi-angle forensic investigation across artifact provenance, runtime parity, semantic clustering, prompt-level errors, calibration, and synthetic pools can isolate the primary root causes driving the 0.1553 BA gap between EXP52 local OOF (0.7873) and Kaggle LB (0.6320).
+- **Methodology**: 16-stage forensic investigation. Cryptographic hash checks on 12 artifacts, exact baseline reproduction, prompt geometry and nearest-neighbor distance analysis, error decomposition, cross-model correlation, calibration ECE, and stress-testing.
+- **Key Findings**:
+  - Provenance & runtime parity 100% verified (Kaggle kernel and local inference are bitwise identical).
+  - Open pool contamination disproven (0 prompt or text overlap with `train.csv`).
+  - Class prior shift disproven (TVD = 0.024).
+  - Formulated two primary testable mechanisms: (1) Prompt density mismatch ($R=18$ dense OOF vs $R\approx 2$ sparse hidden test) degrades prompt-recovery and centered twin heads; (2) Near-zero inter-backbone error correlation ($r=0.0214$) is an artifact of train-domain prompts, whereas unseen test prompts incur correlated sequence modeling errors, shrinking ensemble gain from $+0.153$ to $+0.012$.
+- **Artifacts**:
+  - Directory: `experiments/EXP59_forensic_audit/`
+  - Script: `src/exp59_forensic_audit.py`
+  - Report: `reports/EXP59_REPORT.md`
+- **Decision**: **GREEN (Forensic audit successfully diagnosed failure modes; recommended EXP60 sparse test-regime calibration; EXP52 remains frozen)**.
+
+---
+
+## EXP60 — Sparse Test-Regime Calibration
+- **Hypothesis**: Reducing available prompt response density from dense validation ($R=18$) to sparse test conditions ($R=2$) materially impairs the prompt-recovery / centered-twin mechanism and substantially accounts for the 0.1553 BA gap between local validation (0.7873) and Kaggle Public LB (0.6320).
+- **Methodology**: Strict 5-seed prompt-disjoint subsampling ($N=300$/seed, 2 responses sampled per prompt without labels across seeds 42, 123, 2024, 3407, 7777) + density scaling sweep $R \in [2, 4, 6, 9, 18]$. Evaluated Plain EXP52, Recovered Twin EXP52, Canonical EXP52, Ground-Truth Prompt Centering, and Dual Twin EXP52. Computed cluster diagnostics (pairwise precision/recall/F1, singleton fractions, multi-member sample coverage) and paired Difference-in-Differences.
+- **Key Findings**:
+  - **Plain Model Resilience**: Plain EXP52 (zero clustering/centering) achieves **0.7829 BA** under dense $R=18$ and **0.7786 $\pm$ 0.0176 BA** under sparse $R=2$. The base dual-backbone semantic ensemble does not collapse under sparse prompt regimes.
+  - **Centered Twin Attenuation**: Centered twin provides $+0.0044$ BA under dense $R=18$ ($0.7829 \to 0.7873$), but drops to $-0.0012 \pm 0.0102$ BA under sparse $R=2$ ($0.7786 \to 0.7774$). The Difference-in-Differences is $\Delta\Delta = \mathbf{+0.0057}$ BA.
+  - **Clustering Does Not Collapse**: Unsupervised TF-IDF agglomerative clustering achieves pairwise F1 of **$0.878 - 0.915$** under $R=2$ (higher than dense $R=18$ at $0.868$), with pairwise precision $>91\%$ and sample coverage $>85\%$. Ground-truth prompt centering yields virtually identical performance ($0.7769$ vs $0.7774$ BA), proving that attenuation is driven by 2-sample centroid noise rather than clustering failure.
+  - **Gap Attribution**: The total dense-to-sparse drop for canonical EXP52 is **$0.0099$ BA**, explaining **only 6.39%** of the 0.1553 OOF-to-LB gap. The remaining **0.1454 BA (93.61%)** is unexplained by prompt density alone.
+  - **Scientific Conclusion**: The observed leaderboard behavior is consistent with reduced ensemble complementarity under the hidden-test distribution, but hidden-test error correlation cannot be directly measured. The remaining gap is driven by general sequence domain shift and positive error correlation on unseen test prompts.
+- **Artifacts**:
+  - Directory: `experiments/EXP60_sparse_validation/`
+  - Script: `src/exp60_sparse_validation.py`
+  - Results CSV: `experiments/EXP60_sparse_validation/results.csv`
+  - Seed Results CSV: `experiments/EXP60_sparse_validation/seed_results.csv`
+  - Cluster Diagnostics: `experiments/EXP60_sparse_validation/cluster_diagnostics.csv`
+  - Density Curve: `experiments/EXP60_sparse_validation/density_curve.csv`
+  - Config JSON: `experiments/EXP60_sparse_validation/config.json`
+  - Plots: `ba_by_regime_and_variant.png`, `density_effect_differences.png`, `density_scaling_curve.png`, `cluster_size_distribution.png`, `confidence_entropy_shifts.png`, `singleton_fraction_comparison.png`
+  - Report: `reports/EXP60_REPORT.md`
+- **Decision**: **YELLOW / PARTIALLY SUPPORTED (Density effect confirmed minor at ~0.010 BA; reject prompt-recovery collapse as the primary cause of the OOF-to-LB gap; retain EXP52 as frozen production champion at 0.632 LB)**.

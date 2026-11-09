@@ -1,0 +1,4 @@
+split_strategy,balanced_accuracy,prompt_overlap
+A_Existing_Prompt_Disjoint,0.7873,0.0%
+B_Random_Row_Level,0.789,100.0%
+C_Prompt_Cluster_Disjoint,0.788,0.0% (Latent clusters held out)

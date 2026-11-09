@@ -1,0 +1,9 @@
+stress_condition,sample_count,class_coverage,balanced_accuracy,macro_f1,delta_from_baseline
+A_Low_Semantic_Similarity_Prompts,684,18 / 18,0.7865,0.7871,-0.0008
+B_High_Semantic_Similarity_Prompts,683,18 / 18,0.7787,0.781,-0.0086
+C_Short_Responses,1349,18 / 18,0.745,0.7463,-0.0423
+D_Long_Responses,1350,18 / 18,0.8273,0.8269,0.04
+E_High_Entropy_Uncertain,675,18 / 18,0.4832,0.4843,-0.3041
+F_High_Q8_Q14_Disagreement,1612,18 / 18,0.6871,0.6891,-0.1002
+G_Q8_Q14_Agreement,1087,18 / 18,0.9318,0.9303,0.1445
+H_Low_Confidence_Top1_lt_0.50,501,18 / 18,0.4328,0.4323,-0.3545

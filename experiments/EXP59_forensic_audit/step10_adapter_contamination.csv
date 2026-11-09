@@ -1,0 +1,4 @@
+dataset,total_rows,exact_text_overlap,status,exact_prompt_overlap
+open_pool_clean.parquet,212623,0.0,VERIFIED_ZERO_TEXT_OVERLAP,
+open_pool/prompts.parquet,16598,,VERIFIED_ZERO_PROMPT_OVERLAP,0.0
+open_pool_36k.parquet,36000,0.0,VERIFIED_ZERO_TEXT_OVERLAP,

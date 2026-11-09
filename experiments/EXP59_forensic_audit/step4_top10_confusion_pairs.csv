@@ -1,0 +1,11 @@
+pair,mutual_errors,err_i_to_j,err_j_to_i,model_i,model_j
+glm-5.3 <-> glm-5.3-flash,67,39,28,glm-5.3,glm-5.3-flash
+gemini-3.7-flash <-> gemini-3.8-flash,49,28,21,gemini-3.7-flash,gemini-3.8-flash
+gpt-5.6-luna <-> gpt-5.6-sol,34,18,16,gpt-5.6-luna,gpt-5.6-sol
+gemini-3.6-flash <-> gemini-3.7-flash,32,21,11,gemini-3.6-flash,gemini-3.7-flash
+gpt-5.6-luna <-> gpt-5.6-terra,21,9,12,gpt-5.6-luna,gpt-5.6-terra
+gpt-5.6-sol <-> gpt-5.6-terra,21,11,10,gpt-5.6-sol,gpt-5.6-terra
+claude-fable-5 <-> claude-opus-4-8,19,7,12,claude-fable-5,claude-opus-4-8
+gemini-3.1-pro-preview <-> gemini-3.6-flash,16,10,6,gemini-3.1-pro-preview,gemini-3.6-flash
+gpt-5.5 <-> kimi-k3,15,8,7,gpt-5.5,kimi-k3
+claude-fable-5 <-> glm-5.3-flash,14,6,8,claude-fable-5,glm-5.3-flash

@@ -1,15 +1,15 @@
 # PROJECT STATE & AGENT HANDOFF: KAGGLE "NAME THAT LLM"
 
-**Last Updated**: 2026-11-09 11:45 UTC
-**Primary Repository**: `/home/rj2826/name-the-llm`
-**Current Active State**: **EXP58 Gemini Sibling Early-Layer Falsification Completed (Verdict: RED; Frozen at EXP52 0.632 LB)**
+**Last Updated**: 2026-11-09 12:06 UTC
+**Primary Repository**: `/home/rj2826/name-that-llm`
+**Current Active State**: **EXP60 Sparse Test-Regime Calibration Completed (Verdict: YELLOW / PARTIALLY SUPPORTED; Frozen at EXP52 0.632 LB)**
 **Current Production Baseline**: **EXP52**
 - **Kaggle Public LB**: **0.632**
 - **Prompt-Disjoint OOF BA**: **0.7873**
 - **Status**: **EXP52 frozen**
-- **Latest Completed Experiment**: **EXP58**
-- **Latest Experiment Verdict**: **RED**
-- **Next Research Priority**: **Investigate the OOF-to-Kaggle hidden-surface/domain-shift gap before adding another model family.**
+- **Latest Completed Experiment**: **EXP60**
+- **Latest Experiment Verdict**: **YELLOW / PARTIALLY SUPPORTED**
+- **Next Research Priority**: **Investigate out-of-domain sequence representations and cross-architecture diversification to address the remaining ~0.145 BA gap.**
 - **Kaggle Submissions**: **No Kaggle submission after EXP52.**
 
 ---
@@ -69,6 +69,8 @@
 | **EXP_57A** | Weight-Space Programming Diagnosis for NTL | **0.7873** (Baseline Inventory) | *Not Submitted* | **READ-ONLY DIAGNOSIS (Formulated Hypotheses)** |
 | **EXP_57B** | Class-Head Norm Equalization Validation | **0.7847** ($\Delta = -0.0026$ in EXP52) | *Not Submitted* | **RED (Refuted Causal Hypothesis; Retain EXP52)** |
 | **EXP_58** | Gemini Sibling Early-Layer Discriminator Falsification | **0.5367** (Layer 4 vs 0.6067 full) | *Not Submitted* | **RED (Refuted Early-Layer Hypothesis; Retain EXP52)** |
+| **EXP_59** | OOF vs Kaggle Hidden-Surface Forensic Audit | **0.7873** (100% Verified) | **0.6320** | **GREEN (Audit Complete; Formulated Hypotheses)** |
+| **EXP_60** | Sparse Test-Regime Calibration ($R=2$ vs $R=18$) | **0.7774** (Sparse R=2) / **0.7873** (Dense R=18) | *Not Submitted* | **YELLOW / PARTIALLY SUPPORTED (Density $\Delta\Delta=+0.0057$, Explains 6.4% Gap)** |
 
 ---
 
@@ -216,3 +218,14 @@
 | **EXP58 Random Permutations** | `/home/rj2826/name-the-llm/experiments/EXP58_gemini_early_layer_falsification/random_label_control.csv` |
 | **EXP58 BA Plot** | `/home/rj2826/name-the-llm/experiments/EXP58_gemini_early_layer_falsification/layer_probe_ba.png` |
 | **EXP58 Separation Plot** | `/home/rj2826/name-the-llm/experiments/EXP58_gemini_early_layer_falsification/layer_separation.png` |
+| **EXP59 Script** | `/home/rj2826/name-that-llm/src/exp59_forensic_audit.py` |
+| **EXP59 Report** | `/home/rj2826/name-that-llm/reports/EXP59_REPORT.md` |
+| **EXP59 Directory** | `/home/rj2826/name-that-llm/experiments/EXP59_forensic_audit/` |
+| **EXP60 Script** | `/home/rj2826/name-that-llm/src/exp60_sparse_validation.py` |
+| **EXP60 Report** | `/home/rj2826/name-that-llm/reports/EXP60_REPORT.md` |
+| **EXP60 Directory** | `/home/rj2826/name-that-llm/experiments/EXP60_sparse_validation/` |
+| **EXP60 Results CSV** | `/home/rj2826/name-that-llm/experiments/EXP60_sparse_validation/results.csv` |
+| **EXP60 Seed Results** | `/home/rj2826/name-that-llm/experiments/EXP60_sparse_validation/seed_results.csv` |
+| **EXP60 Cluster Diag** | `/home/rj2826/name-that-llm/experiments/EXP60_sparse_validation/cluster_diagnostics.csv` |
+| **EXP60 Density Curve** | `/home/rj2826/name-that-llm/experiments/EXP60_sparse_validation/density_curve.csv` |
+| **EXP60 Config JSON** | `/home/rj2826/name-that-llm/experiments/EXP60_sparse_validation/config.json` |

@@ -1,0 +1,45 @@
+{
+  "experiment_id": "EXP60_sparse_validation",
+  "description": "Sparse Test-Regime Calibration evaluating prompt density mismatch (R=18 vs R=2)",
+  "date": "2026-11-09 12:06:01",
+  "seeds": [
+    42,
+    123,
+    2024,
+    3407,
+    7777
+  ],
+  "density_levels": [
+    2,
+    4,
+    6,
+    9,
+    18
+  ],
+  "n_bootstrap": 2000,
+  "dense_r18": {
+    "plain_ba": 0.7828635346756152,
+    "twin_recovered_ba": 0.7873129505344271,
+    "canonical_ba": 0.7873129505344271,
+    "gt_centering_ba": 0.7869450658712404,
+    "dual_twin_ba": 0.8002734277902063,
+    "twin_delta": 0.004449415858811867
+  },
+  "sparse_r2": {
+    "plain_ba_mean": 0.7785967619930694,
+    "plain_ba_std": 0.017573650737878713,
+    "twin_ba_mean": 0.7773848020881269,
+    "twin_ba_std": 0.014541763303721745,
+    "twin_delta_mean": -0.001211959904942339,
+    "twin_delta_std": 0.01021772228382395,
+    "p_val_paired_t": 0.8039415208098823,
+    "diff_in_diff": 0.005661375763754206
+  },
+  "gap_analysis": {
+    "oof_to_lb_gap": 0.1553,
+    "dense_to_sparse_drop": 0.009928148446300189,
+    "percentage_explained": 6.392883738763805,
+    "residual_unexplained_gap": 0.1453718515536998
+  },
+  "verdict": "YELLOW / PARTIALLY SUPPORTED (Density effect is ~0.0099 BA, explaining 6.4% of gap; 93.6% driven by general sequence domain shift / error correlation)"
+}

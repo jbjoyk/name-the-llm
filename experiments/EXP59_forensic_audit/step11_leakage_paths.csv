@@ -1,0 +1,9 @@
+path,verdict,evidence
+Exact_Prompt_Overlap_in_Train,PASS,Verified exactly 0 overlapping prompts between folds in train.csv (N=150).
+Exact_Text_Overlap_in_Open_Pool,PASS,Verified exactly 0 exact matching response texts between open_pool_clean (212k) and train.csv.
+Q14_Fold_Adapter_Independence,PASS,q14v5_f0..f4 have distinct SHA-256 hashes and distinct weight parameters.
+Q8_Fold_Adapter_Independence,PASS,EXP47 Qwen3-8B OOF generated under strict GroupKFold prompt-disjointness.
+Cross_Fold_Boundary_Mismatch,PASS,Fusing strictly on matching folds (N=666) still scores 0.7883 BA vs 0.7870 BA on mismatching folds.
+Dense_Prompt_Centering_vs_Sparse_Test,FAIL,"Centered twin head debiasing assumes R=18 responses per cluster to subtract prompt mean; on Kaggle hidden test R~2, causing centering collapse."
+Unsupervised_Clustering_Granularity,FAIL,capped_agglo relies on dense multi-response topical clusters; sparse test set lacks enough completions per prompt to recover true prompt clusters.
+Cross_Prompt_Semantic_Leakage,UNKNOWN,32% of held-out prompts have cosine similarity >= 0.70 to a training prompt in another fold; difficult to measure impact on test.
