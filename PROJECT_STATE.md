@@ -1,15 +1,15 @@
 # PROJECT STATE & AGENT HANDOFF: KAGGLE "NAME THAT LLM"
 
-**Last Updated**: 2026-11-09 15:30 UTC
+**Last Updated**: 2026-11-09 17:35 UTC
 **Primary Repository**: `/home/rj2826/name-that-llm`
-**Current Active State**: **EXP63 Prompt-Conditional Relative Attribution & Set Assignment Completed (Verdict: YELLOW; Retain EXP52 as frozen production champion at 0.632 LB)**
+**Current Active State**: **EXP64 Disagreement-Aware Confidence Routing Completed (Verdict: YELLOW; Retain EXP52 as frozen production champion at 0.632 LB)**
 **Current Production Baseline**: **EXP52**
 - **Kaggle Public LB**: **0.632**
 - **Prompt-Disjoint OOF BA**: **0.7873**
 - **Status**: **EXP52 frozen**
-- **Latest Completed Experiment**: **EXP63**
+- **Latest Completed Experiment**: **EXP64**
 - **Latest Experiment Verdict**: **YELLOW**
-- **Next Research Priority**: **Hungarian matching gains (+0.1167 at R=18) evaporate under realistic sparse test regime (+0.0052 at R=2). Do not rely on dense prompt-relative assignment for Kaggle test inference. Retain EXP52.**
+- **Next Research Priority**: **Single-sample routing yields +0.0033 nested lift (CI [-0.0027, +0.0094] spans zero; net +9 samples). Retain EXP52. Explore sequence fine-tuning of diverse model families (Llama-3 / Gemma-2 / Mistral-7B).**
 - **Kaggle Submissions**: **No Kaggle submission after EXP52.**
 
 ---
@@ -74,6 +74,7 @@
 | **EXP_61** | Hidden-Surface / Representation-Shift Forensics | **0.7858** (Matched $R=2$) / **0.7873** (Dense OOF) | *Not Submitted* | **YELLOW / PARTIALLY SUPPORTED (Manifold distance $\rho=+0.0071$, error correlation drives gap)** |
 | **EXP_62** | Cross-Architecture Complementarity Test (ModernBERT-base) | **0.7858** (Nested CV) / **0.3093** (ModernBERT standalone) | *Not Submitted* | **RED (Refuted cross-architecture hypothesis, nested $\Delta=-0.0015$; Retain EXP52)** |
 | **EXP_63** | Prompt-Conditional Relative Attribution & Set Assignment | **0.9040** ($R=18$ Hungarian) / **0.8021** ($R=2$ Sparse) / **0.7873** (Baseline) | *Not Submitted* | **YELLOW (Hungarian +0.1167 at R=18 collapses to +0.0052 at R=2; training-only artifact; Retain EXP52)** |
+| **EXP_64** | Disagreement-Aware Confidence Routing for Single-Sample Attribution | **0.7906** (Nested CV) / **0.7873** (Baseline) | *Not Submitted* | **YELLOW (Nested delta +0.0033, CI [-0.0027, +0.0094] spans zero; net +9 samples; Retain EXP52)** |
 
 ---
 
@@ -267,3 +268,19 @@
 | **EXP63 Config JSON** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/config.json` |
 | **EXP63 README** | `/home/rj2826/name-that-llm/experiments/EXP63_prompt_relative/README.md` |
 | **EXP63 Notebook** | `/home/rj2826/name-that-llm/notebooks/63_prompt_relative_attribution.ipynb` |
+| **EXP64 Script** | `/home/rj2826/name-that-llm/src/exp64_confidence_router.py` |
+| **EXP64 Report** | `/home/rj2826/name-that-llm/reports/EXP64_REPORT.md` |
+| **EXP64 Notebook** | `/home/rj2826/name-that-llm/notebooks/64_disagreement_confidence_routing.ipynb` |
+| **EXP64 Directory** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/` |
+| **EXP64 Comparison CSV** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/comparison_table.csv` |
+| **EXP64 Fold Results** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/fold_results.csv` |
+| **EXP64 Rules Results** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/rules_results.csv` |
+| **EXP64 Calibration CSV** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/calibration_results.csv` |
+| **EXP64 Ablation Results** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/ablation_results.csv` |
+| **EXP64 Diagnostics CSV** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/diagnostics_groups.csv` |
+| **EXP64 Disagreement CSV** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/disagreement_results.csv` |
+| **EXP64 Decile Results** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/decile_results.csv` |
+| **EXP64 Coefficients** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/router_coefficients.csv` |
+| **EXP64 Metrics JSON** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/metrics.json` |
+| **EXP64 Config JSON** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/config.json` |
+| **EXP64 README** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/README.md` |

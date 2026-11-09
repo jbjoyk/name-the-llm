@@ -1,0 +1,15 @@
+{
+  "n_disagreement": 1612,
+  "pct_disagreement": 59.725824379399775,
+  "exp52_ba_disagreement": 0.6871447383469977,
+  "q8_ba_disagreement": 0.3398917350935846,
+  "q14_ba_disagreement": 0.44857292837406454,
+  "router_ba_disagreement": 0.6944978527433379,
+  "router_delta_disagreement": 0.007353114396340121,
+  "oracle_ba_disagreement": 0.8425024818494973,
+  "corrections_when_exp52_wrong": 40,
+  "degradations_when_exp52_correct": 31,
+  "net_corrections": 9,
+  "q8_only_potential": 569,
+  "q14_only_potential": 687
+}

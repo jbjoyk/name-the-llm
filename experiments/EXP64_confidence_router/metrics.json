@@ -1,0 +1,70 @@
+{
+  "exp52_baseline_ba": 0.7873129505344271,
+  "exp52_baseline_f1": 0.7879714295394578,
+  "q8_standalone_ba": 0.590981854337559,
+  "q14_standalone_ba": 0.6346085011185683,
+  "router_nested_ba": 0.790641312453393,
+  "router_nested_delta": 0.0033283619189659053,
+  "router_nested_f1": 0.7907661903873133,
+  "calibrated_router_ba": 0.7828610489684316,
+  "calibrated_router_delta": -0.004451901565995509,
+  "random_router_ba": 0.7854610986825753,
+  "random_router_delta": -0.0018518518518517713,
+  "outer_fold_ba": [
+    0.7833333333333334,
+    0.7867177522349936,
+    0.7925925925925926,
+    0.7851851851851852,
+    0.8055555555555556
+  ],
+  "outer_fold_deltas": [
+    0.005555555555555647,
+    0.007407407407407418,
+    0.0018518518518518823,
+    0.0018518518518517713,
+    0.0
+  ],
+  "bootstrap": {
+    "mean_delta": 0.0034023429493086382,
+    "ci_95_lower": -0.002698887801760244,
+    "ci_95_upper": 0.009429259330258372,
+    "p_positive": 0.87,
+    "n_boot": 2000,
+    "seed": 42
+  },
+  "disagreement": {
+    "n_disagreement": 1612,
+    "pct_disagreement": 59.725824379399775,
+    "exp52_ba_disagreement": 0.6871447383469977,
+    "q8_ba_disagreement": 0.3398917350935846,
+    "q14_ba_disagreement": 0.44857292837406454,
+    "router_ba_disagreement": 0.6944978527433379,
+    "router_delta_disagreement": 0.007353114396340121,
+    "oracle_ba_disagreement": 0.8425024818494973,
+    "corrections_when_exp52_wrong": 40,
+    "degradations_when_exp52_correct": 31,
+    "net_corrections": 9,
+    "q8_only_potential": 569,
+    "q14_only_potential": 687
+  },
+  "seed_robustness": {
+    "seeds": [
+      42,
+      123,
+      2024,
+      3407,
+      7777
+    ],
+    "ba_scores": [
+      0.7895302013422819,
+      0.7895302013422819,
+      0.7895302013422819,
+      0.7895302013422819,
+      0.7895302013422819
+    ],
+    "mean_ba": 0.7895302013422819,
+    "std_ba": 0.0
+  },
+  "verdict": "YELLOW",
+  "verdict_reason": "Single-sample confidence routing achieves nested OOF BA of 0.7906 (+0.0033 over EXP52 0.7873). The delta is statistically uncertain (95% CI [-0.0027, +0.0094], P(delta>0)=87.0%). Shifting weights adaptively degrades 31 samples while correcting 40 samples on unseen prompts (net +9 samples). EXP52 remains frozen champion."
+}

@@ -1,0 +1,36 @@
+{
+  "experiment_id": "EXP64_confidence_router",
+  "description": "Disagreement-Aware Confidence Routing for Single-Sample Attribution",
+  "date": "2026-11-09 17:31:21",
+  "hardware": {
+    "python": "3.14.7",
+    "torch": "2.15.0+cu132",
+    "device": "CPU / Dual RTX 3060"
+  },
+  "safety": {
+    "kaggle_submission": false,
+    "exp52_modified": false,
+    "single_sample_valid": true,
+    "prompt_peer_leakage": false
+  },
+  "hyperparameters": {
+    "n_outer_folds": 5,
+    "n_inner_folds": 4,
+    "router_classifier": "LogisticRegression(L2, class_weight='balanced')",
+    "C_grid": [
+      0.001,
+      0.01,
+      0.1,
+      1.0,
+      10.0
+    ],
+    "alpha_grid": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ],
+    "bootstrap_resamples": 2000
+  }
+}

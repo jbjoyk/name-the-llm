@@ -1,0 +1,2 @@
+n_disagreement,pct_disagreement,exp52_ba_disagreement,q8_ba_disagreement,q14_ba_disagreement,router_ba_disagreement,router_delta_disagreement,oracle_ba_disagreement,corrections_when_exp52_wrong,degradations_when_exp52_correct,net_corrections,q8_only_potential,q14_only_potential
+1612,59.725824379399775,0.6871447383469977,0.3398917350935846,0.44857292837406454,0.6944978527433379,0.007353114396340121,0.8425024818494973,40,31,9,569,687

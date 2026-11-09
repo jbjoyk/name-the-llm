@@ -30,6 +30,7 @@ flowchart TD
     EXP60 --> EXP61["EXP61: Hidden-Surface Forensics<br/>(Manifold Distance rho=+0.0071 / Error Correlation Gap)"]
     EXP61 --> EXP62["EXP62: Cross-Architecture Test<br/>(RED: ModernBERT Nested BA 0.7858, delta=-0.0015)"]
     EXP62 --> EXP63["EXP63: Prompt-Relative & Assignment<br/>(YELLOW: R=18 Hungarian +0.1167 / R=2 collapses to +0.0052)"]
+    EXP63 --> EXP64["EXP64: Single-Sample Confidence Router<br/>(YELLOW: Nested OOF 0.7906, delta=+0.0033)"]
 ```
 
 ---
@@ -59,6 +60,7 @@ flowchart TD
 | **EXP61** | The large OOF-to-LB gap is caused primarily by measurable representation/distribution shift between training and test surfaces | 5-Fold OOF Stratification, Covariate KS tests, Adversarial Domain Classifier, Matched Local Surface Sweep | **REPRESENTATION DISTANCE**: $\rho = +0.0071$ ($p = 0.712$)<br/>**MATCHED SURFACE**: 0.7858 $\pm$ 0.0153 BA ($\Delta = -0.0015$)<br/>**AGREEMENT SHIFT**: Agree 0.9318 BA, Disagree 0.6871 BA ($\rho = +0.3142$) | **PARTIALLY SUPPORTED** | **NO** (Retain EXP52) | **NO** |
 | **EXP62** | Distinct architecture (ModernBERT-base) provides complementary errors to dual-Qwen | 5-Fold Nested CV (5 outer $\times$ 4 inner) + 2000 Bootstrap | **STANDALONE BA**: 0.3093 (LR) / 0.2371 (SVM)<br/>**NESTED BA**: 0.7858 ($\Delta = -0.0015$)<br/>**95% CI**: $[-0.0039, +0.0006]$, $P(\Delta>0)=9.4\%$ | **RED** | **NO** (Retain EXP52) | **NO** |
 | **EXP63** | Prompt-conditional relative attribution and set assignment improve classification | 5-Fold Prompt-Disjoint + Sparse Scaling $R \in [18..2]$ (5 seeds) + Nested CV | **HUNGARIAN R=18**: 0.9040 BA ($\Delta = +0.1167$)<br/>**HUNGARIAN R=2**: 0.8021 BA ($\Delta = +0.0052$)<br/>**NESTED FUSED**: 0.7995 BA ($\Delta = +0.0122$ at $R=18$; $-0.0085$ at $R=2$) | **YELLOW** | **NO** (Retain EXP52) | **NO** |
+| **EXP64** | Single-sample confidence, margin, and disagreement features route between Q8 and Q14 to outperform fixed fusion | 5-Fold Prompt-Disjoint Nested CV (5 outer $\times$ 4 inner) + 2000 Bootstrap | **NESTED BA**: 0.7906 $\pm$ 0.0090 ($\Delta = +0.0033$)<br/>**95% CI**: $[-0.0027, +0.0094]$, $P(\Delta>0)=87.0\%$<br/>**DISAGREEMENT NET**: +9 samples (+40 corrections, -31 degradations) | **YELLOW** | **NO** (Retain EXP52) | **NO** |
 
 ---
 
@@ -594,3 +596,37 @@ flowchart TD
   - Plots: `exp63_baseline_vs_relative.png`, `exp63_assignment_gain.png`, `exp63_sparse_regime.png`, `exp63_error_correction.png`, `exp63_complementarity.png` (also mirrored in `plots/`)
   - Report: `reports/EXP63_REPORT.md`
 - **Decision**: **YELLOW (Gains exist strongly at dense R=18 [+0.1167 BA], but collapse under sparse R=2 [+0.0052 BA, and LOO relative delta is negative at -0.0085 BA]; exploits training-only structure; retain EXP52 as frozen production champion at 0.632 LB)**.
+
+---
+
+## EXP64 — Disagreement-Aware Confidence Routing for Single-Sample Attribution
+- **Hypothesis**: Although the fixed EXP52 fusion (0.60 Qwen3-8B + 0.40 Qwen3-14B) is strong, Q8 and Q14 are reliable on different individual response types. Single-sample confidence, margin, entropy, and inter-model disagreement features can predict which expert is more likely to be correct, enabling a continuous adaptive router to outperform fixed fusion without using prompt-level or batch information.
+- **Methodology**: Strict single-sample prompt-disjoint evaluation. Zero prompt IDs, zero prompt centroids, zero Hungarian matching, zero pairwise peer comparisons. Extracted 37 single-sample continuous features (8 Q8, 8 Q14, 21 cross-model disagreement/agreement features) from standalone text logits. Evaluated pre-specified heuristic rules, temperature calibration ($T_8 \approx 1.21, T_{14} \approx 1.65$), feature ablations, selection-safe nested cross-validation (5 outer $\times$ 4 inner folds), negative control (random router with permuted training targets), paired bootstrap (2,000 resamples), seed robustness (5 seeds), and sparse simulation invariance testing ($R \in [18, 12, 8, 4, 2]$).
+- **Key Findings**:
+  - **Diagnostic Differences**: On training data, when Q14 is uniquely correct (Group C) vs Q8 uniquely correct (Group B), Q14 margin is significantly larger ($d = +0.9879, p = 5.3 \times 10^{-61}$) and entropy lower ($d = -1.0919, p = 1.6 \times 10^{-72}$).
+  - **Hard Routing Failure**: Heuristic hard routing rules catastrophically degrade performance (Rule B/E: 0.7213 BA, $\Delta = -0.0660$) because they discard soft ensembling synergy.
+  - **Temperature Calibration Distorts Fusion**: Post-hoc temperature scaling ($T_8 = 1.2136, T_{14} = 1.6493$) improves standalone ECE (Q14 ECE drops $0.1098 \to 0.0219$) but compresses Q14 logits relative to Q8, degrading fused EXP52 accuracy from 0.7873 to 0.7736 BA ($\Delta = -0.0137$).
+  - **Nested Cross-Validation Performance**: Selection-safe continuous adaptive routing achieves **0.7906 BA** ($\Delta = \mathbf{+0.0033}$ over EXP52 baseline 0.7873, Macro-F1 0.7908). Outer fold scores: $0.7907 \pm 0.0090$ BA (gains in 4 of 5 folds: $+0.0056, +0.0074, +0.0019, +0.0019, +0.0000$).
+  - **Statistical Uncertainty**: Paired bootstrap ($B = 2,000$) reveals a 95% confidence interval of **$[-0.0027, +0.0094]$**, which spans zero ($P(\Delta > 0) = 87.0\%$).
+  - **Correction vs Degradation Dynamics**: On the 1,612 disagreement samples (59.7% of dataset), the router fixes 40 errors made by EXP52, but concurrently causes 31 degradations on samples EXP52 answered correctly, yielding a net improvement of only **+9 samples** across the entire 2,699-sample dataset.
+  - **Negative Control & Single-Sample Audit**: Random router drops performance to 0.7855 BA ($\Delta = -0.0019$). Sparse simulation across $R \in [18, 12, 8, 4, 2]$ exhibits 100% bitwise invariance (0 diffs), confirming strict single-sample compliance.
+  - **Scientific Conclusion**: Single-sample confidence routing provides a genuine but statistically marginal lift ($+0.0033$ BA). Overconfident errors on held-out prompts prevent the router from safely resolving the inter-backbone disagreement gap.
+- **Artifacts**:
+  - Directory: `experiments/EXP64_confidence_router/`
+  - Script: `src/exp64_confidence_router.py`
+  - Notebook: `notebooks/64_disagreement_confidence_routing.ipynb`
+  - Results CSV: `experiments/EXP64_confidence_router/comparison_table.csv`
+  - Fold Results CSV: `experiments/EXP64_confidence_router/fold_results.csv`
+  - Rules Results CSV: `experiments/EXP64_confidence_router/rules_results.csv`
+  - Calibration Results CSV: `experiments/EXP64_confidence_router/calibration_results.csv`
+  - Ablation Results CSV: `experiments/EXP64_confidence_router/ablation_results.csv`
+  - Diagnostics CSV: `experiments/EXP64_confidence_router/diagnostics_groups.csv`
+  - Disagreement CSV: `experiments/EXP64_confidence_router/disagreement_results.csv`
+  - Decile Results CSV: `experiments/EXP64_confidence_router/decile_results.csv`
+  - Router Coefficients CSV: `experiments/EXP64_confidence_router/router_coefficients.csv`
+  - Metrics JSON: `experiments/EXP64_confidence_router/metrics.json`
+  - Config JSON: `experiments/EXP64_confidence_router/config.json`
+  - README: `experiments/EXP64_confidence_router/README.md`
+  - Plots: `exp64_confidence_distributions.png`, `exp64_router_performance.png`, `exp64_disagreement_analysis.png`, `exp64_confidence_deciles.png`, `exp64_correction_degradation.png`, `exp64_router_feature_importance.png`, `exp64_calibration.png` (also mirrored in `plots/`)
+  - Report: `reports/EXP64_REPORT.md`
+- **Decision**: **YELLOW (Nested CV lift is +0.0033 BA with 95% CI [-0.0027, +0.0094] spanning zero; net +9 samples out of 2,699; retain EXP52 as frozen production champion at 0.632 LB)**.
