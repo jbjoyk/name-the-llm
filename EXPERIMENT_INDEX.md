@@ -28,6 +28,7 @@ flowchart TD
     EXP52 --> EXP59["EXP59: OOF vs Kaggle Forensic Audit<br/>(Forensic Diagnosis of 0.155 Gap)"]
     EXP59 --> EXP60["EXP60: Sparse Test-Regime Calibration<br/>(Density Effect +0.0057 / Explains 6.4% of Gap)"]
     EXP60 --> EXP61["EXP61: Hidden-Surface Forensics<br/>(Manifold Distance rho=+0.0071 / Error Correlation Gap)"]
+    EXP61 --> EXP62["EXP62: Cross-Architecture Test<br/>(RED: ModernBERT Nested BA 0.7858, delta=-0.0015)"]
 ```
 
 ---
@@ -55,6 +56,7 @@ flowchart TD
 | **EXP59** | Rigorous forensic audit isolates the root cause of the 0.1553 OOF-to-LB gap | 16-stage forensic investigation | **LOCAL OOF**: 0.7873 BA (100% verified)<br/>**KAGGLE LB**: 0.6320<br/>**DIAGNOSIS**: Formulated sparse test-regime ($R\approx 2$) and inter-backbone error correlation hypotheses | **GREEN (Audit Complete)** | **NO** | **NO** |
 | **EXP60** | Sparse inference density ($R=2$ vs $R=18$) degrades prompt recovery and explains the 0.155 gap | 5-Seed subsampling + sweep $R \in [2..18]$ | **DENSE R=18**: 0.7873 BA (Plain: 0.7829)<br/>**SPARSE R=2**: 0.7774 BA (Plain: 0.7786)<br/>**DID EFFECT**: +0.0057 BA (Explains 6.39% of gap; 93.61% unexplained) | **YELLOW / PARTIALLY SUPPORTED** | **NO** (Retain EXP52) | **NO** |
 | **EXP61** | The large OOF-to-LB gap is caused primarily by measurable representation/distribution shift between training and test surfaces | 5-Fold OOF Stratification, Covariate KS tests, Adversarial Domain Classifier, Matched Local Surface Sweep | **REPRESENTATION DISTANCE**: $\rho = +0.0071$ ($p = 0.712$)<br/>**MATCHED SURFACE**: 0.7858 $\pm$ 0.0153 BA ($\Delta = -0.0015$)<br/>**AGREEMENT SHIFT**: Agree 0.9318 BA, Disagree 0.6871 BA ($\rho = +0.3142$) | **PARTIALLY SUPPORTED** | **NO** (Retain EXP52) | **NO** |
+| **EXP62** | Distinct architecture (ModernBERT-base) provides complementary errors to dual-Qwen | 5-Fold Nested CV (5 outer $\times$ 4 inner) + 2000 Bootstrap | **STANDALONE BA**: 0.3093 (LR) / 0.2371 (SVM)<br/>**NESTED BA**: 0.7858 ($\Delta = -0.0015$)<br/>**95% CI**: $[-0.0039, +0.0006]$, $P(\Delta>0)=9.4\%$ | **RED** | **NO** (Retain EXP52) | **NO** |
 
 ---
 
@@ -531,3 +533,30 @@ flowchart TD
   - Plots: `text_distribution_shift.png`, `semantic_embedding_pca.png`, `q8_representation_pca.png`, `q14_representation_pca.png`, `representation_nn_distance.png`, `domain_classifier_auc.png`, `q8_q14_agreement_shift.png`, `entropy_shift.png`, `representation_distance_vs_error.png`, `matched_surface_validation.png` (also mirrored in `plots/`)
   - Report: `reports/EXP61_REPORT.md`
 - **Decision**: **YELLOW / PARTIALLY SUPPORTED (Representation distance to train manifold has rho=+0.0071, proving OOD distance alone does not drive error; inter-backbone sequence collinearity and error correlation on unseen prompts drive the gap; retain EXP52 as frozen production champion at 0.632 LB)**.
+
+---
+
+## EXP62 — Cross-Architecture Complementarity Test
+- **Hypothesis**: A genuinely different LLM architecture (ModernBERT-base, a 149M parameter bidirectional encoder with RoPE, GeGLU, and 8,192 context window) can provide complementary attribution errors that are less correlated with Qwen3-8B/Qwen3-14B, producing a more robust ensemble under unseen-prompt validation.
+- **Methodology**: Strict 5-fold prompt-disjoint CV and selection-safe nested CV (5 outer folds $\times$ 4 inner folds). Extracted frozen mean-pooled final hidden states (768d) from `answerdotai/ModernBERT-base`. Trained `StandardScaler` + Linear Logistic Regression ($C=0.1$) and Linear SVM ($C=1.0$). Computed pairwise error correlations ($r$), oracle accuracy upper bounds, grid fusion sweep $w \in [0.00..0.50]$, conditional disagreement fusion ($w_{\text{dis}} \in [0.00..0.40]$), cosine representation diversity, and 2,000 paired bootstrap resamples.
+- **Key Findings**:
+  - **Weak Standalone Performance**: ModernBERT-base achieves only **0.3093 $\pm$ 0.0093 BA** (Logistic Regression) and **0.2371 $\pm$ 0.0080 BA** (Linear SVM), far below standalone Qwen3-8B (0.5910) and Qwen3-14B (0.6346).
+  - **Low Error Correlation Does Not Yield Complementarity**: ModernBERT errors have a low measured Pearson correlation with EXP52 ($r = \mathbf{0.1010}$, $p = 1.44 \times 10^{-7}$). However, low correlation is an artifact of low accuracy rather than constructive orthogonality.
+  - **Nested Cross-Validation Degradation**: Under selection-safe nested CV, overall BA drops from 0.7873 to **0.7858** ($\Delta = \mathbf{-0.0015}$ BA). In 4 of 5 outer folds, inner validation selects $w^* = 0.00$. In fold 0, inner noise selected $w^* = 0.05$, causing out-of-sample degradation from $0.7778 \to 0.7704$.
+  - **Statistical Bootstrap Refutation**: 2,000 paired bootstrap iterations yield 95% CI of **$[-0.0039, +0.0006]$**, with $P(\Delta > 0) = \mathbf{9.4\%}$.
+  - **Falsification of Disagreement Correction**: On the 59.73% of data where Q8 and Q14 disagree ($N=1,612$), EXP52 achieves **0.6871 BA**, while ModernBERT achieves only **0.2836 BA**. ModernBERT provides only 117 potential fixes against 779 corruptions (net correction capacity: **$-662$ samples**). Conditional fusion on disagreement cases causes monotonic performance collapse.
+- **Artifacts**:
+  - Directory: `experiments/EXP62_cross_architecture/`
+  - Script: `src/exp62_cross_architecture.py`
+  - Results CSV: `experiments/EXP62_cross_architecture/results.csv`
+  - Fold Results CSV: `experiments/EXP62_cross_architecture/fold_results.csv`
+  - Complementarity CSV: `experiments/EXP62_cross_architecture/complementarity.csv`
+  - Oracle Results CSV: `experiments/EXP62_cross_architecture/oracle_results.csv`
+  - Fusion Results CSV: `experiments/EXP62_cross_architecture/fusion_results.csv`
+  - Nested Results CSV: `experiments/EXP62_cross_architecture/nested_results.csv`
+  - Prediction Disagreement CSV: `experiments/EXP62_cross_architecture/prediction_disagreement.csv`
+  - Config JSON: `experiments/EXP62_cross_architecture/config.json`
+  - README: `experiments/EXP62_cross_architecture/README.md`
+  - Plots: `exp62_model_comparison.png`, `exp62_error_correlation.png`, `exp62_oracle_complementarity.png`, `exp62_fusion_curve.png`, `exp62_disagreement_analysis.png` (also mirrored in `plots/`)
+  - Report: `reports/EXP62_REPORT.md`
+- **Decision**: **RED (Refuted cross-architecture complementarity hypothesis; STOP un-fine-tuned cross-architecture model stacking; retain EXP52 as frozen production champion at 0.632 LB)**.

@@ -1,0 +1,60 @@
+{
+  "experiment_id": "EXP62_cross_architecture",
+  "description": "Cross-Architecture Complementarity Test with ModernBERT-base",
+  "date": "2026-11-09 13:52:36",
+  "hardware": {
+    "gpu": "2x NVIDIA GeForce RTX 3060 (12GB VRAM)",
+    "cuda": "13.2",
+    "pytorch": "2.15.0+cu132",
+    "python": "3.14.7"
+  },
+  "model_provenance": {
+    "name": "answerdotai/ModernBERT-base",
+    "architecture": "ModernBertModel (Bidirectional Encoder, RoPE, GeGLU, unpadded attention)",
+    "parameters": 149096448,
+    "hidden_size": 768,
+    "num_layers": 22,
+    "context_window": 8192,
+    "tokenizer": "ModernBERT WordPiece (vocab 50,368)",
+    "snapshot_hash": "8949b909ec900327062f0ebf497f51aef5e6f0c8",
+    "base_or_instruct": "Pretrained base foundation encoder",
+    "prior_involvement": "None (clean holdout architecture)"
+  },
+  "baselines": {
+    "exp52_oof_ba": 0.7873129505344271,
+    "q8_oof_ba": 0.590981854337559,
+    "q14_oof_ba": 0.6346085011185683
+  },
+  "modernbert_performance": {
+    "logistic_regression_ba": 0.3093114591101168,
+    "logistic_regression_macro_f1": 0.30811340979728213,
+    "linear_svm_ba": 0.2370817797663435,
+    "linear_svm_macro_f1": 0.24233065601942455
+  },
+  "nested_validation": {
+    "nested_ba": 0.7858314690529457,
+    "delta": -0.001481481481481417,
+    "ci_95_lower": -0.003888551873304652,
+    "ci_95_upper": 0.0006416234529972191,
+    "p_positive": 0.094,
+    "outer_weights": [
+      0.05,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "complementarity": {
+    "pearson_err_corr_exp52_new": 0.10103865262628343,
+    "oracle_exp52_new_ba": 0.8339945314441959,
+    "disagreement_count": 1612,
+    "disagreement_fraction": 0.5972582437939977,
+    "fixes_in_disagreement": 117,
+    "worsens_in_disagreement": 779,
+    "net_correction": -662
+  },
+  "verdict": "RED",
+  "kaggle_submission": "NO",
+  "exp52_modified": false
+}
