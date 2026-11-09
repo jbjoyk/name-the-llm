@@ -1,0 +1,17 @@
+{
+  "experiment_id": "EXP50",
+  "description": "Controlled Qwen-Dominant Fusion (EXP47 Qwen3-8B LoRA24 Centred Twin + 4-View Open-Pool LinearSVC)",
+  "model_architecture": "Qwen3-8B-Base (24 layers, fp16) + 6 merged q8v5 LoRA adapters + Centred Twin Head (wt=0.35)",
+  "auxiliary_architecture": "4-View Multi-Granularity LinearSVC (Char 3-5, Word 1-3, Shape 2-6, Func 1-3) with 36k Clean Open Pool",
+  "fusion_formula": "lp_fused = 0.75 * lp_qwen + 0.25 * lp_svc (or 0.80 / 0.20)",
+  "w_qwen": 0.75,
+  "w_svc": 0.25,
+  "conservative_w_qwen": 0.8,
+  "conservative_w_svc": 0.2,
+  "sinkhorn_included": false,
+  "local_cv_ba": 0.6102435993040021,
+  "delta_vs_exp47_local": 0.019261744966443062,
+  "verified_kaggle_baseline": 0.62,
+  "submission_ready": false,
+  "status": "AWAITING_USER_APPROVAL"
+}

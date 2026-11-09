@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-11-08 14:14:11",
+  "hardware": {
+    "gpu_count": 2,
+    "gpu_name": "NVIDIA GeForce RTX 3060",
+    "system_ram_gib": 30.400794982910156
+  },
+  "benchmark": {
+    "benchmark_rows": 50,
+    "wall_clock_time_sec": 114.06650757789612,
+    "time_8b_sec": 35.342808961868286,
+    "time_14b_sec": 78.72369861602783,
+    "throughput_8b_rows_per_sec": 1.4147149439634383,
+    "throughput_14b_rows_per_sec": 0.6351327602615993,
+    "throughput_overall_rows_per_sec": 0.4383407633117456,
+    "peak_vram_8b_gib": 9.942598342895508,
+    "peak_vram_14b_gib": 10.287960052490234,
+    "ram_delta_gib": 0.27776336669921875,
+    "cpu_offload_detected": false
+  },
+  "full_inference": {
+    "test_rows": 3,
+    "inference_time_sec": 87.67102289199829,
+    "throughput_rows_per_sec": 0.03421883195882969
+  }
+}

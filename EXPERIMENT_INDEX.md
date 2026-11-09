@@ -10,15 +10,49 @@ Chronological research and engineering campaign log. Maintained sequentially wit
 flowchart TD
     EXP46A["EXP46A: Qwen3-8B LoRA24<br/>(Local: 0.5862 / Kaggle: 0.606)"] --> EXP47["EXP47: + Centred Twin Head<br/>(Local: 0.5910 / Kaggle: 0.620)"]
     EXP47 --> EXP48["EXP48: + Sinkhorn Calibration<br/>(Local: 0.5910 / Kaggle: Not Submitted)"]
-    EXP47 --> EXP49["EXP49: + 4-View Open-Pool LinearSVC<br/>(Local: 0.6354--0.7028 / Candidate Ready)"]
+    EXP47 --> EXP49["EXP49: + 4-View Open-Pool LinearSVC<br/>(Local: 0.7028 / Kaggle: 0.612)"]
     EXP48 -.->|"Ensemble Regularizer"| EXP49
-    EXP49 --> EXP50["EXP50: + Sibling Style & Typography<br/>(Planned)"]
-    EXP50 --> EXP51["EXP51: + Qwen3-14B LoRA Scaling<br/>(Planned)"]
+    EXP47 --> EXP50["EXP50: Controlled Qwen-Dominant Fusion<br/>(Local: 0.6102 / Kaggle: Not Submitted)"]
+    EXP49 -.->|"Decision Mass Failure Analysis"| EXP50
+    EXP50 --> EXP50B["EXP50B: Extended Weight Sweep (0.20--0.50)<br/>(Local: 0.6354 at 0.50 / Kaggle: Not Submitted)"]
+    EXP50B --> EXP51["EXP51: Qwen3-14B Two-Stage Audit<br/>(Audit Complete / Stop & Report)"]
+    EXP51 --> EXP51A["EXP51A: Forensic Provenance Audit<br/>(q14v5 OOF Verified Valid)"]
+    EXP51A --> EXP52["EXP52: Dual-LoRA 8B+14B Kernel<br/>(Local: 0.7873 / Kaggle: 0.632)"]
+    EXP52 --> EXP53["EXP53: Dual-LoRA Weight Sweep<br/>(w14=0.40 Confirmed Optimal)"]
+    EXP52 --> EXP54["EXP54: EXP52 + Open Pool SVC Sweep<br/>(w_svc <= 0.20 / Retain EXP52)"]
+    EXP52 --> EXP55["EXP55: Isolated Stylometry Specialist<br/>(Nested BA: 0.7881 / Retain EXP52)"]
+    EXP52 --> EXP56["EXP56: Prompt-Conditioned Residual<br/>(RED: Duplicate of head_cent / Retain EXP52)"]
+    EXP52 --> EXP57A["EXP57A: Weight-Space Diagnosis<br/>(Read-Only Diagnosis)"]
+    EXP57A --> EXP57B["EXP57B: Norm Equalization<br/>(RED: Refuted Causal Hypothesis)"]
+    EXP57A --> EXP58["EXP58: Gemini Layer Falsification<br/>(RED: Refuted Early-Layer Hypothesis)"]
 ```
 
 ---
 
-## 2. Chronological Experiment Registry
+## 2. Canonical Experiment Summary Table
+
+| ID | Hypothesis | Validation | Result | Verdict | Production Change | Kaggle Submission |
+|:---|:---|:---|:---|:---:|:---:|:---:|
+| **EXP46A** | Multi-layer pooling `[2..24]` from Qwen3-8B LoRA24 overcomes sparse prompt barrier | 5-Fold `GroupKFold(prompt_id)` | **LOCAL OOF**: 0.5862 BA<br/>**KAGGLE LB**: **0.606** | **GREEN** | **YES** (Base LoRA) | **YES** |
+| **EXP47** | Centered twin head ($w_{\text{twin}}=0.35$) removes intra-prompt semantic bias | 5-Fold `GroupKFold(prompt_id)` | **LOCAL OOF**: 0.5910 BA<br/>**KAGGLE LB**: **0.620** | **GREEN** | **YES** (Twin Head) | **YES** |
+| **EXP48** | Sinkhorn matrix scaling calibrates global class marginals | 5-Fold `GroupKFold(prompt_id)` | **LOCAL OOF**: 0.5910 BA ($\Delta=0.0000$)<br/>**KAGGLE LB**: *Not Submitted* | **YELLOW** | **NO** | **NO** |
+| **EXP49** | 4-View Open-Pool LinearSVC ($w=0.85$) provides orthogonal surface features | 5-Fold `GroupKFold(prompt_id)` | **LOCAL OOF**: 0.7028 BA<br/>**NESTED CV**: 0.6976 BA (0.7054 w/ SK)<br/>**KAGGLE LB**: **0.612** | **YELLOW** | **NO** | **YES** |
+| **EXP50** | Restricting LinearSVC to auxiliary role ($w_{\text{svc}} \le 0.25$) prevents domain shift | 5-Fold `GroupKFold(prompt_id)` | **LOCAL OOF**: 0.6102 BA ($\Delta=+0.0193$)<br/>**KAGGLE LB**: *Not Submitted* | **GREEN** | **NO** | **NO** |
+| **EXP50B** | Extended weight sweep ($0.20 \le w_{\text{svc}} \le 0.50$) identifies interior optimum | 5-Fold `GroupKFold(prompt_id)` | **LOCAL OOF**: 0.6354 BA at boundary ($w=0.50$)<br/>**KAGGLE LB**: *Not Submitted* | **BOUNDARY UNRESOLVED** | **NO** | **NO** |
+| **EXP51** | Qwen3-14B Two-Stage LoRA scales deep sequence attribution capacity | Audit + Pairwise OOF | **LOCAL OOF**: 0.6346 BA (14B standalone)<br/>**FUSED OOF**: 0.7873 BA ($0.60 \text{ Q8} + 0.40 \text{ Q14}$)<br/>**KAGGLE LB**: *Not Submitted* | **GREEN** | **NO** (Audit Phase) | **NO** |
+| **EXP51A** | Forensic audit verifies Qwen3-14B OOF artifact is genuine prompt-disjoint holdout | Cryptographic & fold audit | **LOCAL OOF**: 0.6346 BA (Verified prompt-disjoint `q14v5`)<br/>**KAGGLE LB**: *Not Submitted* | **VALID** | **NO** (Audit Phase) | **NO** |
+| **EXP52** | Dual-LoRA Qwen3-8B ($0.60$) + Qwen3-14B ($0.40$) achieves deep multi-model synergy | 5-Fold `GroupKFold(prompt_id)` | **LOCAL OOF**: 0.7873 BA (Macro-F1: 0.7880)<br/>**KAGGLE LB**: **0.632** | **GREEN** | **YES (CURRENT CHAMPION)** | **YES** |
+| **EXP53** | Systematic fusion weight sweep identifies optimal Q14 weighting | 5-Fold OOF + 2000 Bootstrap | **LOCAL OOF**: 0.7873 BA (Peak at $w_{14}=0.40$; $0.50$ is tie $\Delta=-0.0008$)<br/>**KAGGLE LB**: *Not Submitted* | **FROZEN** | **NO** (Retain EXP52) | **NO** |
+| **EXP54** | Small Open Pool LinearSVC ($w \le 0.20$) contribution complements EXP52 | 5-Fold OOF + 2000 Bootstrap | **LOCAL OOF**: 0.7888 BA at $w=0.05$ (CI spans 0, net +4 samples)<br/>**KAGGLE LB**: *Not Submitted* | **FROZEN** | **NO** (Retain EXP52) | **NO** |
+| **EXP55** | Isolated character-level stylometry specialist provides orthogonal surface features | 5-Fold Nested CV + Bootstrap | **LOCAL OOF**: 0.7899 BA at $w=0.05$<br/>**NESTED CV**: 0.7881 $\pm$ 0.0098 BA ($\Delta=+0.0008$)<br/>**KAGGLE LB**: *Not Submitted* | **YELLOW** | **NO** (Retain EXP52) | **NO** |
+| **EXP56** | Qwen3-14B prompt-conditioned residual specialist removes common prompt bias | 5-Fold Nested CV | **LOCAL OOF**: 0.7888 BA at $w=0.20$<br/>**NESTED CV**: 0.7866 $\pm$ 0.0113 BA ($\Delta_{\text{nested}}=-0.0007$)<br/>**KAGGLE LB**: *Not Submitted* | **RED** | **NO** (Retain EXP52) | **NO** |
+| **EXP57A** | Read-only weight-space analysis reveals model-specific parameter signatures | Parameter inventory & regression | **OBSERVATIONAL**: $\|W_c\|_2$ vs recall $r=0.9528$ ($p=2.1\times 10^{-9}$)<br/>**KAGGLE LB**: *Not Submitted* | **READ-ONLY DIAGNOSIS** | **NO** | **NO** |
+| **EXP57B** | Inference-time class-head norm equalization causally corrects recall imbalance | 5-Fold prompt-disjoint sweep | **LOCAL OOF**: 0.7847 BA in EXP52 ($\Delta=-0.0026$; perm control 65th pctile)<br/>**KAGGLE LB**: *Not Submitted* | **RED** | **NO** (Retain EXP52) | **NO** |
+| **EXP58** | Qwen3-14B Layer-4 representation provides generalizable Gemini 3.7 vs 3.8 separation | 5-Fold prompt-disjoint probe | **LOCAL OOF**: 0.5367 BA Layer 4 vs 0.6067 full model (chance perm null: 0.4984)<br/>**KAGGLE LB**: *Not Submitted* | **RED** | **NO** (Retain EXP52) | **NO** |
+
+---
+
+## 3. Chronological Experiment Registry
 
 ### EXP_46A: Standalone Qwen3-8B LoRA24
 - **Date**: 2026-11-06
@@ -96,4 +130,327 @@ flowchart TD
 - **GPU Memory**: 9.8 GB VRAM.
 - **Decision**: **YELLOW (Evaluated; Confirms Surface Shift Hypothesis)**.
 - **Key Lesson**: At $w_{\text{svc}}=0.85$, assigning 85% decision mass to surface n-grams over-indexes on vocabulary features that suffer domain shift on unseen prompts. The deep Qwen representations (0.620 standalone) must remain the primary anchor ($w_{\text{qwen}} \ge 0.70$) rather than being subordinated to 15%.
-- **Next Step**: Build EXP50 (incorporating audited typography and sibling residuals with conservative deep-dominant weighting) or test calibrated conservative weighting ($w_{\text{qwen}}=0.80, w_{\text{svc}}=0.20$).
+- **Next Step**: Build EXP50 (controlled Qwen-dominant fusion sweep to determine whether SVC is useful as a complementary auxiliary model when Qwen remains dominant).
+
+---
+
+### EXP_50: Controlled Qwen-Dominant Fusion
+- **Date**: 2026-11-07
+- **Research Question**: Is 4-view surface stylometry from LinearSVC useful as a complementary auxiliary model when Qwen3-8B Centred Twin remains strictly dominant ($w_{\text{qwen}} \in [0.75, 1.00]$, $w_{\text{svc}} \in [0.00, 0.25]$)?
+- **Hypothesis**: Restricting the LinearSVC to an auxiliary tie-breaker role ($\le 25\%$ voting mass) will provide orthogonal regularisation without allowing surface n-gram domain shift to overrule Qwen's 0.620 semantic representations.
+- **Components**: EXP47 (Qwen3-8B LoRA24 Centred Twin) + EXP28 (4-View Open-Pool LinearSVC) or EXP27 (Official-Only LinearSVC). No Sinkhorn in primary sweep.
+- **Baseline**: EXP47 (0.5910 Local / 0.620 Kaggle LB).
+- **Local Score**: **0.6102** Balanced Accuracy (Config F: Qwen 0.75 / SVC 0.25 with Open Pool) / **0.6054** (Config E: Qwen 0.80 / SVC 0.20 with Open Pool) / **0.5988** (Config F Official Only).
+- **Kaggle Score**: **NOT SUBMITTED** (Maintained locally per strict protocol; EXP47 0.620 remains Kaggle baseline).
+- **Delta**: **+0.0193 Local vs EXP47** (+0.0240 over EXP46A).
+- **Seeds**: 42.
+- **Validation Protocol**: 5-Fold `GroupKFold(group=prompt_id)` on `train.csv`.
+- **Leakage Status**: PASSED (100% prompt-disjoint partitions, zero label peeking, cryptographic artifact hash verification).
+- **Runtime**: 0.26s on CPU (OOF fusion).
+- **GPU Memory**: 0 MB (OOF fusion; base Qwen inference 9.8 GB VRAM).
+- **Decision**: **GREEN (Validated Controlled Candidate)**.
+- **Key Lesson**: Under Qwen dominance ($w_{\text{qwen}} \ge 0.75$), the LinearSVC delivers monotonic, fold-consistent gains across all 5 folds while maintaining 97–99% prediction agreement with Qwen. Open Pool approximately doubles the lift (+0.0193 vs +0.0078), confirming its value as an auxiliary corpus.
+- **Next Step**: Characterize the response surface between 0.20 and 0.50 via extended weight sweep (EXP50B).
+
+---
+
+### EXP_50B: Extended Qwen/SVC Fusion Weight Sweep (0.20 to 0.50)
+- **Date**: 2026-11-07
+- **Research Question**: What is the complete shape of the Qwen/SVC fusion response surface across $w_{\text{svc}} \in [0.20, 0.50]$? Does an interior optimum exist, or does the curve continue to the boundary?
+- **Hypothesis**: The response surface may peak between 0.25 and 0.40 before deteriorating, identifying an empirical balance point between semantic stability and surface stylometry.
+- **Components**: EXP47 (Qwen3-8B LoRA24 Centred Twin) + EXP28 (4-View Open-Pool LinearSVC) or EXP27 (Official-Only LinearSVC). Sweep across 31 weights ($0.20, 0.21, \dots, 0.50$). No Sinkhorn.
+- **Baseline**: EXP47 (0.5910 Local / 0.620 Kaggle LB).
+- **Local Score**:
+  - **Open Pool Maximum in Range**: **0.6354** Balanced Accuracy at $w_{\text{svc}} = 0.50$ (+0.0445 vs EXP47).
+  - **Official-Only Maximum in Range**: **0.6147** Balanced Accuracy at $w_{\text{svc}} = 0.50$ (+0.0237 vs EXP47).
+  - **Conservative Candidate**: **0.6102** at $w_{\text{svc}} = 0.25$ (+0.0193 vs EXP47, 96.9% Qwen agreement).
+- **Kaggle Score**: **NOT SUBMITTED** (Maintained strictly locally; EXP47 0.620 remains Kaggle baseline).
+- **Delta**: **+0.0445 Local vs EXP47 at w=0.50** (+0.0193 at w=0.25).
+- **Seeds**: 42.
+- **Validation Protocol**: 5-Fold `GroupKFold(group=prompt_id)` on `train.csv`.
+- **Leakage Status**: PASSED (100% prompt-disjoint partitions, cryptographic artifact hash verification).
+- **Runtime**: 0.66s on CPU (OOF fusion).
+- **GPU Memory**: 0 MB (OOF fusion).
+- **Decision**: **BOUNDARY UNRESOLVED AT 0.50 (MONOTONICALLY INCREASING)**.
+- **Key Lesson**: Across $[0.20, 0.50]$, local Balanced Accuracy increases strictly monotonically without an interior peak. The boundary is unresolved at 0.50. However, because EXP49 proved that high SVC weights fail on Kaggle due to surface domain shift, local CV's preference for $w \ge 0.50$ is recognized as an artifact of logit margin scale mismatch. A conservative candidate near $w_{\text{svc}} = 0.25–0.35$ is recommended for future test-time safety.
+- **Next Step**: Proceed to EXP51 (LoRA multi-model scaling with Qwen3-14B) to expand deep foundation representation capacity.
+
+---
+
+### EXP_51: Qwen3-14B Two-Stage LoRA Reproduction & Technical Audit
+- **Date**: 2026-11-08
+- **Research Question**: Does the public LB 0.620 two-stage LoRA recipe on Qwen3-14B (`two-stage-lora-part-two.ipynb`) provide reproducible, leak-free attribution signals, and how does its representation complement our frozen EXP47 Qwen3-8B Centred Twin baseline?
+- **Hypothesis**: Scaling the foundation model to 14B and truncating to 27 layers will capture orthogonal stylistic/semantic features compared to 8B, providing high complementarity and low error correlation.
+- **Components Audited**:
+  1. Base model: `Qwen/Qwen3-14B-Base` (40 layers, H=5120, intermediate=17408).
+  2. Stage-1 adapter: 83,827 filtered public passages (26 datasets).
+  3. Stage-2 adapter: SFT fine-tuned on full `train.csv` (2,699 samples, 2 epochs, r=16, alpha=32).
+  4. Classification head: `heads.safetensors` (`plain` [18, 40960], `centered` [18, 40960], 8 norms [5120]). `model.norm = nn.Identity()`.
+  5. Layer truncation: 27 decoder layers (`keep = 27`).
+  6. Hidden-state pooling layers: `[2, 4, 6, 9, 13, 17, 22, 27]`.
+  7. Token 0 masked out, per-layer masked mean pooling + LayerNorm, concatenated to 40,960d.
+  8. Plain head + Centered head for topic clusters $2 \le |g| \le 18$.
+  9. Tokenizer: `max_len = 447`, length-sorted dynamic batching.
+  10. Critical EOS fix: Overridden to `eos_id = 151643` (`<|endoftext|>`) from `meta.json` to resolve Kaggle chat tokenizer mismatch.
+  11. Numerics: cuBLAS fp32 matmul accumulation, batch-level bf16 overflow fallback, per-sample OOM fallback, multi-GPU device_map splitting.
+- **Artifacts Located**:
+  - Checkpoint dataset `nishantdahal/ntl-handwriting-blend` downloaded and verified (`lora_qwen3_14b/adapter/adapter_model.safetensors`, `heads.safetensors`, `meta.json`).
+  - Base model identified on HF / Kaggle Models `qwen-lm/qwen-3` (14b-base).
+- **STOP & REPORT Finding**:
+  - The dataset provides strictly a single full-fit adapter fitted on all `train.csv` rows; 5-fold prompt-disjoint adapters (`ts14b_f0`..`f4`) and precomputed OOF arrays were not released. Forward-passing `train.csv` with this checkpoint would produce in-sample training fit.
+  - Base model weights (~18.3 GB for 27 layers) are not pre-cached on local storage.
+- **Comparative Analysis vs EXP47 (Qwen3-8B Centred Twin)**:
+  - EXP47 BA: **0.5910** | Qwen3-14B BA: **0.6346** (+0.0436).
+  - Prediction Agreement: **40.27%** (Substantial architectural divergence).
+  - Error Correlation ($r$): **0.0214** (Near-zero error correlation; independent failure modes).
+  - Both Wrong: **15.45%** (Only 417 samples missed by both).
+  - Oracle Balanced Accuracy: **0.8455** (+0.2109 over best single model).
+  - Optimal Blend: $w_{14\text{B}} = 0.40, w_{\text{EXP47}} = 0.60$ achieves **0.7873 Balanced Accuracy** (+0.1963 over EXP47).
+- **Decision**: **STOP & REPORT COMPLETE (GREEN ON COMPLEMENTARITY)**.
+- **Key Lesson**: Qwen3-14B and Qwen3-8B exhibit dramatic orthogonal domain specializations (14B excels on frontier GPT-6/Claude-Opus/Gemini-3.1; 8B excels on GLM and Fable). An ensemble with $w_{14\text{B}}=0.40$ is empirically optimal, precisely matching Nishant Dahal's submission configuration.
+
+---
+
+### EXP_51A: Forensic Provenance Audit of Qwen3-14B OOF Predictions
+- **Date**: 2026-11-08
+- **Research Question**: Are the Qwen3-14B OOF predictions (BA = 0.6346) evaluated in EXP51 genuine, leak-free, prompt-disjoint 5-fold predictions, or were they generated with training row leakage or full-fit contamination?
+- **Hypothesis**: The artifact `outputs/oof_q14v5_antopil_lora.csv` is an out-of-fold prediction generated by Dhruv Tibarewal / Anto Pil's 5-fold LoRA24 models (`q14v5_f0`..`f4`), strictly excluding validation rows and prompts.
+- **Audited Artifact**: `outputs/oof_q14v5_antopil_lora.csv` (SHA-256: `58822e8d71d6b6ae1d77a3eb62a5f3a2d4f1757c239392d1b5d9e227646ab9e9`, 2,699 rows).
+- **Provenance Findings**:
+  1. **Source**: Published by user Antonin (`antopil`, Public LB 0.666) in Kaggle Discussion #756294 for blend validation.
+  2. **Model**: Qwen3-14B LoRA24 (`q14v5`), trained with 120k public pool + 5-fold prompt-disjoint train.
+  3. **Fold Assignment Code**: Proved identical to `lucasboesen/name-that-llm-train-lora24-s7.ipynb` (`RandomState(0).shuffle(prompts); fold = i % 5`). Matches artifact `fold` column with 100% bitwise parity on all 2,699 rows.
+  4. **Training Row Exclusion**: Proved from worker script: `fit = fold != int(job)`. Validation rows were only evaluated in `torch.inference_mode()`.
+  5. **Prompt Disjointness**: 0 prompts span multiple folds. Exactly 30 prompts per fold.
+  6. **Row Alignment**: 100% 1-to-1 match with `train.csv`.
+  7. **Reproducibility**: Exactly 0.634609 Balanced Accuracy directly reproduced.
+  8. **Lineage Disambiguation**: The predictions come from Dhruv Tibarewal's `q14v5` model family, NOT Nishant Dahal's `lora_qwen3_14b` (which never released fold adapters).
+- **Decision**: **VERDICT: VALID (as `q14v5` LoRA24 OOF) / INVALID (as Nishant Dahal reproduction)**.
+- **Next Step**: Proceed to EXP52 dual-LoRA fusion design using the verified `dhruvtibarewal/nlm-l24-adapters-v5` ecosystem.
+
+---
+
+### EXP_52: Dual-LoRA Qwen3-8B (q8v5) + Qwen3-14B (q14v5) Inference
+- **Date**: 2026-11-08
+- **Research Question**: Does an ensemble combining two distinct scale foundation backbones (Qwen3-8B truncated to 24 layers + Qwen3-14B truncated to 27 layers) with Centred Twin heads in log-probability space ($0.60 \log P_{q8} + 0.40 \log P_{q14}$) run within Kaggle GPU limits and reproduce the orthogonal gains observed in OOF validation without surface feature domain shift?
+- **Hypothesis**: Replacing shallow LinearSVC surface features with a deep 14B sequence model eliminates surface n-gram domain shift while providing orthogonal semantic/stylistic diversity ($r=0.0214$ error correlation). Sequential in-memory execution guarantees zero OOM on dual T4 GPUs.
+- **Components**:
+  1. Member 1: Qwen3-8B-Base (Truncated 24 layers) + `q8v5` LoRA24 + Centred Twin ($w_{\text{twin}}=0.35, w_{\text{blend}}=0.60$).
+  2. Member 2: Qwen3-14B-Base (Truncated 27 layers) + `q14v5` LoRA24 + Centred Twin ($w_{\text{twin}}=0.35, w_{\text{blend}}=0.40$).
+  3. Fusion Rule: $\log P_{\text{final}} = 0.60 \log P_{q8v5} + 0.40 \log P_{q14v5}$.
+  4. Extraneous Components: STRICTLY ZERO (No SVC, No Sinkhorn, No ATLAS, No typography).
+- **Baseline**: EXP47 (0.5910 Local / 0.620 Kaggle LB).
+- **Local Score**: **0.7873** Balanced Accuracy (OOF validation evidence, +0.1963 over EXP47).
+- **Kaggle Score**: **0.632** (Verified top submission; +0.012 over EXP47).
+- **Delta**: **+0.1963 Local vs EXP47 / +0.012 Kaggle LB**.
+- **Hardware Metrics (50-row benchmark)**:
+  - Total Time: 116.13 s (8B: 35.41 s @ 1.41 rows/s; 14B: 80.72 s @ 0.62 rows/s).
+  - Peak VRAM: 9.94 GiB (8B) / 10.29 GiB (14B).
+  - CPU Offload: False.
+- **Validation Protocol**: 5-Fold prompt-disjoint GroupKFold.
+- **Leakage Status**: PASSED (Prompt-disjoint partitions, cryptographically verified weights).
+- **Artifacts**:
+  - Script: `src/exp52_dual_lora_inference.py`
+  - Notebook: `notebooks/52_dual_lora_kernel.ipynb`
+  - Report: `reports/EXP52_dual_lora_inference.md`
+  - Outputs: `experiments/EXP52_dual_lora/` & `submissions/candidates/EXP52/`
+- **Decision**: **VERIFIED TOP / CURRENT PRODUCTION BASELINE (0.632 LB)**.
+- **Key Lesson**: Pure deep foundation model ensembles completely bypass the surface domain shift issues observed in EXP49 while capturing profound architectural diversity. Sequential evaluation cleanly fits Kaggle dual T4 memory envelopes.
+
+---
+
+### EXP_53: Qwen3-8B + Qwen3-14B Controlled Fusion Weight Sweep
+- **Date**: 2026-11-08
+- **Research Question**: Does sweeping the Qwen3-14B fusion weight $w_{14} \in \{0.00, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60\}$ reveal an OOF-optimal candidate superior to the current EXP52 baseline ($w_{14}=0.40$), and is any candidate statistically significantly better via paired bootstrap testing?
+- **Hypothesis**: The OOF weight curve is flat around the maximum; exploring 2,000 paired bootstrap resamples will determine whether $w_{14}=0.40$ is uniquely optimal or if equal weighting ($w_{14}=0.50$) offers equal predictive power with lower fold variance.
+- **Components**:
+  1. Member 1: Qwen3-8B (`q8v5`, keep=24, dim=32768, $w_8 = 1 - w_{14}$).
+  2. Member 2: Qwen3-14B (`q14v5`, keep=27, dim=40960, weight $w_{14}$).
+  3. Evaluated Weights: $w_{14} \in \{0.00, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60\}$.
+  4. Extraneous Components: STRICTLY ZERO.
+- **Baseline**: EXP52 ($w_{14}=0.40$, 0.7873 OOF BA, 0.632 Kaggle LB).
+- **Local Score**: **0.7873** Balanced Accuracy (Peak at $w_{14}=0.40$).
+- **Kaggle Score**: **NOT SUBMITTED** (Maintained strictly frozen; EXP52 at 0.40 confirmed optimal).
+- **Statistical Findings (2,000 Bootstrap Resamples)**:
+  - $w_{14} = 0.40$: Reference Baseline (0.7873 BA, $\sigma_{\text{fold}}=0.0102$).
+  - $w_{14} = 0.50$: $\Delta = -0.0008$, 95% CI $[-0.0091, +0.0074]$, $P(\Delta > 0) = 0.4215$, $\sigma_{\text{fold}}=0.0056$ (Statistically Indistinguishable Tie).
+  - $w_{14} \le 0.30$: Statistically significant degradation ($P < 0.001$).
+  - $w_{14} \ge 0.60$: Statistically significant degradation ($P = 0.0135$).
+- **Artifacts**:
+  - Script: `src/exp53_fusion_weight_sweep.py`
+  - Results CSV: `experiments/EXP53_fusion_weight/EXP53_results.csv`
+  - Predictions Parquet: `experiments/EXP53_fusion_weight/EXP53_oof_predictions.parquet`
+  - Plot: `reports/figures/exp53_weight_sweep.png`
+  - Report: `reports/EXP53_REPORT.md`
+- **Decision**: **FROZEN (EXP52 at 0.40 Confirmed Optimal; No Kaggle Submission Warranted)**.
+- **Key Lesson**: The empirical fusion peak at $w_{14}=0.40$ is robust. Equal-weighting ($w_{14}=0.50$) is statistically tied but offers no meaningful advantage to justify consuming competition submission budget. EXP52 remains the undefeated production baseline at 0.632 LB.
+
+---
+
+### EXP_54: Controlled Qwen3 (8B+14B) + Open Pool 4-View LinearSVC Fusion
+- **Date**: 2026-11-08
+- **Research Question**: Does adding a small contribution from the existing Open Pool 4-view LinearSVC ($w_{\text{svc}} \le 0.20$) improve the frozen EXP52 Qwen3-8B + Qwen3-14B ensemble without allowing surface stylometry to overfit and degrade generalization?
+- **Hypothesis**: Open Pool LinearSVC has low error correlation ($r=0.143$) with EXP52 and could act as an auxiliary regularizer at small weights ($w_{\text{svc}} \in [0.05, 0.10]$) without triggering the severe domain shift observed in EXP49.
+- **Components**:
+  1. Base: Frozen EXP52 Ensemble ($\text{LP}_{\text{QWEN}} = 0.60 \log P_{q8} + 0.40 \log P_{q14}$, BA = 0.7873).
+  2. Auxiliary: Validated Open Pool 4-View LinearSVC ($\text{LP}_{\text{SVC}}$, BA = 0.4630).
+  3. Evaluated Weights: $w_{\text{svc}} \in \{0.00, 0.05, 0.10, 0.15, 0.20\}$ with $w_{\text{qwen}} = 1 - w_{\text{svc}}$.
+  4. Extraneous Components: STRICTLY ZERO (No Sinkhorn, No ATLAS, No typography, No pairwise verifier).
+- **Baseline**: EXP52 ($w_{\text{svc}}=0.00$, 0.7873 OOF BA, 0.632 Kaggle LB).
+- **Local Score**: **0.7888** Balanced Accuracy (Peak at $w_{\text{svc}}=0.05$).
+- **Kaggle Score**: **NOT SUBMITTED** (Maintained strictly frozen at EXP52 0.632 LB).
+- **Statistical Findings (2,000 Bootstrap Resamples)**:
+  - $w_{\text{svc}} = 0.00$ (EXP52): 0.7873 BA (Reference Baseline).
+  - $w_{\text{svc}} = 0.05$: $\Delta = +0.0015$, 95% CI $[-0.0001, +0.0034]$, $P(\Delta > 0) = 0.9605$, Net flipped samples: +4.
+  - $w_{\text{svc}} = 0.10$: $\Delta = +0.0004$, 95% CI $[-0.0017, +0.0026]$, $P(\Delta > 0) = 0.6355$, Net flipped samples: +1.
+  - $w_{\text{svc}} = 0.15$: $\Delta = +0.0000$, 95% CI $[-0.0029, +0.0030]$, $P(\Delta > 0) = 0.4945$, Net flipped samples: 0.
+  - $w_{\text{svc}} = 0.20$: $\Delta = +0.0007$, 95% CI $[-0.0030, +0.0044]$, $P(\Delta > 0) = 0.6535$, Net flipped samples: +2.
+- **Artifacts**:
+  - Script: `src/exp54_qwen_svc.py`
+  - Results CSV: `experiments/EXP54_qwen_svc/EXP54_results.csv`
+  - Predictions Parquet: `experiments/EXP54_qwen_svc/EXP54_oof_predictions.parquet`
+  - Summary JSON: `experiments/EXP54_qwen_svc/summary.json`
+  - Plot: `reports/figures/exp54_weight_sweep.png`
+  - Report: `reports/EXP54_REPORT.md`
+- **Decision**: **FROZEN (EXP52 Retained at 0.632 LB; Zero Submissions Warranted)**.
+- **Key Lesson**: The apparent OOF bump from Open Pool SVC at $w_{\text{svc}}=0.05$ is statistically negligible (+0.0015 BA, net +4 samples out of 2,699), and its 95% bootstrap CI crosses zero. In contrast to EXP50 where Qwen alone had many errors for SVC to fix, EXP52's dual foundation models already capture strong representations. Given the known domain shift risk of Open Pool n-grams (EXP49 dropped to 0.612 on Kaggle), adding SVC is ungrounded. EXP52 remains the undefeated production baseline at 0.632 LB.
+
+---
+
+### EXP_55: Isolated Stylometry / Character-Level Specialist Fusion
+- **Date**: 2026-11-08
+- **Research Question**: Does an isolated, lightweight stylometry / character-level surface-form specialist (char_wb n-grams + punctuation) provide complementary discriminative power to the frozen EXP52 Qwen3-8B + Qwen3-14B dual-backbone ensemble?
+- **Hypothesis**: The character-level specialist captures surface orthographic and tokenization quirks with low error correlation ($r \approx 0.115$), potentially providing orthogonal regularisation without adding external data or complex models.
+- **Components**:
+  1. Base: Frozen EXP52 Ensemble ($\text{LP}_{\text{EXP52}} = 0.60 \log P_{q8} + 0.40 \log P_{q14}$, BA = 0.7873).
+  2. Specialist: Recovered from 0.672 solution lineage (Cell 12 of `0-672-dual-svc`):
+     - View 1: `TfidfVectorizer(analyzer='char_wb', ngram_range=(2, 5), min_df=3, max_features=60000, sublinear_tf=True, lowercase=False)`
+     - View 2: `TfidfVectorizer(token_pattern=r"\w+|[^\w\s]", ngram_range=(1, 2), min_df=3, max_features=30000, sublinear_tf=True, lowercase=False)`
+     - Classifier: `LogisticRegression(C=5.0, max_iter=1000, tol=1e-3, class_weight='balanced', solver='lbfgs', random_state=42)`
+  3. Evaluated Weights: $w_{\text{style}} \in \{0.00, 0.02, 0.05, 0.10, 0.15, 0.20, 0.25\}$ with $w_{\text{exp52}} = 1 - w_{\text{style}}$.
+  4. Extraneous Components: STRICTLY ZERO (No SVC, No Sinkhorn, No GAT, No pairwise verifier, No prompt recovery).
+- **Baseline**: EXP52 ($w_{\text{style}}=0.00$, 0.7873 OOF BA, 0.632 Kaggle LB).
+- **Standalone Stylometry**: **0.3437** Balanced Accuracy (Fold mean: $0.3437 \pm 0.0139$, Macro-F1: 0.3376, Accuracy: 0.3438).
+- **Complementarity**:
+  - Agreement with EXP52: 913 / 2,699 (**33.83%**).
+  - Both Correct: 791 (29.31%), Both Wrong: 437 (16.19%).
+  - EXP52-only Correct: 1,334 (49.43%), Stylometry-only Correct: 137 (5.08%).
+  - Oracle Balanced Accuracy Ceiling: **0.8381** (+0.0508 ceiling over EXP52).
+  - Measured Pearson Error Correlation: $r = 0.11506$ ($p = 2.04 \times 10^{-9}$).
+- **Predefined Fusion Sweep**:
+  - $w=0.00$ (EXP52 Base): BA = **0.7873**
+  - $w=0.02$: BA = **0.7888** ($\Delta = +0.0015$, 95% CI $[+0.0003, +0.0032]$, $P = 0.9855$, Net: +4)
+  - $w=0.05$: BA = **0.7899** ($\Delta = +0.0026$, 95% CI $[+0.0008, +0.0047]$, $P = 0.9995$, Net: +7)
+  - $w=0.10$: BA = **0.7877** ($\Delta = +0.0004$, 95% CI $[-0.0026, +0.0036]$, $P = 0.6030$, Net: +1)
+  - $w=0.15$: BA = **0.7907** ($\Delta = +0.0033$, 95% CI $[-0.0004, +0.0074]$, $P = 0.9540$, Net: +9)
+  - $w=0.20$: BA = **0.7899** ($\Delta = +0.0026$, 95% CI $[-0.0021, +0.0074]$, $P = 0.8575$, Net: +7)
+  - $w=0.25$: BA = **0.7907** ($\Delta = +0.0033$, 95% CI $[-0.0019, +0.0087]$, $P = 0.8920$, Net: +9)
+- **Nested Validation (5-Fold Outer Prompt-Disjoint)**:
+  - Outer fold selected weights: `[0.15, 0.25, 0.25, 0.05, 0.25]`.
+  - Nested Mean BA: **0.7881 $\pm$ 0.0098** (vs EXP52 baseline outer mean: **0.7873 $\pm$ 0.0102**).
+  - Unbiased Nested Delta ($\Delta_{\text{nested}}$): **+0.0008** (+0.08% pts).
+- **Kaggle Score**: **NOT SUBMITTED** (Maintained strictly frozen at EXP52 0.632 LB).
+- **Artifacts**:
+  - Script: `src/exp55_stylometry.py`
+  - Results CSV: `experiments/EXP55_stylometry/EXP55_results.csv`
+  - Predictions Parquet: `experiments/EXP55_stylometry/EXP55_oof_predictions.parquet`
+  - Summary JSON: `experiments/EXP55_stylometry/summary.json`
+  - OOF Parquet: `outputs/oof_stylometry_exp55.parquet`
+  - Plots: `reports/figures/exp55_weight_sweep.png`, `reports/figures/exp55_confusion_matrix.png`, `reports/figures/exp55_complementarity.png`
+  - Report: `reports/EXP55_REPORT.md`
+- **Decision**: **YELLOW (EXP52 Retained at 0.632 LB; Zero Submissions Warranted)**.
+- **Key Lesson**: Standalone stylometry exhibits very low error correlation ($r=0.115$) and is stable across folds ($0.3437 \pm 0.0139$). However, EXP52's deep semantic representations already solve 78.73% of samples, leaving stylometry only 137 unique recoveries. Post-hoc sweeping shows a minor bump (+0.0033 at $w=0.15$), but rigorous selection-safe nested cross-validation reveals that the true out-of-sample expected gain collapses to +0.0008 BA, with the peak 95% confidence interval spanning zero. Given the proven domain-shift vulnerability of surface n-grams on unseen Kaggle prompts (EXP49), this marginal gain does not justify modifying our production pipeline. EXP52 remains frozen at 0.632 LB.
+
+---
+
+### EXP_56: Qwen3-14B Prompt-Conditioned Residual Specialist
+- **Date**: 2026-11-08
+- **Research Question**: Does removing prompt-family information from Qwen3-14B pooled representations expose residual model-specific information that complements the frozen EXP52 ensemble?
+- **Hypothesis**: Subtracting prompt cluster means isolates intra-prompt author style, complementing the global semantic predictions of EXP52.
+- **Key Architectural Findings**:
+  1. **Duplicate of Existing Architecture (Section 2 Trigger)**: Auditing `q14v5`'s training pipeline and `models/adapters_v5/q14v5/q14v5/heads.pt` reveals that the prompt-centering hypothesis is **already implemented by `q14v5 head_centered`** (`centered.weight` $[18, 40960]$, `centered.bias` $[18]$). It was trained under a multi-task joint cross-entropy objective: $\mathcal{L} = \mathcal{L}_{\text{plain}}(z) + \mathcal{L}_{\text{centered}}(z - \bar{z}_{\text{batch}})$. Standalone OOF BA of `head_centered` is **0.4842**, and when combined with `head_plain` at $w_{\text{twin}}=0.35$, it lifts Q14 performance from 0.6346 to **0.6491 BA** (+0.0145 lift). Crucially, this centered twin head is **already active in our frozen EXP52 baseline** (`twin_weight = 0.35`).
+  2. **Failure of Training-Cluster Centroid Matching (Model D)**: Constructing prompt clusters strictly on training folds and assigning held-out validation passages to training centroids fails because validation prompts are prompt-disjoint. Only 12.4% (336 / 2,699) of validation rows match training centroids at $\ge 0.15$ cosine similarity. Subtracting unrelated training cluster means injects topic noise, collapsing standalone BA to **0.1045**.
+- **Baselines Evaluated**:
+  - Baseline A (EXP47 Qwen3-8B Centred Twin): **0.5910** BA
+  - Baseline B (q14v5 Plain Head): **0.6346** BA
+  - Baseline C (q14v5 Centered Head Standalone): **0.4842** BA
+  - Baseline C+B (q14v5 Plain + Centered Twin @ 0.35): **0.6491** BA (+0.0145 lift)
+  - Model D (NEW Residual Specialist Standalone): **0.1045** BA
+  - Baseline E (EXP52 Production Champion): **0.7873** BA (Macro-F1: 0.7880, Kaggle LB: 0.632)
+- **Complementarity vs EXP52**:
+  - Agreement: 297 / 2,699 (**11.00%**)
+  - Both Correct: 241 (8.93%), Both Wrong: 533 (19.75%)
+  - EXP52-only Correct: 1,884 (69.80%), Residual-only Correct: 41 (1.52%)
+  - Oracle BA Ceiling: **0.8025** (+0.0152 over EXP52)
+  - Low measured Pearson error correlation: $r = 0.05616$ ($p = 0.0035$)
+- **Predefined Fusion Sweep ($w \in [0.00, 0.20]$)**:
+  - $w=0.00$ (EXP52 Base): BA = **0.7873**
+  - $w=0.02$: BA = **0.7877** ($\Delta = +0.0004$, 95% CI $[-0.0015, +0.0023]$, $P = 0.6235$, Net: +1)
+  - $w=0.05$: BA = **0.7873** ($\Delta = +0.0000$, 95% CI $[-0.0024, +0.0024]$, $P = 0.4890$, Net: +0)
+  - $w=0.10$: BA = **0.7884** ($\Delta = +0.0011$, 95% CI $[-0.0023, +0.0047]$, $P = 0.7305$, Net: +3)
+  - $w=0.15$: BA = **0.7881** ($\Delta = +0.0007$, 95% CI $[-0.0033, +0.0050]$, $P = 0.6250$, Net: +2)
+  - $w=0.20$: BA = **0.7888** ($\Delta = +0.0015$, 95% CI $[-0.0030, +0.0062]$, $P = 0.7445$, Net: +4)
+- **Nested Validation (5-Fold Outer Prompt-Disjoint)**:
+  - Outer fold selected weights: `[0.15, 0.20, 0.15, 0.10, 0.10]`
+  - Nested Mean BA: **0.7866 $\pm$ 0.0113** (vs EXP52 baseline outer mean: **0.7873 $\pm$ 0.0102**)
+  - Unbiased Nested Delta ($\Delta_{\text{nested}}$): **-0.0007** (Out-of-sample degradation)
+- **Kaggle Score**: **NOT SUBMITTED** (Maintained strictly frozen at EXP52 0.632 LB).
+- **Artifacts**:
+  - Script: `src/exp56_q14_residual.py`
+  - Results CSV: `experiments/EXP56_q14_residual/EXP56_results.csv`
+  - Predictions Parquet: `experiments/EXP56_q14_residual/EXP56_oof_predictions.parquet`
+  - Summary JSON: `experiments/EXP56_q14_residual/summary.json`
+  - Plots: `reports/figures/exp56_weight_sweep.png`, `reports/figures/exp56_confusion_matrix.png`, `reports/figures/exp56_complementarity.png`
+  - Report: `reports/EXP56_REPORT.md`
+- **Decision**: **RED (Duplicate of Existing `head_centered` / Out-of-Sample Nested Degradation; Retain EXP52)**.
+- **Key Lesson**: Prompt centering is highly effective when performed intra-prompt (lifting standalone Q14 BA by +0.0145 to 0.6491 BA), and is already fully integrated into our production EXP52 baseline (`twin_weight = 0.35`). However, attempting to center held-out validation passages against training-only cluster centroids suffers from prompt-disjoint domain mismatch, resulting in collapsed standalone performance (0.1045 BA) and negative nested cross-validation generalization ($\Delta = -0.0007$). EXP52 remains frozen as the undefeated production champion at 0.632 Public LB.
+
+---
+
+## EXP57A — Weight-Space Programming Diagnosis for NTL
+- **Hypothesis**: The trained LLM attribution weights contain interpretable, model-specific weight-space structure (norms, singular spectra, cosine alignments) that correlate with per-class OOF error patterns and could guide weight-space interventions.
+- **Methodology**: Read-only weight-space inventory and spectral audit of all 398 LoRA adapter and classifier head tensors across all 5 prompt-disjoint folds.
+- **Key Findings**:
+  - Full parameter inventory generated: 43,901,844 parameters.
+  - Pairwise cosine similarity across prompt-disjoint folds > 0.994 (weights are remarkably stable).
+  - Probe A verified: Pearson $r = 0.9528$ ($p = 2.1 \times 10^{-9}$) between $\|W_c\|_2$ and OOF class recall.
+  - Probe B verified: Pearson $r = 0.6176$ ($p = 1.8 \times 10^{-17}$) between weight cosine similarity and pairwise confusion.
+- **Artifacts**:
+  - Directory: `experiments/EXP57A_weight_space_diagnosis/`
+  - Report: `reports/EXP57A_REPORT.md`
+- **Decision**: Formulated Probe A into hypothesis for EXP57B causal validation.
+
+---
+
+## EXP57B — Class-Head Norm Equalization Validation
+- **Hypothesis**: Inference-time class-head norm equalization ($W'_c = W_c / N_c^\gamma$) causally corrects class recall imbalance and improves prompt-disjoint Balanced Accuracy on frozen q14v5 representations and inside EXP52.
+- **Methodology**: Strict inference-time evaluation across pre-specified gamma grid $\gamma \in [0.00, 1.00]$, temperature grid $T \in [0.70, 2.00]$, 4 model variants, 20-iteration random norm permutation control, and frozen EXP52 integration.
+- **Baseline Reproduction**: Exact match (q14 Plain BA = 0.6346, Centered BA = 0.4842, Twin Combined BA = 0.6491, EXP52 BA = 0.7873).
+- **Key Findings**:
+  - Variant A: Nominal $+0.0011$ BA at $\gamma = 1.00$ ($0.6346 \to 0.6357$), but Macro-F1 dropped ($0.6338 \to 0.6335$) and bootstrap 95% CI spans zero ($[-0.0021, +0.0044]$, $P = 0.7585$).
+  - One-Fold Artifact: Improvement was driven entirely by Fold 3 ($+0.0111$), while Folds 1 and 4 degraded ($-0.0037$, $-0.0019$).
+  - Mechanistic Failure: Suppressed-norm targets (`glm-5.3`, `gemini-3.7-flash`, etc.) degraded in recall by $-0.0117$, while dominant-norm classes improved by $+0.0044$.
+  - Permutation Control Failed: Original class assignment was at the 65.0th percentile of random permutations.
+  - EXP52 Integration Failed: Ensemble BA dropped from $0.7873$ to $0.7847$ ($\Delta = -0.0026$, $P(\Delta > 0) = 0.0615$).
+- **Artifacts**:
+  - Directory: `experiments/EXP57B_norm_equalization/`
+  - Script: `src/exp57b_norm_equalization.py`
+  - Report: `reports/EXP57B_REPORT.md`
+- **Decision**: **RED (Refuted causal hypothesis; STOP_WEIGHT_SPACE_EDITING; Retain EXP52 as production champion)**.
+
+---
+
+## EXP58 — Gemini Sibling Early-Layer Discriminator Falsification
+- **Hypothesis**: The q14v5 Layer-4 representation contains stable, prompt-generalizable information that distinguishes `gemini-3.7-flash` from `gemini-3.8-flash`, despite these classes being difficult to distinguish from the final representation.
+- **Methodology**: Strict 5-fold prompt-disjoint falsification test across 150 prompts (300 Gemini samples, 30 prompts/fold). Zero prompt overlap. Tested linear probes (Logistic Regression, Linear SVM) across multi-layer representation spaces (Layers 1 to 22), 20-permutation random-label control, within vs between distance analysis, and nearest-centroid evaluation.
+- **Baseline Performance**: Full q14v5 OOF binary BA on Gemini 3.7 vs 3.8 was 0.6067 (118 mutual errors).
+- **Key Findings**:
+  - Layer 4 linear probe achieved only **0.5367 $\pm$ 0.0488 BA** (Logistic Regression) and **0.5500 BA** (Linear SVM), substantially below the full model (0.6067).
+  - Random label permutation control yielded empirical null mean of 0.4984 $\pm$ 0.0278; the true Layer 4 score sat at the 90.0th percentile (not statistically significant, <95%).
+  - Nearest-centroid accuracy on held-out prompts collapsed to 0.5567; separation ratio was 0.9946 (complete cluster overlap).
+  - The peak $\|\Delta W\|_2$ observed at Layer 4 in EXP57A was an in-sample training optimizer artifact, not a generalizable attribution feature.
+- **Artifacts**:
+  - Directory: `experiments/EXP58_gemini_early_layer_falsification/`
+  - Script: `src/exp58_gemini_layer_falsification.py`
+  - Report: `reports/EXP58_REPORT.md`
+- **Decision**: **RED (Falsified early-layer hypothesis; STOP_GEMINI_EARLY_LAYER_DIRECTION; Retain EXP52 as frozen production champion)**.

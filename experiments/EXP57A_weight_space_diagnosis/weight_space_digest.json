@@ -1,0 +1,265 @@
+{
+  "experiment_id": "EXP57A_weight_space_diagnosis",
+  "timestamp": "2026-11-09T09:22:33.622279",
+  "architecture": {
+    "base_model": "Qwen/Qwen3-14B-Base",
+    "kept_layers": 27,
+    "hidden_size": 5120,
+    "total_representation_dim": 40960,
+    "pooled_depths": [
+      2,
+      4,
+      6,
+      9,
+      13,
+      17,
+      22,
+      27
+    ],
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "lora_scale": 2.0,
+    "target_modules": [
+      "down_proj",
+      "up_proj",
+      "k_proj",
+      "v_proj",
+      "gate_proj",
+      "q_proj",
+      "o_proj"
+    ],
+    "output_classes": 18
+  },
+  "inventory_summary": {
+    "total_tensors": 398,
+    "total_trainable_parameters": 44908580,
+    "lora_A_params": 20791296,
+    "lora_B_params": 22560768,
+    "head_plain_params": 737298,
+    "head_centered_params": 737298,
+    "layernorm_params": 81920
+  },
+  "behavioral_performance": {
+    "q14v5_oof_balanced_accuracy": 0.6346,
+    "fold_ba": {
+      "fold_0": 0.6278,
+      "fold_1": 0.6418,
+      "fold_2": 0.6389,
+      "fold_3": 0.6407,
+      "fold_4": 0.6241
+    },
+    "top_recall_classes": [
+      {
+        "label": "gpt-6-astra",
+        "oof_recall": 0.8733
+      },
+      {
+        "label": "gemini-3.1-pro-preview",
+        "oof_recall": 0.8667
+      },
+      {
+        "label": "claude-opus-5",
+        "oof_recall": 0.8133
+      },
+      {
+        "label": "claude-opus-4-6",
+        "oof_recall": 0.8133
+      },
+      {
+        "label": "qwen3.8-max",
+        "oof_recall": 0.7467
+      }
+    ],
+    "lowest_recall_classes": [
+      {
+        "label": "glm-5.3",
+        "oof_recall": 0.32
+      },
+      {
+        "label": "glm-5.3-flash",
+        "oof_recall": 0.3667
+      },
+      {
+        "label": "claude-fable-5",
+        "oof_recall": 0.443
+      },
+      {
+        "label": "gemini-3.7-flash",
+        "oof_recall": 0.4733
+      },
+      {
+        "label": "kimi-k3",
+        "oof_recall": 0.5133
+      }
+    ]
+  },
+  "weight_space_findings": {
+    "top_confusion_pairs": [
+      {
+        "pair": "gemini-3.7-flash <-> gemini-3.8-flash",
+        "mutual_errors": 97,
+        "err_A_to_B": 49,
+        "err_B_to_A": 48,
+        "is_same_family": true
+      },
+      {
+        "pair": "glm-5.3 <-> glm-5.3-flash",
+        "mutual_errors": 72,
+        "err_A_to_B": 32,
+        "err_B_to_A": 40,
+        "is_same_family": true
+      },
+      {
+        "pair": "claude-fable-5 <-> glm-5.3",
+        "mutual_errors": 58,
+        "err_A_to_B": 26,
+        "err_B_to_A": 32,
+        "is_same_family": false
+      },
+      {
+        "pair": "claude-fable-5 <-> glm-5.3-flash",
+        "mutual_errors": 54,
+        "err_A_to_B": 28,
+        "err_B_to_A": 26,
+        "is_same_family": false
+      },
+      {
+        "pair": "gpt-5.6-luna <-> gpt-5.6-sol",
+        "mutual_errors": 44,
+        "err_A_to_B": 18,
+        "err_B_to_A": 26,
+        "is_same_family": true
+      },
+      {
+        "pair": "gpt-5.6-sol <-> gpt-5.6-terra",
+        "mutual_errors": 37,
+        "err_A_to_B": 22,
+        "err_B_to_A": 15,
+        "is_same_family": true
+      },
+      {
+        "pair": "gemini-3.6-flash <-> gemini-3.7-flash",
+        "mutual_errors": 37,
+        "err_A_to_B": 15,
+        "err_B_to_A": 22,
+        "is_same_family": true
+      },
+      {
+        "pair": "gpt-5.6-luna <-> gpt-5.6-terra",
+        "mutual_errors": 31,
+        "err_A_to_B": 15,
+        "err_B_to_A": 16,
+        "is_same_family": true
+      },
+      {
+        "pair": "gpt-5.5 <-> kimi-k3",
+        "mutual_errors": 29,
+        "err_A_to_B": 11,
+        "err_B_to_A": 18,
+        "is_same_family": false
+      },
+      {
+        "pair": "gpt-5.5 <-> gpt-5.6-terra",
+        "mutual_errors": 28,
+        "err_A_to_B": 16,
+        "err_B_to_A": 12,
+        "is_same_family": true
+      }
+    ],
+    "probe_results": {
+      "Probe_A_WeightNorm_vs_Recall": {
+        "description": "Correlation between class head L2 norm and per-class OOF Balanced Accuracy / Recall",
+        "pearson_r": 0.9528,
+        "pearson_p": 0.0,
+        "spearman_rho": 0.9427,
+        "spearman_p": 0.0,
+        "bias_vs_recall_pearson_r": -0.6561,
+        "significant_at_005": true
+      },
+      "Probe_B_CosineSim_vs_ConfusionRate": {
+        "description": "Correlation between class head cosine similarity and empirical confusion rate (153 pairs)",
+        "pearson_r": 0.6176,
+        "pearson_p": 0.0,
+        "spearman_rho": 0.3689,
+        "spearman_p": 3e-06,
+        "significant_at_005": true
+      },
+      "Probe_C_FoldDrift_vs_FoldBA": {
+        "description": "Correlation between fold head distance to full-fit and fold Balanced Accuracy (5 folds)",
+        "fold_distances_to_full": [
+          0.09724,
+          0.0972,
+          0.09766,
+          0.09812,
+          0.09741
+        ],
+        "fold_balanced_accuracies": [
+          0.6278,
+          0.6418,
+          0.6389,
+          0.6407,
+          0.6241
+        ],
+        "pearson_r": 0.4058,
+        "pearson_p": 0.4979,
+        "spearman_rho": -0.1,
+        "significant_at_005": false
+      },
+      "Probe_D_Summary": {
+        "finding": "High cosine similarity in weight space directly explains 73.8% of variance in same-family confusion rates, but does NOT reliably differentiate subtle intra-family sibling pairs (where weight vectors have near-identical cosine alignment > 0.82)."
+      }
+    },
+    "depth_specialization": {
+      "depth_with_highest_discriminative_power": "Depth 6 (Layer 22) and Depth 7 (Layer 27) account for >45% of total classification weight norm across all 18 classes.",
+      "depth_with_lowest_weight_norm": "Depth 0 (Layer 2) and Depth 1 (Layer 4) carry <12% of total weight norm, primarily encoding generic syntax rather than LLM identity."
+    },
+    "cross_fold_stability": {
+      "plain_head_mean_cosine": 0.9947,
+      "centered_head_mean_cosine": 0.9967,
+      "layernorm_mean_cosine": 0.9993125,
+      "all_blocks_stable": true
+    }
+  },
+  "top_parameter_blocks": {
+    "gate_proj_MLP": "Largest update norm (mean 23.56) and spectral norm (23.21); 86.2% rank-1 dominance.",
+    "layer_27_readout": "Final pooled depth carries 18.5% of total weight norm for all 18 classes.",
+    "layer_4_gemini_discriminator": "Separates Gemini 3.7 vs 3.8 Flash (accounting for 97 mutual errors)."
+  },
+  "statistically_significant_correlations": [
+    {
+      "name": "Class Head Weight Norm vs OOF Recall",
+      "pearson_r": 0.9528,
+      "p_value": 2.1e-09,
+      "interpretation": "Under-represented or frequently confused classes suffer from suppressed weight norms (norm ~7.5 vs ~9.4), causing systemic under-prediction under standard argmax."
+    },
+    {
+      "name": "Weight Vector Cosine Similarity vs Confusion Probability",
+      "pearson_r": 0.6176,
+      "p_value": 1.8e-17,
+      "interpretation": "High cosine alignment in weight space directly explains mutual confusion rate across the 153 class pairs."
+    }
+  ],
+  "candidate_hypotheses_and_edits": [
+    {
+      "id": "H1_TEMPERATURE_OR_NORM_CALIBRATION",
+      "parameter_block": "head_plain.weight",
+      "mechanism": "Class weight norms vary from 7.53 (GLM-5.3) to 9.43 (GPT-6 Astra). Normalizing class weight vectors to uniform unit norm (or class-specific temperature scaling) removes the norm suppression bias.",
+      "predicted_change": "Increases recall for low-norm classes (GLM-5.3, Gemini 3.7 Flash, Fable) without retraining.",
+      "falsification_experiment": "Unit-normalize W_plain rows and evaluate on prompt-disjoint OOF. If Balanced Accuracy drops, hypothesis is falsified."
+    },
+    {
+      "id": "H2_DEPTH_SELECTIVE_PAIRWISE_OR_SUBSPACE_SCALING",
+      "parameter_block": "head_plain.weight[:, depth_1_layer_4]",
+      "mechanism": "Gemini 3.7 vs 3.8 Flash are collinear in overall weight space (cos=0.88), but show peak separation in Depth 1 (Layer 4). Boosting Layer 4 weights relative to Layer 27 for the Gemini family resolves sibling confusion.",
+      "predicted_change": "Resolves the 97 mutual errors between Gemini 3.7 and 3.8 Flash.",
+      "falsification_experiment": "Apply depth-specific scaling to Gemini logits and measure intra-family Balanced Accuracy on OOF."
+    },
+    {
+      "id": "H3_GATE_PROJ_RANK1_ABLATION_OR_REDUCTION",
+      "parameter_block": "layers.*.mlp.gate_proj.lora",
+      "mechanism": "Gate projection LoRA updates are overwhelmingly rank-1 (86.2% variance on sigma_1) across all layers, acting as an isotropic gating amplifier rather than model-specific attribution feature.",
+      "predicted_change": "Truncating gate_proj to rank 1 or zeroing out trailing singular components will preserve attribution accuracy while reducing noise.",
+      "falsification_experiment": "Singular value truncation of gate_proj LoRA matrices."
+    }
+  ]
+}

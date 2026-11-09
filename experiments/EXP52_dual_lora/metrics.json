@@ -1,0 +1,17 @@
+{
+  "experiment_id": "EXP52_dual_lora_inference",
+  "fusion_formula": "0.60 * logP_q8v5 + 0.40 * logP_q14v5",
+  "smoke_test_passed": true,
+  "benchmark_passed": true,
+  "test_rows_processed": 3,
+  "predicted_class_distribution": {
+    "gemini-3.1-pro-preview": 2,
+    "gpt-5.5": 1
+  },
+  "validation_oof_reference_score": {
+    "balanced_accuracy": 0.7873,
+    "macro_f1": 0.788,
+    "standalone_q8v5_ba": 0.591,
+    "standalone_q14v5_ba": 0.6346
+  }
+}

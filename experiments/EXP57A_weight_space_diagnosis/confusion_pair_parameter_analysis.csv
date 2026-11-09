@@ -1,0 +1,16 @@
+pair,mutual_errors,err_A_to_B,err_B_to_A,is_same_family,cosine_separation_plain,cosine_separation_centered,delta_W_norm,most_discriminative_depth,most_discriminative_layer,discriminative_depth_share,cross_fold_delta_W_consistency,min_fold_delta_W_consistency
+gemini-3.7-flash <-> gemini-3.8-flash,97,49,48,True,0.988,1.1623,11.0262,1,4,0.1553,0.9905,0.9901
+glm-5.3 <-> glm-5.3-flash,72,32,40,True,0.8743,1.2026,9.979,7,27,0.1508,0.9898,0.9893
+claude-fable-5 <-> glm-5.3,58,26,32,False,0.9287,1.0853,10.6336,7,27,0.1766,0.9916,0.9906
+claude-fable-5 <-> glm-5.3-flash,54,28,26,False,0.9484,1.0864,10.7562,7,27,0.1806,0.9925,0.9918
+gpt-5.6-luna <-> gpt-5.6-sol,44,18,26,True,0.9221,1.171,11.3979,7,27,0.1704,0.9931,0.9924
+gpt-5.6-sol <-> gpt-5.6-terra,37,22,15,True,0.9782,1.2261,11.7213,7,27,0.165,0.9933,0.9925
+gemini-3.6-flash <-> gemini-3.7-flash,37,15,22,True,1.0452,1.2534,11.7999,0,2,0.1583,0.9933,0.9927
+gpt-5.6-luna <-> gpt-5.6-terra,31,15,16,True,0.9175,1.1354,11.5517,7,27,0.1683,0.9934,0.9927
+gpt-5.5 <-> kimi-k3,29,11,18,False,1.0355,1.0774,12.1044,7,27,0.1745,0.994,0.9936
+gpt-5.5 <-> gpt-5.6-terra,28,16,12,True,1.0147,1.1668,12.3581,7,27,0.174,0.9944,0.9939
+gemini-3.6-flash <-> gemini-3.8-flash,25,14,11,True,1.0179,1.243,11.8766,0,2,0.1602,0.9931,0.9925
+claude-opus-4-8 <-> claude-sonnet-5,22,14,8,True,0.9742,1.1323,11.9387,7,27,0.1834,0.9937,0.9931
+gemini-3.1-pro-preview <-> gemini-3.6-flash,21,11,10,True,1.1132,1.2945,13.2798,0,2,0.1571,0.9945,0.9939
+claude-fable-5 <-> claude-opus-4-8,19,9,10,True,1.0298,1.1344,11.7879,7,27,0.1892,0.9939,0.9936
+gpt-5.5 <-> qwen3.8-max,19,7,12,False,1.0625,1.1169,12.7482,7,27,0.1756,0.9946,0.994

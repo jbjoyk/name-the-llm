@@ -1,9 +1,16 @@
 # PROJECT STATE & AGENT HANDOFF: KAGGLE "NAME THAT LLM"
 
-**Last Updated**: 2026-11-07 13:45 UTC  
-**Primary Repository**: `/home/rj2826/name-the-llm`  
-**Current Active State**: **EXP49 Evaluated on Kaggle (0.612 Public LB) | Best Remains EXP47 (0.620)**  
-**Current Best Verified Kaggle Score**: **0.620 Public LB (EXP47)**  
+**Last Updated**: 2026-11-09 11:45 UTC
+**Primary Repository**: `/home/rj2826/name-the-llm`
+**Current Active State**: **EXP58 Gemini Sibling Early-Layer Falsification Completed (Verdict: RED; Frozen at EXP52 0.632 LB)**
+**Current Production Baseline**: **EXP52**
+- **Kaggle Public LB**: **0.632**
+- **Prompt-Disjoint OOF BA**: **0.7873**
+- **Status**: **EXP52 frozen**
+- **Latest Completed Experiment**: **EXP58**
+- **Latest Experiment Verdict**: **RED**
+- **Next Research Priority**: **Investigate the OOF-to-Kaggle hidden-surface/domain-shift gap before adding another model family.**
+- **Kaggle Submissions**: **No Kaggle submission after EXP52.**
 
 ---
 
@@ -47,9 +54,21 @@
 |---|---|---|---|---|
 | **EXP_45** | Relational GAT + Hungarian Matching | 0.4522 (sparse sim) | **0.449** | **FROZEN** (Sparse prompt breakdown) |
 | **EXP_46A** | Standalone Qwen3-8B LoRA24 | **0.5862** | **0.606** | **FROZEN BASELINE** |
-| **EXP_47** | Qwen3-8B Centred Twin Head | **0.5910** | **0.620** | **VERIFIED TOP ON KAGGLE** |
+| **EXP_47** | Qwen3-8B Centred Twin Head | **0.5910** | **0.620** | **FORMER TOP ON KAGGLE** |
 | **EXP_48** | EXP47 + Damped Sinkhorn Calibration | **0.5910** (+0.0000) | *Not Submitted* | **YELLOW** (Ensemble regularizer) |
 | **EXP_49** | EXP47 + 4-View Open-Pool LinearSVC ($w=0.85$) + SK | **0.6976** (nested raw) / **0.7054** (nested + SK) | **0.612** | **EVALUATED (Surface Domain Shift)** |
+| **EXP_50** | Controlled Qwen-Dominant Fusion ($w_{\text{qwen}}=0.75, w_{\text{svc}}=0.25$) | **0.6102** (+0.0193 vs EXP47) | *Not Submitted* | **GREEN (Validated Candidate)** |
+| **EXP_50B** | Extended Sweep (0.20--0.50): Max at Boundary ($w=0.50$) | **0.6354** (+0.0445 vs EXP47) | *Not Submitted* | **ANALYSIS (Boundary Unresolved)** |
+| **EXP_51** | Qwen3-14B Two-Stage LoRA Technical Audit | **0.6346** (14B OOF) / **0.7873** (Dual Fusion) | *Not Submitted* | **GREEN (Stop & Report / Complementary)** |
+| **EXP_51A** | Forensic Provenance Audit of Qwen3-14B OOF | **0.6346** (Verified Dhruv `q14v5`) | *Not Submitted* | **GREEN (Provenance Verified)** |
+| **EXP_52** | Dual-LoRA Qwen3-8B (0.60) + Qwen3-14B (0.40) Kernel | **0.7873** (OOF Reference BA) | **0.632** | **CURRENT PRODUCTION BASELINE (TOP)** |
+| **EXP_53** | Dual-LoRA Fusion Weight Sweep (w14: 0.00–0.60) | **0.7873** (Peak at w14=0.40) | *Not Submitted* | **FROZEN (0.40 Confirmed Optimal)** |
+| **EXP_54** | EXP52 + Open Pool 4-View LinearSVC Sweep ($w_{\text{svc}} \le 0.20$) | **0.7888** (+0.0015 at w=0.05) | *Not Submitted* | **FROZEN (EXP52 Retained at 0.632)** |
+| **EXP_55** | Isolated Stylometry / Char TF-IDF Specialist Sweep ($w \le 0.25$) | **0.7881** (nested) / **0.7899** ($w=0.05$) | *Not Submitted* | **YELLOW (EXP52 Retained at 0.632)** |
+| **EXP_56** | Qwen3-14B Prompt-Conditioned Residual Specialist ($w \le 0.20$) | **0.7866** (nested) / **0.7888** ($w=0.20$) | *Not Submitted* | **RED (Duplicate of head_cent; Retain EXP52)** |
+| **EXP_57A** | Weight-Space Programming Diagnosis for NTL | **0.7873** (Baseline Inventory) | *Not Submitted* | **READ-ONLY DIAGNOSIS (Formulated Hypotheses)** |
+| **EXP_57B** | Class-Head Norm Equalization Validation | **0.7847** ($\Delta = -0.0026$ in EXP52) | *Not Submitted* | **RED (Refuted Causal Hypothesis; Retain EXP52)** |
+| **EXP_58** | Gemini Sibling Early-Layer Discriminator Falsification | **0.5367** (Layer 4 vs 0.6067 full) | *Not Submitted* | **RED (Refuted Early-Layer Hypothesis; Retain EXP52)** |
 
 ---
 
@@ -74,13 +93,33 @@
      - **Logit Scale Mismatch**: Qwen's logit margins are $8.2\times$ sharper than the LinearSVC's flat softmax logits (mean top-2 gap: 1.955 nats vs 0.237 nats). Local tuning pushed $w_{\text{svc}}=0.85$ to balance scales on `train.csv`, but on unseen test passages, surface n-grams suffer domain shift.
      - **Reference Ensemble Contrast**: In the 0.672 reference notebook, 6 transformer backbones totaled $>10.5$ weight while the SVM represented only $\approx 12\%$ of total mass. EXP49 inverted this by making the SVM 85% of the ensemble.
    - **Protocol Update**: Moving forward, deep sequence models must constitute $\ge 75\%$ of voting mass ($w_{\text{deep}} \ge 0.75$), with surface features acting strictly as conservative regularizers ($\le 25\%$).
-2. **Next Sequential Experiment (EXP50 - Local First)**:
-   - Combine verified EXP47 (deep anchor) with audited typography markers and V40A sibling style residuals.
-   - Enforce **deep-dominant conservative weighting** ($w_{\text{deep}} \ge 0.75$, $w_{\text{surface}} \le 0.25$).
-   - Run local 5-fold prompt-disjoint `GroupKFold` cross-validation sweeps before proposing any Kaggle candidate.
-3. **Subsequent Sequential Experiments**:
-   - **EXP51**: LoRA Multi-Model Scaling (add Qwen3-14B `q14v5`).
-   - **EXP52+**: Multi-model deep ensemble + conservative regularizers.
+2. **EXP50 Controlled Qwen-Dominant Sweep Completed (Local First)**:
+   - Evaluated 6 weights ($w_{\text{qwen}} \in [0.75, 1.00]$, $w_{\text{svc}} \in [0.00, 0.25]$) across Official Only and Official + 36k Open Pool.
+   - **Local BA**: Climbed monotonically from 0.5910 to **0.6102** (+0.0193) under Open Pool, with zero fold degradation across all 5 folds.
+   - **Open Pool Lift**: Open Pool roughly doubles the lift (+0.0193 vs +0.0078 Official Only).
+   - **Anchor Stability**: Retains 96.9%–99.8% prediction agreement with Qwen, restricting SVC strictly to an auxiliary tie-breaker.
+   - **Decision**: **GREEN**. Retained locally; awaiting user approval before any submission.
+3. **EXP50B Extended Fusion Weight Sweep Completed (0.20 to 0.50)**:
+   - Evaluated 31 fine-grained weights ($w_{\text{svc}} \in [0.20, 0.50]$ at 0.01 steps) across Official Only and Open Pool.
+   - **Key Finding**: Local Balanced Accuracy rises monotonically across the entire window without developing an interior peak. Maximum in range is at boundary $w_{\text{svc}} = 0.50$ (**0.6354 BA** Open Pool, **0.6147 BA** Official Only).
+   - **Boundary Status**: The local CV boundary has **NOT been resolved** within $[0.20, 0.50]$.
+   - **Epistemic Warning**: High SVC weights overfit local prompt vocabulary and margin mismatch ($8.24\times$ wider in Qwen). Candidate recommendation prioritizes conservative weights ($w_{\text{svc}} = 0.25–0.35$) with $>95\%$ Qwen agreement to prevent unseen test domain shift.
+4. **EXP51 Qwen3-14B Two-Stage LoRA Technical Audit Complete**:
+   - Comprehensive audit of 11 components from `two-stage-lora-part-two.ipynb`.
+   - Dataset `nishantdahal/ntl-handwriting-blend` downloaded and verified (`lora_qwen3_14b`).
+   - STOP & REPORT condition triggered: reference release includes strictly a single full-fit checkpoint without fold-specific adapters or OOF arrays. Forward-passing `train.csv` would be in-sample evaluation. Base model not present on local disk.
+   - Complementarity with EXP47: Near-zero error correlation ($r=0.0214$), 40.27% agreement, Oracle BA = **0.8455**. Optimal fusion ($w_{14\text{B}}=0.40, w_{\text{EXP47}}=0.60$) achieves **0.7873 Balanced Accuracy** (+0.1963 over EXP47).
+5. **EXP51A Qwen3-14B OOF Forensic Provenance Audit Complete**:
+   - Analyzed `outputs/oof_q14v5_antopil_lora.csv` (SHA-256: `58822e8d...`).
+   - Prompt-disjointness: VERIFIED VALID. Zero prompts span multiple folds; exactly 30 prompts per fold.
+   - Training row exclusion: VERIFIED VALID via LoRA24 worker training code (`fit = fold != int(job)`).
+   - Lineage: Proved that artifact belongs to Dhruv Tibarewal / Anto Pil's `q14v5` model family (trained on 120k pool + train), NOT Nishant Dahal's `lora_qwen3_14b` (which never released fold adapters).
+   - Reproducibility: Exactly 0.634609 Balanced Accuracy directly reproduced.
+   - Final Verdict: VALID (as `q14v5` LoRA24 OOF) / INVALID (as Nishant Dahal reproduction).
+6. **Subsequent Sequential Experiments**:
+   - **EXP52**: Dual-LoRA Kaggle Submission Kernel assembly (Qwen3-8B $w=0.60$ + Qwen3-14B $w=0.40$ + Centred Twin) using verified `dhruvtibarewal/nlm-l24-adapters-v5` adapters. Validated on Kaggle at **0.632 Public LB** (undefeated current top baseline).
+   - **EXP53**: Dual-LoRA Fusion Weight Sweep over $w_{14} \in [0.00, 0.60]$. Confirmed $w_{14}=0.40$ is OOF-optimal (0.7873 BA) and frozen.
+   - **EXP54**: Controlled Qwen3 (8B+14B) + Open Pool 4-View LinearSVC Sweep over $w_{\text{svc}} \in [0.00, 0.20]$. Marginal OOF peak at $w_{\text{svc}}=0.05$ (0.7888 BA, $\Delta = +0.0015$) represents only 4 net samples with 95% bootstrap CI spanning zero ([-0.0001, +0.0034]). Frozen at EXP52 (0.632 LB); zero submissions recommended.
 
 ---
 
@@ -108,5 +147,72 @@
 | **EXP49 Candidate Package** | `/home/rj2826/name-the-llm/submissions/candidates/EXP49/` |
 | **EXP49 Submission Kernel** | `/home/rj2826/name-the-llm/submissions/candidates/EXP49/submission_kernel_exp49.ipynb` |
 | **EXP49 Kaggle 0.612 Forensic Audit** | `/home/rj2826/name-the-llm/reports/experiments/EXP49/KAGGLE_0612_FORENSIC_AUDIT.md` |
+| **EXP50 Script** | `/home/rj2826/name-the-llm/src/exp50_qwen_dominant_fusion.py` |
+| **EXP50 Notebook** | `/home/rj2826/name-the-llm/notebooks/50_qwen_dominant_fusion.ipynb` |
+| **EXP50 Report** | `/home/rj2826/name-the-llm/reports/experiments/EXP50/REPORT.md` |
+| **EXP50 Leakage Audit** | `/home/rj2826/name-the-llm/reports/experiments/EXP50/leakage_audit.md` |
+| **EXP50 Candidate Config** | `/home/rj2826/name-the-llm/submissions/candidates/EXP50/config.json` |
+| **EXP50 OOF Predictions** | `/home/rj2826/name-the-llm/outputs/oof_exp50_qwen_dominant_fusion.npy` |
+| **EXP50B Script** | `/home/rj2826/name-the-llm/src/exp50b_extended_fusion_sweep.py` |
+| **EXP50B Notebook** | `/home/rj2826/name-the-llm/notebooks/50b_extended_fusion_sweep.ipynb` |
+| **EXP50B Report** | `/home/rj2826/name-the-llm/reports/experiments/EXP50B/REPORT.md` |
+| **EXP50B Leakage Audit** | `/home/rj2826/name-the-llm/reports/experiments/EXP50B/leakage_audit.md` |
+| **EXP50B Candidate Config** | `/home/rj2826/name-the-llm/submissions/candidates/EXP50B/config.json` |
+| **EXP50B OOF Predictions** | `/home/rj2826/name-the-llm/outputs/oof_exp50b_qwen_svc_fusion.npy` |
+| **EXP51 Report** | `/home/rj2826/name-the-llm/reports/EXP51_qwen3_14b_two_stage_audit.md` |
+| **EXP51 Audit Metrics** | `/home/rj2826/name-the-llm/reports/experiments/EXP51/metrics.json` |
+| **EXP51 Checkpoints** | `/home/rj2826/name-the-llm/models/ntl-handwriting-blend/lora_qwen3_14b/` |
+| **EXP51A Report** | `/home/rj2826/name-the-llm/reports/EXP51A_qwen3_14b_oof_provenance.md` |
+| **EXP51A Persisted OOF** | `/home/rj2826/name-the-llm/outputs/oof_q14v5_antopil_lora.csv` |
+| **EXP52 Script** | `/home/rj2826/name-the-llm/src/exp52_dual_lora_inference.py` |
+| **EXP52 Notebook** | `/home/rj2826/name-the-llm/notebooks/52_dual_lora_kernel.ipynb` |
+| **EXP52 Report** | `/home/rj2826/name-the-llm/reports/EXP52_dual_lora_inference.md` |
+| **EXP52 Metrics** | `/home/rj2826/name-the-llm/experiments/EXP52_dual_lora/metrics.json` |
+| **EXP52 Runtime** | `/home/rj2826/name-the-llm/experiments/EXP52_dual_lora/runtime.json` |
+| **EXP52 Candidate Submission** | `/home/rj2826/name-the-llm/submissions/candidates/EXP52/submission.csv` |
+| **EXP53 Script** | `/home/rj2826/name-the-llm/src/exp53_fusion_weight_sweep.py` |
+| **EXP53 Report** | `/home/rj2826/name-the-llm/reports/EXP53_REPORT.md` |
+| **EXP53 Results** | `/home/rj2826/name-the-llm/experiments/EXP53_fusion_weight/EXP53_results.csv` |
+| **EXP53 Plot** | `/home/rj2826/name-the-llm/reports/figures/exp53_weight_sweep.png` |
+| **EXP54 Script** | `/home/rj2826/name-the-llm/src/exp54_qwen_svc.py` |
+| **EXP54 Report** | `/home/rj2826/name-the-llm/reports/EXP54_REPORT.md` |
+| **EXP54 Results** | `/home/rj2826/name-the-llm/experiments/EXP54_qwen_svc/EXP54_results.csv` |
+| **EXP54 Predictions** | `/home/rj2826/name-the-llm/experiments/EXP54_qwen_svc/EXP54_oof_predictions.parquet` |
+| **EXP54 Plot** | `/home/rj2826/name-the-llm/reports/figures/exp54_weight_sweep.png` |
+| **EXP55 Script** | `/home/rj2826/name-the-llm/src/exp55_stylometry.py` |
+| **EXP55 Report** | `/home/rj2826/name-the-llm/reports/EXP55_REPORT.md` |
+| **EXP55 Results** | `/home/rj2826/name-the-llm/experiments/EXP55_stylometry/EXP55_results.csv` |
+| **EXP55 Predictions** | `/home/rj2826/name-the-llm/experiments/EXP55_stylometry/EXP55_oof_predictions.parquet` |
+| **EXP55 Summary** | `/home/rj2826/name-the-llm/experiments/EXP55_stylometry/summary.json` |
+| **EXP55 OOF Parquet** | `/home/rj2826/name-the-llm/outputs/oof_stylometry_exp55.parquet` |
+| **EXP55 Plot (Sweep)** | `/home/rj2826/name-the-llm/reports/figures/exp55_weight_sweep.png` |
+| **EXP55 Plot (Confusion)** | `/home/rj2826/name-the-llm/reports/figures/exp55_confusion_matrix.png` |
+| **EXP55 Plot (Complement)** | `/home/rj2826/name-the-llm/reports/figures/exp55_complementarity.png` |
+| **EXP56 Script** | `/home/rj2826/name-the-llm/src/exp56_q14_residual.py` |
+| **EXP56 Report** | `/home/rj2826/name-the-llm/reports/EXP56_REPORT.md` |
+| **EXP56 Results** | `/home/rj2826/name-the-llm/experiments/EXP56_q14_residual/EXP56_results.csv` |
+| **EXP56 Predictions** | `/home/rj2826/name-the-llm/experiments/EXP56_q14_residual/EXP56_oof_predictions.parquet` |
+| **EXP56 Summary** | `/home/rj2826/name-the-llm/experiments/EXP56_q14_residual/summary.json` |
+| **EXP56 Plot (Sweep)** | `/home/rj2826/name-the-llm/reports/figures/exp56_weight_sweep.png` |
+| **EXP56 Plot (Confusion)** | `/home/rj2826/name-the-llm/reports/figures/exp56_confusion_matrix.png` |
+| **EXP56 Plot (Complement)** | `/home/rj2826/name-the-llm/reports/figures/exp56_complementarity.png` |
 | **Experiment Index** | `/home/rj2826/name-the-llm/EXPERIMENT_INDEX.md` |
 | **Leaderboard** | `/home/rj2826/name-the-llm/LEADERBOARD.md` |
+| **EXP57A Report** | `/home/rj2826/name-the-llm/reports/EXP57A_REPORT.md` |
+| **EXP57A Directory** | `/home/rj2826/name-the-llm/experiments/EXP57A_weight_space_diagnosis/` |
+| **EXP57B Script** | `/home/rj2826/name-the-llm/src/exp57b_norm_equalization.py` |
+| **EXP57B Report** | `/home/rj2826/name-the-llm/reports/EXP57B_REPORT.md` |
+| **EXP57B Directory** | `/home/rj2826/name-the-llm/experiments/EXP57B_norm_equalization/` |
+| **EXP57B Gamma Sweep** | `/home/rj2826/name-the-llm/experiments/EXP57B_norm_equalization/gamma_sweep.csv` |
+| **EXP57B Fold Results** | `/home/rj2826/name-the-llm/experiments/EXP57B_norm_equalization/fold_results.csv` |
+| **EXP57B EXP52 Integration** | `/home/rj2826/name-the-llm/experiments/EXP57B_norm_equalization/exp52_integration.csv` |
+| **EXP58 Script** | `/home/rj2826/name-the-llm/src/exp58_gemini_layer_falsification.py` |
+| **EXP58 Report** | `/home/rj2826/name-the-llm/reports/EXP58_REPORT.md` |
+| **EXP58 Directory** | `/home/rj2826/name-the-llm/experiments/EXP58_gemini_early_layer_falsification/` |
+| **EXP58 Layer Probes** | `/home/rj2826/name-the-llm/experiments/EXP58_gemini_early_layer_falsification/layer_probe_results.csv` |
+| **EXP58 Fold Results** | `/home/rj2826/name-the-llm/experiments/EXP58_gemini_early_layer_falsification/fold_results.csv` |
+| **EXP58 Distance Analysis** | `/home/rj2826/name-the-llm/experiments/EXP58_gemini_early_layer_falsification/distance_analysis.csv` |
+| **EXP58 Centroid Analysis** | `/home/rj2826/name-the-llm/experiments/EXP58_gemini_early_layer_falsification/centroid_analysis.csv` |
+| **EXP58 Random Permutations** | `/home/rj2826/name-the-llm/experiments/EXP58_gemini_early_layer_falsification/random_label_control.csv` |
+| **EXP58 BA Plot** | `/home/rj2826/name-the-llm/experiments/EXP58_gemini_early_layer_falsification/layer_probe_ba.png` |
+| **EXP58 Separation Plot** | `/home/rj2826/name-the-llm/experiments/EXP58_gemini_early_layer_falsification/layer_separation.png` |

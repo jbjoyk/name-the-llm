@@ -1,0 +1,61 @@
+{
+  "experiment_id": "EXP50B_extended_fusion_sweep",
+  "date": "2026-11-07",
+  "baseline_exp47_ba": 0.590981854337559,
+  "best_results": {
+    "official_only": {
+      "best_weight_svc": 0.5,
+      "best_weight_qwen": 0.5,
+      "best_ba": 0.6146855580412627,
+      "delta_vs_exp47": 0.02370370370370367
+    },
+    "open_pool": {
+      "best_weight_svc": 0.5,
+      "best_weight_qwen": 0.5,
+      "best_ba": 0.6354337559035544,
+      "delta_vs_exp47": 0.04445190156599543
+    }
+  },
+  "surface_characterization": {
+    "open_pool_optimum_at_boundary": true,
+    "official_only_optimum_at_boundary": true,
+    "open_pool_monotonic_in_range": true,
+    "official_only_monotonic_in_range": true,
+    "boundary_resolved_at_050": false,
+    "local_cv_regime_supported": "monotonically increasing toward equal/SVC dominance on local train.csv, but constrained by Kaggle surface shift"
+  },
+  "statistical_inference_vs_exp47": {
+    "w_svc_0.25": {
+      "w_svc": 0.25,
+      "w_qwen": 0.75,
+      "total_delta": 0.01926174496644295,
+      "ci_95_lower": 0.013706189410887398,
+      "ci_95_upper": 0.025187670892368876,
+      "p_positive": 1.0
+    },
+    "w_svc_0.35": {
+      "w_svc": 0.35,
+      "w_qwen": 0.65,
+      "total_delta": 0.02703952274422073,
+      "ci_95_lower": 0.02111111111111111,
+      "ci_95_upper": 0.03333581904051702,
+      "p_positive": 1.0
+    },
+    "w_svc_0.50": {
+      "w_svc": 0.5,
+      "w_qwen": 0.5,
+      "total_delta": 0.04445190156599552,
+      "ci_95_lower": 0.03704449415858812,
+      "ci_95_upper": 0.052232165050957,
+      "p_positive": 1.0
+    }
+  },
+  "input_hashes": {
+    "train.csv": "40a22ce8d88c5f46feb4637a099db815bef5f713ffe53e89dbe1b7b21de77707",
+    "open_pool_clean.parquet": "0c5b289e9f5f7c3f439462d09b3d1d7ef4648839db20309e3476066f3982d5c9",
+    "oof_exp47_qwen_centered_twin.npy": "647a75f59789f2574bef7578ebf0e5f00eae2a8481724cfd6316bb4199ad22cb",
+    "oof_open_pool_svc.npy": "cd7e0833a1d6bc60048a3944ccb55018522a407ce37edf7ccd0ec288728ee5b6",
+    "oof_reference_svc.npy": "7f0aef0bafca28baac27ff328a4802a2ea027990d33c776b43fc4ff68ef3fda9"
+  },
+  "runtime_seconds": 0.6581828594207764
+}

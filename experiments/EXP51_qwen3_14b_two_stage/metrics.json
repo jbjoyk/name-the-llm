@@ -1,0 +1,46 @@
+{
+  "experiment_id": "EXP51_qwen3_14b_two_stage_audit",
+  "date": "2026-11-08",
+  "reference_notebook": "two-stage-lora-part-two.ipynb",
+  "reference_public_lb": 0.62,
+  "status": "STOP_AND_REPORT",
+  "stop_reason": "Reference dataset provides single full-fit adapter; fold-split adapters not published. Base model not present on local disk.",
+  "audit_11_components": {
+    "1_base_model": "Qwen/Qwen3-14B-Base (40 layers, H=5120)",
+    "2_stage_1_adapter": "Trained on 83,827 filtered public passages (26 datasets)",
+    "3_stage_2_adapter": "SFT fine-tuned on full train.csv (2,699 samples, 2 epochs, r=16, alpha=32)",
+    "4_classification_head": "heads.safetensors: plain.weight [18, 40960], centered.weight [18, 40960], 8 norms [5120]. model.norm=Identity()",
+    "5_layer_truncation": "keep=27 decoder layers out of 40",
+    "6_hidden_pooling_layers": [
+      2,
+      4,
+      6,
+      9,
+      13,
+      17,
+      22,
+      27
+    ],
+    "7_pooling_concatenation": "token 0 masked out, masked mean per layer, LayerNorm per layer, concat to 40960d",
+    "8_layernorm_readout": "plain head + centered head for clusters 2<=size<=18",
+    "9_tokenizer_config": "padding_side=right, max_len=447, length-sorted batching",
+    "10_eos_token_handling": "Overridden to eos_id=151643 (<|endoftext|>) from meta.json to fix Kaggle chat tokenizer bug",
+    "11_preprocessing_numerics": "fp16 with bf16 overflow fallback, per-sample T4 OOM fallback, device_map=auto"
+  },
+  "comparative_qwen14b_vs_exp47": {
+    "exp47_ba": 0.591,
+    "exp47_macro_f1": 0.5915,
+    "qwen14b_ba": 0.6346,
+    "qwen14b_macro_f1": 0.6338,
+    "prediction_agreement": 0.4027,
+    "error_correlation_pearson": 0.0214,
+    "both_correct_pct": 0.3801,
+    "both_wrong_pct": 0.1545,
+    "only_exp47_correct_pct": 0.2108,
+    "only_14b_correct_pct": 0.2545,
+    "oracle_balanced_accuracy": 0.8455,
+    "optimal_blend_weight_14b": 0.4,
+    "optimal_blend_ba": 0.7873,
+    "blend_delta_vs_exp47": 0.1963
+  }
+}

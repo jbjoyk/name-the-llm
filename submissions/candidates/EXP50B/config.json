@@ -1,0 +1,40 @@
+{
+  "experiment_id": "EXP50B",
+  "description": "Extended Qwen/SVC Fusion Weight Sweep (Characterization of 0.20 to 0.50 Response Surface)",
+  "model_architecture": "Qwen3-8B-Base (24 layers, fp16) + 6 merged q8v5 LoRA adapters + Centred Twin Head (wt=0.35)",
+  "auxiliary_architecture": "4-View Multi-Granularity LinearSVC with 36k Clean Open Pool",
+  "tested_weight_range": "w_svc in [0.20, 0.50] in 0.01 steps",
+  "recommended_candidates": [
+    {
+      "label": "Conservative Deep Anchor (Recommended for Kaggle safety)",
+      "w_qwen": 0.75,
+      "w_svc": 0.25,
+      "local_ba": 0.6102,
+      "delta_vs_exp47": 0.0193,
+      "qwen_agreement": 0.9689,
+      "rationale": "High Qwen agreement (96.9%) prevents surface n-gram domain shift on unseen test prompts."
+    },
+    {
+      "label": "Intermediate Balanced Transition (Moderate risk)",
+      "w_qwen": 0.65,
+      "w_svc": 0.35,
+      "local_ba": 0.618,
+      "delta_vs_exp47": 0.027,
+      "qwen_agreement": 0.9529,
+      "rationale": "Solid local gain while retaining >95% Qwen agreement."
+    },
+    {
+      "label": "Local Numerical Maximum in [0.20, 0.50] (High surface-shift risk)",
+      "w_qwen": 0.5,
+      "w_svc": 0.5,
+      "local_ba": 0.6354,
+      "delta_vs_exp47": 0.0445,
+      "qwen_agreement": 0.9218,
+      "rationale": "Highest local CV score in the sweep; however, equal weighting risks test-time domain shift as observed in EXP49."
+    }
+  ],
+  "boundary_resolved": false,
+  "verified_kaggle_baseline": 0.62,
+  "submission_ready": false,
+  "status": "AWAITING_USER_APPROVAL"
+}

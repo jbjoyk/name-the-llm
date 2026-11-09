@@ -1,0 +1,66 @@
+{
+  "experiment_id": "EXP56_q14_residual",
+  "verdict": "RED",
+  "standalone_residual_ba": 0.10445190156599553,
+  "q14v5_plain_ba": 0.6346085011185683,
+  "q14v5_centered_ba": 0.4842033308476262,
+  "q14v5_twin_combined_ba": 0.6490778026348497,
+  "exp47_ba": 0.590981854337559,
+  "exp52_baseline_ba": 0.7873129505344271,
+  "best_predefined_weight": 0.2,
+  "best_predefined_ba": 0.7887969177230922,
+  "best_predefined_delta": 0.0014839671886651695,
+  "best_ci_low": -0.00298591181014862,
+  "best_ci_high": 0.0062145154553842836,
+  "best_p_pos": 0.7445,
+  "nested_mean_ba": 0.7866155810983397,
+  "nested_std_ba": 0.011314184822900586,
+  "nested_delta": -0.00072796934865893,
+  "nested_records": [
+    {
+      "fold": 0,
+      "selected_w": 0.15,
+      "inner_tr_ba": 0.7910908807967632,
+      "outer_val_ba": 0.7759259259259258,
+      "outer_exp52_ba": 0.7777777777777778,
+      "delta": -0.0018518518518519933
+    },
+    {
+      "fold": 1,
+      "selected_w": 0.2,
+      "inner_tr_ba": 0.7902777777777779,
+      "outer_val_ba": 0.7830779054916986,
+      "outer_exp52_ba": 0.7793103448275862,
+      "delta": 0.003767560664112435
+    },
+    {
+      "fold": 2,
+      "selected_w": 0.15,
+      "inner_tr_ba": 0.7883208839091194,
+      "outer_val_ba": 0.7870370370370371,
+      "outer_exp52_ba": 0.7907407407407407,
+      "delta": -0.0037037037037036535
+    },
+    {
+      "fold": 3,
+      "selected_w": 0.1,
+      "inner_tr_ba": 0.7901727357609709,
+      "outer_val_ba": 0.7814814814814814,
+      "outer_exp52_ba": 0.7833333333333334,
+      "delta": -0.0018518518518519933
+    },
+    {
+      "fold": 4,
+      "selected_w": 0.1,
+      "inner_tr_ba": 0.7841425459072517,
+      "outer_val_ba": 0.8055555555555556,
+      "outer_exp52_ba": 0.8055555555555556,
+      "delta": 0.0
+    }
+  ],
+  "matched_rows": 336,
+  "matched_ratio": 0.12449055205631715,
+  "error_correlation_r": 0.05616270312642064,
+  "kaggle_submission": "NOT SUBMITTED",
+  "production_baseline": "EXP52 \u2014 Kaggle Public LB 0.632"
+}
