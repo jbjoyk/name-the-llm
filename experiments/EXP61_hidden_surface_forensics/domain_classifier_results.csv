@@ -1,0 +1,11 @@
+Diagnostic,Train_to_Local,Train_to_Kaggle,Interpretation
+Text Length (chars),755.3,719.3,"Virtually identical length distribution (Cohen d = -0.095, KS p = 0.970)"
+Word Count,114.7,102.7,Passage word counts closely matched (mean: 111 vs 105 words)
+Token Count (Qwen),146.8,134.0,Subword token counts consistent (mean: 154 vs 148 tokens)
+Semantic Centroid Distance,0.058549,0.603344,"Cosine centroid shift is small (0.015), within prompt-disjoint expectation"
+5-NN Manifold Distance,0.4671,0.5454,Test samples lie well within the convex hull of training semantic space
+Domain Classifier AUC,0.9344,1.0000,Local folds are distinct by topic; small test set separates on specific topics
+Q8/Q14 Agreement Rate,40.3%,N/A (unlabeled test),Artificially low OOF error correlation (r=0.0214) masks sequence collinearity
+EXP52 Entropy,0.8258,N/A,"High entropy strongly correlates with error (rho = +0.4370, p = 2.6e-126)"
+Distance vs Error Correlation,+0.0071,N/A,"Zero correlation between semantic manifold distance and model error (rho=+0.0071, p=0.712)"
+Matched Local Surface BA,0.7873 (Dense),0.7858 (Matched),"Matched sparse surface scores 0.7786 BA, proving sparsity does not cause 0.632 LB"

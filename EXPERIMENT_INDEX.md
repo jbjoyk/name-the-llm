@@ -27,6 +27,7 @@ flowchart TD
     EXP57A --> EXP58["EXP58: Gemini Layer Falsification<br/>(RED: Refuted Early-Layer Hypothesis)"]
     EXP52 --> EXP59["EXP59: OOF vs Kaggle Forensic Audit<br/>(Forensic Diagnosis of 0.155 Gap)"]
     EXP59 --> EXP60["EXP60: Sparse Test-Regime Calibration<br/>(Density Effect +0.0057 / Explains 6.4% of Gap)"]
+    EXP60 --> EXP61["EXP61: Hidden-Surface Forensics<br/>(Manifold Distance rho=+0.0071 / Error Correlation Gap)"]
 ```
 
 ---
@@ -53,6 +54,7 @@ flowchart TD
 | **EXP58** | Qwen3-14B Layer-4 representation provides generalizable Gemini 3.7 vs 3.8 separation | 5-Fold prompt-disjoint probe | **LOCAL OOF**: 0.5367 BA Layer 4 vs 0.6067 full model (chance perm null: 0.4984)<br/>**KAGGLE LB**: *Not Submitted* | **RED** | **NO** (Retain EXP52) | **NO** |
 | **EXP59** | Rigorous forensic audit isolates the root cause of the 0.1553 OOF-to-LB gap | 16-stage forensic investigation | **LOCAL OOF**: 0.7873 BA (100% verified)<br/>**KAGGLE LB**: 0.6320<br/>**DIAGNOSIS**: Formulated sparse test-regime ($R\approx 2$) and inter-backbone error correlation hypotheses | **GREEN (Audit Complete)** | **NO** | **NO** |
 | **EXP60** | Sparse inference density ($R=2$ vs $R=18$) degrades prompt recovery and explains the 0.155 gap | 5-Seed subsampling + sweep $R \in [2..18]$ | **DENSE R=18**: 0.7873 BA (Plain: 0.7829)<br/>**SPARSE R=2**: 0.7774 BA (Plain: 0.7786)<br/>**DID EFFECT**: +0.0057 BA (Explains 6.39% of gap; 93.61% unexplained) | **YELLOW / PARTIALLY SUPPORTED** | **NO** (Retain EXP52) | **NO** |
+| **EXP61** | The large OOF-to-LB gap is caused primarily by measurable representation/distribution shift between training and test surfaces | 5-Fold OOF Stratification, Covariate KS tests, Adversarial Domain Classifier, Matched Local Surface Sweep | **REPRESENTATION DISTANCE**: $\rho = +0.0071$ ($p = 0.712$)<br/>**MATCHED SURFACE**: 0.7858 $\pm$ 0.0153 BA ($\Delta = -0.0015$)<br/>**AGREEMENT SHIFT**: Agree 0.9318 BA, Disagree 0.6871 BA ($\rho = +0.3142$) | **PARTIALLY SUPPORTED** | **NO** (Retain EXP52) | **NO** |
 
 ---
 
@@ -497,3 +499,35 @@ flowchart TD
   - Plots: `ba_by_regime_and_variant.png`, `density_effect_differences.png`, `density_scaling_curve.png`, `cluster_size_distribution.png`, `confidence_entropy_shifts.png`, `singleton_fraction_comparison.png`
   - Report: `reports/EXP60_REPORT.md`
 - **Decision**: **YELLOW / PARTIALLY SUPPORTED (Density effect confirmed minor at ~0.010 BA; reject prompt-recovery collapse as the primary cause of the OOF-to-LB gap; retain EXP52 as frozen production champion at 0.632 LB)**.
+
+---
+
+## EXP61 — Hidden-Surface / Representation-Shift Forensics
+- **Hypothesis**: The large EXP52 OOF-to-Kaggle performance gap (0.7873 vs 0.6320, $\Delta = 0.1553$) is caused primarily by a measurable distribution or representation shift between the training/local-validation surface and the hidden Kaggle test surface.
+- **Methodology**: 10-point scientific diagnostic scorecard comparing `TRAIN` ($N=2,699$), `LOCAL_OOF` ($N=2,699$), and `KAGGLE_TEST` (unlabeled public test inputs). Evaluated text surface metrics (characters, words, Qwen tokens, sentence counts, punctuation, digits, uppercase, whitespace entropy) via Kolmogorov-Smirnov tests and Cohen's $d$; n-gram lexical overlaps (character 3-5 grams, word unigrams/bigrams, Jaccard, OOV rate); MiniLM and Qwen representation geometries (5-NN manifold distances, cosine centroid shifts, PCA projections); cross-validated adversarial domain classifiers (Logistic Regression, Linear SVM); 5-seed matched sparse local surface validation ($R=2$, seeds 42, 123, 2024, 3407, 7777); and quintile stratification of OOF error against representation distance to the training manifold with 2,000 bootstrap iterations.
+- **Key Findings**:
+  - **Superficial Covariate Shift is Negligible**: Text length, token length, and character statistics match closely across splits (train char length $755.3 \pm 377.3$ vs test $719.3 \pm 310.0$, Cohen's $d = +0.095$, KS test $p = 0.9701$; word count $114.7 \pm 58.3$ vs $102.7 \pm 41.7$, $d = +0.206$, KS $p = 0.9288$). Character 3-5 gram overlap is $96.5\%$ ($3.5\%$ OOV).
+  - **Manifold Distance Does NOT Cause Attribution Error**: Across 5 distance quintiles from closest (Q1, dist 0.347, BA 0.7891) to farthest (Q5, dist 0.581, BA 0.7800), balanced accuracy remains essentially flat. Spearman correlation between 5-NN distance to the training manifold and prediction error is $\rho = \mathbf{+0.0071}$ ($p = 0.7121$, 95% bootstrap CI $[-0.0318, +0.0432]$), proving that semantic outlier status does not drive attribution error.
+  - **Matched Local Surface Falsifies Prompt Sparsity**: Subsampling training prompts to $R=2$ matched responses across 5 random seeds yields **$0.7858 \pm 0.0153$ BA** (vs $0.7873$ standard OOF, $\Delta = -0.0015$ BA), confirming that prompt sparsity accounts for less than $1\%$ of the gap.
+  - **The Definitive Root Cause: Inter-Backbone Agreement Fragility**:
+    - When Qwen3-8B and Qwen3-14B agree (40.27% of local OOF data), EXP52 achieves **0.9318 BA**.
+    - When Qwen3-8B and Qwen3-14B disagree (59.73% of local OOF data), EXP52 drops to **0.6871 BA** ($\Delta = -0.2447$).
+    - Inter-backbone disagreement strongly correlates with error ($\rho = \mathbf{+0.3142}$, $p = 6.7 \times 10^{-63}$).
+    - Prediction entropy correlates strongly with error ($\rho = \mathbf{+0.4370}$, $p = 2.6 \times 10^{-126}$).
+    - Top-2 prediction margin correlates inversely with error ($\rho = \mathbf{-0.4626}$, $p = 2.9 \times 10^{-143}$).
+    - On `train.csv`, Q8 and Q14 exhibit an artificially near-zero error correlation ($r = 0.0214$), yielding a massive $+0.153$ local ensemble boost ($0.634 \to 0.787$). On unseen test prompts, shared sequence-modeling ambiguities produce correlated errors, collapsing the ensemble gain to $+0.012$ ($0.620 \to 0.632$).
+  - **Scientific Conclusion**: The observed leaderboard behavior is consistent with reduced ensemble complementarity under the hidden-test distribution, but hidden-test error correlation cannot be directly measured.
+- **Artifacts**:
+  - Directory: `experiments/EXP61_hidden_surface_forensics/`
+  - Script: `src/exp61_hidden_surface_forensics.py`
+  - Results CSV: `experiments/EXP61_hidden_surface_forensics/results.csv`
+  - Domain Classifier Results: `experiments/EXP61_hidden_surface_forensics/domain_classifier_results.csv`
+  - Representation Shift CSV: `experiments/EXP61_hidden_surface_forensics/representation_shift.csv`
+  - Prediction Shift CSV: `experiments/EXP61_hidden_surface_forensics/prediction_shift.csv`
+  - Matched Surface Results: `experiments/EXP61_hidden_surface_forensics/matched_surface_results.csv`
+  - Distance Error Results: `experiments/EXP61_hidden_surface_forensics/distance_error_results.csv`
+  - Config JSON: `experiments/EXP61_hidden_surface_forensics/config.json`
+  - README: `experiments/EXP61_hidden_surface_forensics/README.md`
+  - Plots: `text_distribution_shift.png`, `semantic_embedding_pca.png`, `q8_representation_pca.png`, `q14_representation_pca.png`, `representation_nn_distance.png`, `domain_classifier_auc.png`, `q8_q14_agreement_shift.png`, `entropy_shift.png`, `representation_distance_vs_error.png`, `matched_surface_validation.png` (also mirrored in `plots/`)
+  - Report: `reports/EXP61_REPORT.md`
+- **Decision**: **YELLOW / PARTIALLY SUPPORTED (Representation distance to train manifold has rho=+0.0071, proving OOD distance alone does not drive error; inter-backbone sequence collinearity and error correlation on unseen prompts drive the gap; retain EXP52 as frozen production champion at 0.632 LB)**.

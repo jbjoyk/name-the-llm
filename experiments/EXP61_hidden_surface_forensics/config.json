@@ -1,0 +1,32 @@
+{
+  "experiment_id": "EXP61_hidden_surface_forensics",
+  "description": "Hidden-Surface and Representation-Shift Forensic Audit",
+  "date": "2026-11-09 13:06:47",
+  "n_train": 2699,
+  "n_test_available": 3,
+  "n_classes": 18,
+  "baselines": {
+    "exp52_local_oof_ba": 0.7873129505344271,
+    "exp52_kaggle_public_lb": 0.632,
+    "gap": 0.1553
+  },
+  "matched_surface_validation": {
+    "mean_ba": 0.7857737458304381,
+    "std_ba": 0.015301664116661146,
+    "delta_from_standard_oof": -0.001539204703988939,
+    "fraction_of_gap_explained": 0.9911170019246227
+  },
+  "distance_error_correlations": {
+    "distance_to_train_vs_error_rho": 0.007105224248413717,
+    "distance_to_train_vs_error_p": 0.7121548794295788,
+    "entropy_vs_error_rho": 0.4370410186989197,
+    "margin_vs_error_rho": -0.4626391172464841,
+    "q8_q14_disagreement_vs_error_rho": 0.3141686137144742
+  },
+  "agreement_dynamics": {
+    "local_oof_agreement_rate": 0.4027417562060022,
+    "ba_when_agree": 0.9317972794927414,
+    "ba_when_disagree": 0.6871447383469977
+  },
+  "verdict": "PARTIALLY SUPPORTED (Representation distance to train manifold has rho=+0.0071, proving OOD distance alone does not drive error; the gap is driven by sequence collinearity / error correlation on unseen prompts that collapses the +0.153 local ensemble boost toward the +0.012 Kaggle boost)."
+}

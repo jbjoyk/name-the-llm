@@ -1,15 +1,15 @@
 # PROJECT STATE & AGENT HANDOFF: KAGGLE "NAME THAT LLM"
 
-**Last Updated**: 2026-11-09 12:06 UTC
+**Last Updated**: 2026-11-09 13:08 UTC
 **Primary Repository**: `/home/rj2826/name-that-llm`
-**Current Active State**: **EXP60 Sparse Test-Regime Calibration Completed (Verdict: YELLOW / PARTIALLY SUPPORTED; Frozen at EXP52 0.632 LB)**
+**Current Active State**: **EXP61 Hidden-Surface / Representation-Shift Forensics Completed (Verdict: YELLOW / PARTIALLY SUPPORTED; Frozen at EXP52 0.632 LB)**
 **Current Production Baseline**: **EXP52**
 - **Kaggle Public LB**: **0.632**
 - **Prompt-Disjoint OOF BA**: **0.7873**
 - **Status**: **EXP52 frozen**
-- **Latest Completed Experiment**: **EXP60**
+- **Latest Completed Experiment**: **EXP61**
 - **Latest Experiment Verdict**: **YELLOW / PARTIALLY SUPPORTED**
-- **Next Research Priority**: **Investigate out-of-domain sequence representations and cross-architecture diversification to address the remaining ~0.145 BA gap.**
+- **Next Research Priority**: **Address inter-backbone error correlation on unseen prompts via non-Qwen architecture diversification (e.g. Llama/Gemma/Mistral) or disagreement-aware calibration.**
 - **Kaggle Submissions**: **No Kaggle submission after EXP52.**
 
 ---
@@ -71,6 +71,7 @@
 | **EXP_58** | Gemini Sibling Early-Layer Discriminator Falsification | **0.5367** (Layer 4 vs 0.6067 full) | *Not Submitted* | **RED (Refuted Early-Layer Hypothesis; Retain EXP52)** |
 | **EXP_59** | OOF vs Kaggle Hidden-Surface Forensic Audit | **0.7873** (100% Verified) | **0.6320** | **GREEN (Audit Complete; Formulated Hypotheses)** |
 | **EXP_60** | Sparse Test-Regime Calibration ($R=2$ vs $R=18$) | **0.7774** (Sparse R=2) / **0.7873** (Dense R=18) | *Not Submitted* | **YELLOW / PARTIALLY SUPPORTED (Density $\Delta\Delta=+0.0057$, Explains 6.4% Gap)** |
+| **EXP_61** | Hidden-Surface / Representation-Shift Forensics | **0.7858** (Matched $R=2$) / **0.7873** (Dense OOF) | *Not Submitted* | **YELLOW / PARTIALLY SUPPORTED (Manifold distance $\rho=+0.0071$, error correlation drives gap)** |
 
 ---
 
@@ -229,3 +230,14 @@
 | **EXP60 Cluster Diag** | `/home/rj2826/name-that-llm/experiments/EXP60_sparse_validation/cluster_diagnostics.csv` |
 | **EXP60 Density Curve** | `/home/rj2826/name-that-llm/experiments/EXP60_sparse_validation/density_curve.csv` |
 | **EXP60 Config JSON** | `/home/rj2826/name-that-llm/experiments/EXP60_sparse_validation/config.json` |
+| **EXP61 Script** | `/home/rj2826/name-that-llm/src/exp61_hidden_surface_forensics.py` |
+| **EXP61 Report** | `/home/rj2826/name-that-llm/reports/EXP61_REPORT.md` |
+| **EXP61 Directory** | `/home/rj2826/name-that-llm/experiments/EXP61_hidden_surface_forensics/` |
+| **EXP61 Results CSV** | `/home/rj2826/name-that-llm/experiments/EXP61_hidden_surface_forensics/results.csv` |
+| **EXP61 Domain Classifier** | `/home/rj2826/name-that-llm/experiments/EXP61_hidden_surface_forensics/domain_classifier_results.csv` |
+| **EXP61 Rep Shift** | `/home/rj2826/name-that-llm/experiments/EXP61_hidden_surface_forensics/representation_shift.csv` |
+| **EXP61 Pred Shift** | `/home/rj2826/name-that-llm/experiments/EXP61_hidden_surface_forensics/prediction_shift.csv` |
+| **EXP61 Matched Surface** | `/home/rj2826/name-that-llm/experiments/EXP61_hidden_surface_forensics/matched_surface_results.csv` |
+| **EXP61 Distance Error** | `/home/rj2826/name-that-llm/experiments/EXP61_hidden_surface_forensics/distance_error_results.csv` |
+| **EXP61 Config JSON** | `/home/rj2826/name-that-llm/experiments/EXP61_hidden_surface_forensics/config.json` |
+| **EXP61 README** | `/home/rj2826/name-that-llm/experiments/EXP61_hidden_surface_forensics/README.md` |
