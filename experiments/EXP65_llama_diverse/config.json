@@ -1,0 +1,22 @@
+{
+  "experiment_id": "EXP65_llama_diverse",
+  "description": "Llama-3.1-8B Diverse Foundation Backbone Attribution",
+  "base_model": "meta-llama/Llama-3.1-8B",
+  "max_length": 384,
+  "batch_size": 4,
+  "grad_accum_steps": 2,
+  "learning_rate": 0.0002,
+  "epochs": 2,
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_dropout": 0.05,
+  "target_modules": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj"
+  ],
+  "quantization": "4-bit NF4 double quant",
+  "cv_folds": 5,
+  "cv_scheme": "Prompt-disjoint GroupKFold (30 prompts/fold)"
+}

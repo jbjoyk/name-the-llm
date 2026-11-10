@@ -1,0 +1,31 @@
+{
+  "experiment_id": "EXP65_llama_diverse",
+  "date": "2026-11-10 22:15:58",
+  "base_model": "meta-llama/Llama-3.1-8B",
+  "architecture": "Llama-3.1-8B + QLoRA 4-bit (r=16, alpha=32)",
+  "hardware": "2x NVIDIA GeForce RTX 3060 (12GB VRAM each)",
+  "verdict": "RED",
+  "status_note": "No meaningful complementary improvement or degradation over EXP52. Retain EXP52.",
+  "exp52_frozen": true,
+  "metrics": {
+    "q8_ba": 0.590981854337559,
+    "q14_ba": 0.6346085011185683,
+    "exp52_ba": 0.7873129505344271,
+    "llama_ba": 0.3901068854088989,
+    "nested_fusion_ba": 0.7884315187670893,
+    "nested_delta": 0.0011185682326622093,
+    "bootstrap_mean_delta": 0.0011023482707525338,
+    "ci_lower_95": -0.0062923173339046925,
+    "ci_upper_95": 0.008315619043595008,
+    "p_positive": 0.6215,
+    "error_corr_q8_llama": -0.02669712902024347,
+    "error_corr_q14_llama": 0.2818633465442921,
+    "error_corr_exp52_llama": 0.1205508641345444,
+    "llama_unique_corrections": 159,
+    "llama_degradations": 1231,
+    "net_correction": -1072,
+    "oracle_q8_q14": 0.84547104151131,
+    "oracle_3model": 0.8803032562764106,
+    "oracle_improvement": 0.034832214765100566
+  }
+}

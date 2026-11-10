@@ -1,0 +1,5 @@
+setup,balanced_accuracy
+"Oracle(Q8, Q14)",0.84547104151131
+"Oracle(Q8, Q14, Llama)",0.8803032562764106
+"Oracle(EXP52, Llama)",0.8462316679095202
+Oracle_Gain_over_Q8_Q14,0.034832214765100566

@@ -630,3 +630,38 @@ flowchart TD
   - Plots: `exp64_confidence_distributions.png`, `exp64_router_performance.png`, `exp64_disagreement_analysis.png`, `exp64_confidence_deciles.png`, `exp64_correction_degradation.png`, `exp64_router_feature_importance.png`, `exp64_calibration.png` (also mirrored in `plots/`)
   - Report: `reports/EXP64_REPORT.md`
 - **Decision**: **YELLOW (Nested CV lift is +0.0033 BA with 95% CI [-0.0027, +0.0094] spanning zero; net +9 samples out of 2,699; retain EXP52 as frozen production champion at 0.632 LB)**.
+
+---
+
+## EXP65 — Llama-3.1-8B Diverse Foundation Backbone Attribution
+- **Hypothesis**: A genuinely different foundation-model family (`meta-llama/Llama-3.1-8B`) provides attribution information that the current Qwen3-8B + Qwen3-14B dual-backbone ensemble does not already contain, enabling a more robust ensemble under unseen-prompt validation.
+- **Methodology**: Strict 5-fold prompt-disjoint evaluation on all 2,699 samples (150 prompts, 30 prompts/fold). Trained Llama-3.1-8B base using 4-bit QLoRA ($r=16, \alpha=32$, dropout=0.05, sequence length 384) with cosine learning rate schedule on dual RTX 3060 GPUs. Evaluated standalone OOF attribution metrics, measured Pearson error correlation with Q8, Q14, and EXP52, unique correction vs degradation capacity, 3-model theoretical oracle ceiling, performance on the EXP64 disagreement subset ($N=1,612$), static fusion sweep, selection-safe nested cross-validation (5 outer $\times$ 4 inner folds), and paired bootstrap significance testing ($B=2,000$).
+- **Key Findings**:
+  - **Standalone Performance**: Llama-3.1-8B standalone prompt-disjoint OOF BA is **0.3901** (Macro-F1: 0.3812, Accuracy: 0.3901, NLL: 1.6268). Fails to match Qwen3-8B (0.5910) or Qwen3-14B (0.6346).
+  - **Error Correlation**: Llama errors are uncorrelated with Qwen3-8B ($r = -0.0267, p = 0.166$), but strongly and significantly correlated with Qwen3-14B ($r = +0.2819, p = 1.80 \times 10^{-50}$). Error correlation with EXP52 is $r = +0.1206$ ($p = 3.32 \times 10^{-10}$).
+  - **Correction vs Degradation Asymmetry**: Llama makes 159 unique corrections on samples EXP52 missed (5.89%), but causes 1,231 degradations on samples EXP52 answered correctly (45.61%), yielding a catastrophic net balance of **-1,072 samples** (-39.72%). It correctly attributes only 94 samples where both Qwen models fail.
+  - **Oracle Ensembling Ceiling**: Oracle(Q8, Q14, Llama) reaches **0.8803 BA** ($\Delta = +0.0348$ over Oracle(Q8, Q14) at 0.8455). However, continuous logit fusion cannot capture this headroom due to high false-positive degradation rates.
+  - **Disagreement Subset ($N=1,612$)**: On samples where Q8 and Q14 disagree, Llama achieves only 0.3561 BA, fixing EXP52 on 146 samples while harming EXP52 on 698 samples (net impact: **-552 samples**).
+  - **Nested Cross-Validation**: Selection-safe nested fusion selects $w^* = 0.25$ (and $w^* = 0.15$ on Fold 1), yielding a pooled nested OOF BA of **0.7884** ($\Delta = \mathbf{+0.0011}$ over EXP52). Mean outer fold BA: $0.7885 \pm 0.0106$ (gains in 3 of 5 folds: $-0.0019, +0.0056, -0.0074, +0.0074, +0.0018$).
+  - **Statistical Non-Significance**: Paired bootstrap ($B = 2,000$) reveals a 95% confidence interval of **$[-0.0063, +0.0083]$**, spanning zero comfortably ($P(\Delta > 0) = 62.2\%$).
+  - **Scientific Conclusion**: The hypothesis is **NOT SUPPORTED**. Llama-3.1-8B introduces substantial error noise and fails to provide reliable complementary attribution.
+- **Artifacts**:
+  - Directory: `experiments/EXP65_llama_diverse/`
+  - Script: `src/exp65_llama_diverse.py`
+  - Notebook (Analysis): `notebooks/65_llama_diverse_attribution.ipynb`
+  - Notebook (Kaggle Inference): `notebooks/65_llama_diverse_kaggle.ipynb`
+  - Fold Assignments CSV: `experiments/EXP65_llama_diverse/fold_assignments.csv`
+  - Fold Results CSV: `experiments/EXP65_llama_diverse/fold_results.csv`
+  - OOF Predictions CSV: `experiments/EXP65_llama_diverse/oof_predictions.csv`
+  - Complementarity CSV: `experiments/EXP65_llama_diverse/complementarity.csv`
+  - Disagreement Analysis CSV: `experiments/EXP65_llama_diverse/disagreement_analysis.csv`
+  - Oracle Results CSV: `experiments/EXP65_llama_diverse/oracle_results.csv`
+  - Class Results CSV: `experiments/EXP65_llama_diverse/class_results.csv`
+  - Fusion Results CSV: `experiments/EXP65_llama_diverse/fusion_results.csv`
+  - Bootstrap Results JSON: `experiments/EXP65_llama_diverse/bootstrap_results.json`
+  - Training Summary JSON: `experiments/EXP65_llama_diverse/training_summary.json`
+  - Config JSON: `experiments/EXP65_llama_diverse/config.json`
+  - README: `experiments/EXP65_llama_diverse/README.md`
+  - Plots: `plots/exp65_model_comparison.png`, `plots/exp65_error_correlation.png`, `plots/exp65_disagreement_analysis.png`, `plots/exp65_unique_corrections.png`, `plots/exp65_oracle_comparison.png`, `plots/exp65_class_recall_comparison.png`, `plots/exp65_fusion_curve.png`, `plots/exp65_confidence_analysis.png`
+  - Report: `reports/EXP65_REPORT.md`
+- **Decision**: **RED (Nested CV lift is statistically indistinguishable from zero at +0.0011 BA, 95% CI [-0.0063, +0.0083], 1,231 degradations vs 159 corrections; retain EXP52 as frozen production champion at 0.632 LB)**.

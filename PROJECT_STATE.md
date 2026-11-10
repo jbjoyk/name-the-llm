@@ -294,3 +294,21 @@
 | **EXP64 Submission Kernel (Py)** | `/home/rj2826/name-that-llm/notebooks/64_confidence_router_submission_kernel.py` |
 | **EXP64 Submission Kernel (NB)** | `/home/rj2826/name-that-llm/notebooks/64_confidence_router_submission_kernel.ipynb` |
 | **EXP64 Submission Kernel (Exp)** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/64_confidence_router_submission_kernel.ipynb` |
+| **EXP65 Script** | `/home/rj2826/name-that-llm/src/exp65_llama_diverse.py` |
+| **EXP65 Build NB Script** | `/home/rj2826/name-that-llm/src/build_exp65_notebook.py` |
+| **EXP65 Report** | `/home/rj2826/name-that-llm/reports/EXP65_REPORT.md` |
+| **EXP65 Directory** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/` |
+| **EXP65 Fold Assignments** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/fold_assignments.csv` |
+| **EXP65 Fold Results** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/fold_results.csv` |
+| **EXP65 OOF Predictions** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/oof_predictions.csv` |
+| **EXP65 Complementarity** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/complementarity.csv` |
+| **EXP65 Disagreement CSV** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/disagreement_analysis.csv` |
+| **EXP65 Oracle Results** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/oracle_results.csv` |
+| **EXP65 Class Results** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/class_results.csv` |
+| **EXP65 Fusion Results** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/fusion_results.csv` |
+| **EXP65 Bootstrap JSON** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/bootstrap_results.json` |
+| **EXP65 Summary JSON** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/training_summary.json` |
+| **EXP65 Config JSON** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/config.json` |
+| **EXP65 README** | `/home/rj2826/name-that-llm/experiments/EXP65_llama_diverse/README.md` |
+| **EXP65 Analysis Notebook** | `/home/rj2826/name-that-llm/notebooks/65_llama_diverse_attribution.ipynb` |
+| **EXP65 Kaggle Kernel** | `/home/rj2826/name-that-llm/notebooks/65_llama_diverse_kaggle.ipynb` |
