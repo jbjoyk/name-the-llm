@@ -291,3 +291,6 @@
 | **EXP64 Metrics JSON** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/metrics.json` |
 | **EXP64 Config JSON** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/config.json` |
 | **EXP64 README** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/README.md` |
+| **EXP64 Submission Kernel (Py)** | `/home/rj2826/name-that-llm/notebooks/64_confidence_router_submission_kernel.py` |
+| **EXP64 Submission Kernel (NB)** | `/home/rj2826/name-that-llm/notebooks/64_confidence_router_submission_kernel.ipynb` |
+| **EXP64 Submission Kernel (Exp)** | `/home/rj2826/name-that-llm/experiments/EXP64_confidence_router/64_confidence_router_submission_kernel.ipynb` |
