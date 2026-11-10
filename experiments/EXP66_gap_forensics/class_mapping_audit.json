@@ -1,0 +1,180 @@
+{
+  "total_classes": 18,
+  "classes_alphabetical": [
+    "claude-fable-5",
+    "claude-opus-4-6",
+    "claude-opus-4-8",
+    "claude-opus-5",
+    "claude-sonnet-5",
+    "gemini-3.1-pro-preview",
+    "gemini-3.6-flash",
+    "gemini-3.7-flash",
+    "gemini-3.8-flash",
+    "glm-5.3",
+    "glm-5.3-flash",
+    "gpt-5.5",
+    "gpt-5.6-luna",
+    "gpt-5.6-sol",
+    "gpt-5.6-terra",
+    "gpt-6-astra",
+    "kimi-k3",
+    "qwen3.8-max"
+  ],
+  "mapping_verification": [
+    {
+      "index": 0,
+      "class_string": "claude-fable-5",
+      "train_rank": 0,
+      "kernel_52_label": "claude-fable-5",
+      "q14_col_name": "claude-fable-5",
+      "match": true
+    },
+    {
+      "index": 1,
+      "class_string": "claude-opus-4-6",
+      "train_rank": 1,
+      "kernel_52_label": "claude-opus-4-6",
+      "q14_col_name": "claude-opus-4-6",
+      "match": true
+    },
+    {
+      "index": 2,
+      "class_string": "claude-opus-4-8",
+      "train_rank": 2,
+      "kernel_52_label": "claude-opus-4-8",
+      "q14_col_name": "claude-opus-4-8",
+      "match": true
+    },
+    {
+      "index": 3,
+      "class_string": "claude-opus-5",
+      "train_rank": 3,
+      "kernel_52_label": "claude-opus-5",
+      "q14_col_name": "claude-opus-5",
+      "match": true
+    },
+    {
+      "index": 4,
+      "class_string": "claude-sonnet-5",
+      "train_rank": 4,
+      "kernel_52_label": "claude-sonnet-5",
+      "q14_col_name": "claude-sonnet-5",
+      "match": true
+    },
+    {
+      "index": 5,
+      "class_string": "gemini-3.1-pro-preview",
+      "train_rank": 5,
+      "kernel_52_label": "gemini-3.1-pro-preview",
+      "q14_col_name": "gemini-3.1-pro-preview",
+      "match": true
+    },
+    {
+      "index": 6,
+      "class_string": "gemini-3.6-flash",
+      "train_rank": 6,
+      "kernel_52_label": "gemini-3.6-flash",
+      "q14_col_name": "gemini-3.6-flash",
+      "match": true
+    },
+    {
+      "index": 7,
+      "class_string": "gemini-3.7-flash",
+      "train_rank": 7,
+      "kernel_52_label": "gemini-3.7-flash",
+      "q14_col_name": "gemini-3.7-flash",
+      "match": true
+    },
+    {
+      "index": 8,
+      "class_string": "gemini-3.8-flash",
+      "train_rank": 8,
+      "kernel_52_label": "gemini-3.8-flash",
+      "q14_col_name": "gemini-3.8-flash",
+      "match": true
+    },
+    {
+      "index": 9,
+      "class_string": "glm-5.3",
+      "train_rank": 9,
+      "kernel_52_label": "glm-5.3",
+      "q14_col_name": "glm-5.3",
+      "match": true
+    },
+    {
+      "index": 10,
+      "class_string": "glm-5.3-flash",
+      "train_rank": 10,
+      "kernel_52_label": "glm-5.3-flash",
+      "q14_col_name": "glm-5.3-flash",
+      "match": true
+    },
+    {
+      "index": 11,
+      "class_string": "gpt-5.5",
+      "train_rank": 11,
+      "kernel_52_label": "gpt-5.5",
+      "q14_col_name": "gpt-5.5",
+      "match": true
+    },
+    {
+      "index": 12,
+      "class_string": "gpt-5.6-luna",
+      "train_rank": 12,
+      "kernel_52_label": "gpt-5.6-luna",
+      "q14_col_name": "gpt-5.6-luna",
+      "match": true
+    },
+    {
+      "index": 13,
+      "class_string": "gpt-5.6-sol",
+      "train_rank": 13,
+      "kernel_52_label": "gpt-5.6-sol",
+      "q14_col_name": "gpt-5.6-sol",
+      "match": true
+    },
+    {
+      "index": 14,
+      "class_string": "gpt-5.6-terra",
+      "train_rank": 14,
+      "kernel_52_label": "gpt-5.6-terra",
+      "q14_col_name": "gpt-5.6-terra",
+      "match": true
+    },
+    {
+      "index": 15,
+      "class_string": "gpt-6-astra",
+      "train_rank": 15,
+      "kernel_52_label": "gpt-6-astra",
+      "q14_col_name": "gpt-6-astra",
+      "match": true
+    },
+    {
+      "index": 16,
+      "class_string": "kimi-k3",
+      "train_rank": 16,
+      "kernel_52_label": "kimi-k3",
+      "q14_col_name": "kimi-k3",
+      "match": true
+    },
+    {
+      "index": 17,
+      "class_string": "qwen3.8-max",
+      "train_rank": 17,
+      "kernel_52_label": "qwen3.8-max",
+      "q14_col_name": "qwen3.8-max",
+      "match": true
+    }
+  ],
+  "parity_summary": {
+    "train_vs_exp52_labels_match": true,
+    "train_vs_q14_oof_cols_match": true,
+    "q8_head_plain_output_dim": 18,
+    "q8_head_centered_output_dim": 18,
+    "q14_head_plain_output_dim": 18,
+    "q14_head_centered_output_dim": 18,
+    "class_permutation_detected": false,
+    "zero_vs_one_indexed": "zero-indexed (0..17)",
+    "verdict": "ALL 18 CLASSES PERFECTLY ALIGNED IN EXACT ALPHABETICAL ORDER ACROSS ALL ARTIFACTS"
+  }
+}

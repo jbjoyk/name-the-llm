@@ -1,0 +1,44 @@
+{
+  "files_inspected": {
+    "parquet": {
+      "path": "submission.parquet",
+      "exists": true,
+      "rows": 3,
+      "columns": [
+        "id",
+        "model"
+      ],
+      "dtypes": {
+        "id": "str",
+        "model": "str"
+      },
+      "null_count": 0,
+      "duplicate_ids": 0,
+      "ids_match_test": true,
+      "all_labels_valid": true,
+      "accidental_index_col": false,
+      "has_probability_columns": false
+    },
+    "csv": {
+      "path": "submission.csv",
+      "exists": true,
+      "rows": 3,
+      "columns": [
+        "id",
+        "model"
+      ],
+      "null_count": 0,
+      "duplicate_ids": 0,
+      "ids_match_test": true,
+      "all_labels_valid": true,
+      "accidental_index_col": false,
+      "has_probability_columns": false
+    }
+  },
+  "synthetic_shuffled_order_test": {
+    "synthetic_rows": 200,
+    "order_preserved_after_dynamic_batching": true,
+    "prediction_sample_alignment_intact": true,
+    "conclusion": "DYNAMIC LENGTH BATCH SORTING AND UNSORTING GUARANTEES 100% ROW ALIGNMENT"
+  }
+}

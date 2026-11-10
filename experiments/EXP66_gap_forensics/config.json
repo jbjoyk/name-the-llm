@@ -1,0 +1,70 @@
+{
+  "experiment_id": "EXP66_gap_forensics",
+  "mission": "Forensic root-cause analysis of the 0.1553 Balanced Accuracy gap between EXP52 local OOF (0.7873) and Kaggle Public LB (0.6320)",
+  "production_baseline": {
+    "name": "EXP52_dual_lora",
+    "local_oof_balanced_accuracy": 0.787313,
+    "local_oof_macro_f1": 0.787971,
+    "kaggle_public_lb": 0.632,
+    "observed_gap": 0.155313,
+    "fusion_formula": "0.60 * logP(q8v5) + 0.40 * logP(q14v5)",
+    "twin_weight": 0.35,
+    "prompt_recovery": "TF-IDF + Capped Agglomerative Linkage (thr=0.15, cap=18)"
+  },
+  "models": {
+    "qwen3_8b": {
+      "base": "Qwen3-8B-Base",
+      "keep_layers": 24,
+      "hidden_size": 4096,
+      "target_layers": [2, 4, 6, 8, 12, 16, 20, 24],
+      "total_dim": 32768,
+      "max_length": 384,
+      "eos_token_id": 151643,
+      "adapter": "q8v5",
+      "lora_r": 16,
+      "lora_alpha": 32.0,
+      "weight": 0.60
+    },
+    "qwen3_14b": {
+      "base": "Qwen3-14B-Base",
+      "keep_layers": 27,
+      "hidden_size": 5120,
+      "target_layers": [2, 4, 6, 9, 13, 17, 22, 27],
+      "total_dim": 40960,
+      "max_length": 447,
+      "eos_token_id": 151643,
+      "adapter": "q14v5",
+      "lora_r": 16,
+      "lora_alpha": 32.0,
+      "weight": 0.40
+    }
+  },
+  "classes": [
+    "claude-fable-5",
+    "claude-opus-4-6",
+    "claude-opus-4-8",
+    "claude-opus-5",
+    "claude-sonnet-5",
+    "gemini-3.1-pro-preview",
+    "gemini-3.6-flash",
+    "gemini-3.7-flash",
+    "gemini-3.8-flash",
+    "glm-5.3",
+    "glm-5.3-flash",
+    "gpt-5.5",
+    "gpt-5.6-luna",
+    "gpt-5.6-sol",
+    "gpt-5.6-terra",
+    "gpt-6-astra",
+    "kimi-k3",
+    "qwen3.8-max"
+  ],
+  "rules": {
+    "no_retraining": true,
+    "no_kaggle_submission": true,
+    "no_leaderboard_tuning": true,
+    "freeze_exp52": true,
+    "freeze_exp64": true,
+    "freeze_exp65": true
+  }
+}

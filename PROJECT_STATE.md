@@ -1,15 +1,15 @@
 # PROJECT STATE & AGENT HANDOFF: KAGGLE "NAME THAT LLM"
 
-**Last Updated**: 2026-11-09 17:35 UTC
+**Last Updated**: 2026-11-10 23:45 UTC
 **Primary Repository**: `/home/rj2826/name-that-llm`
-**Current Active State**: **EXP64 Disagreement-Aware Confidence Routing Completed (Verdict: YELLOW; Retain EXP52 as frozen production champion at 0.632 LB)**
+**Current Active State**: **EXP66 Kaggle / OOF Generalization Gap Forensics Completed (Verdict: GREEN; Primary Mechanics Isolated; Retain EXP52 as frozen production champion at 0.632 LB)**
 **Current Production Baseline**: **EXP52**
 - **Kaggle Public LB**: **0.632**
 - **Prompt-Disjoint OOF BA**: **0.7873**
 - **Status**: **EXP52 frozen**
-- **Latest Completed Experiment**: **EXP64**
-- **Latest Experiment Verdict**: **YELLOW**
-- **Next Research Priority**: **Single-sample routing yields +0.0033 nested lift (CI [-0.0027, +0.0094] spans zero; net +9 samples). Retain EXP52. Explore sequence fine-tuning of diverse model families (Llama-3 / Gemma-2 / Mistral-7B).**
+- **Latest Completed Experiment**: **EXP66**
+- **Latest Experiment Verdict**: **GREEN**
+- **Next Research Priority**: **Primary gap mechanics isolated: 1) Test-time prompt density collapse (R=18 in train activates twin head vs sparse R~1-2 in test bypasses twin head; plain fusion 0.6315 matches LB 0.6320). 2) Inter-backbone collinearity on unseen prompts. EXP64 0.058 explained by dummy cyclic fallback on exception. Retain EXP52.**
 - **Kaggle Submissions**: **No Kaggle submission after EXP52.**
 
 ---
@@ -82,6 +82,8 @@
 | **EXP_62** | Cross-Architecture Complementarity Test (ModernBERT-base) | **0.7858** (Nested CV) / **0.3093** (ModernBERT standalone) | *Not Submitted* | **RED (Refuted cross-architecture hypothesis, nested $\Delta=-0.0015$; Retain EXP52)** |
 | **EXP_63** | Prompt-Conditional Relative Attribution & Set Assignment | **0.9040** ($R=18$ Hungarian) / **0.8021** ($R=2$ Sparse) / **0.7873** (Baseline) | *Not Submitted* | **YELLOW (Hungarian +0.1167 at R=18 collapses to +0.0052 at R=2; training-only artifact; Retain EXP52)** |
 | **EXP_64** | Disagreement-Aware Confidence Routing for Single-Sample Attribution | **0.7906** (Nested CV) / **0.7873** (Baseline) | *Not Submitted* | **YELLOW (Nested delta +0.0033, CI [-0.0027, +0.0094] spans zero; net +9 samples; Retain EXP52)** |
+| **EXP_65** | Llama-3.1-8B Diverse Foundation Backbone Attribution | **0.7884** (Nested CV) / **0.3901** (Llama standalone) | *Not Submitted* | **RED (Nested lift +0.0011 not significant, CI [-0.0063, +0.0083]; 1231 degradations vs 159 corrections; Retain EXP52)** |
+| **EXP_66** | Kaggle / OOF Generalization Gap Forensics | **0.7873** (Reproduction verified) | **0.6320** | **GREEN (Diagnostic complete; gap mechanics isolated: prompt density collapse & backbone collinearity; Retain EXP52)** |
 
 ---
 

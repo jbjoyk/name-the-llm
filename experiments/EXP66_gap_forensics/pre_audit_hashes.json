@@ -1,0 +1,147 @@
+{
+  "exp52_probs_fused": {
+    "path": "experiments/EXP52_dual_lora/probs_fused.npy",
+    "bytes": 344,
+    "sha256": "00675425cf27d467c18203a55654376a79c52a37175ffdc199da88e0ee5efea2"
+  },
+  "exp52_probs_q8": {
+    "path": "experiments/EXP52_dual_lora/probs_q8v5.npy",
+    "bytes": 344,
+    "sha256": "f41bf4964726427b8f0ac4765762f04e746eb34b017fd4ebf93180ed8689e1f9"
+  },
+  "exp52_probs_q14": {
+    "path": "experiments/EXP52_dual_lora/probs_q14v5.npy",
+    "bytes": 344,
+    "sha256": "7f8c42343ea2afd6ab7f74ed7839c48826e821bdd73a2fe1fc37cd33ce3db33f"
+  },
+  "exp52_metrics": {
+    "path": "experiments/EXP52_dual_lora/metrics.json",
+    "bytes": 452,
+    "sha256": "8e053c1e0f850f09868f707bf339ee363ce33bcdba18cc7613b9460e75c24f49"
+  },
+  "exp52_kernel_py": {
+    "path": "notebooks/52_dual_lora_kernel.py",
+    "bytes": 24791,
+    "sha256": "aafc1c40d976f6aeead28ec0d0b64776fdef23deb409597f69e2a166408821b2"
+  },
+  "exp52_kernel_nb": {
+    "path": "notebooks/52_dual_lora_kernel.ipynb",
+    "bytes": 31899,
+    "sha256": "537d8df7d5c52bb1c1500fbeb7496a568e1781bac93b4bbf4d433137557d75a3"
+  },
+  "q8_twin_oof_npy": {
+    "path": "outputs/oof_exp47_qwen_centered_twin.npy",
+    "bytes": 194456,
+    "sha256": "647a75f59789f2574bef7578ebf0e5f00eae2a8481724cfd6316bb4199ad22cb"
+  },
+  "q8_plain_oof_npy": {
+    "path": "outputs/oof_exp46_qwen_lora.npy",
+    "bytes": 194456,
+    "sha256": "726794c5c514bd97b201778f30aaaf542b7cda7a94f67acebfdb9529034dfb5a"
+  },
+  "q14_oof_csv": {
+    "path": "outputs/oof_q14v5_antopil_lora.csv",
+    "bytes": 383386,
+    "sha256": "58822e8d71d6b6ae1d77a3eb62a5f3a2d4f1757c239392d1b5d9e227646ab9e9"
+  },
+  "q8_adapter_config": {
+    "path": "models/adapters_v5/q8v5/q8v5/adapter_config.json",
+    "bytes": 1271,
+    "sha256": "621136c127ae11004b136582ac899229a191c2d57443b297f7867e88b42d9204"
+  },
+  "q8_heads_pt": {
+    "path": "models/adapters_v5/q8v5/q8v5/heads.pt",
+    "bytes": 4986739,
+    "sha256": "31868cd0e9618fac506c93a08f118ee00202041d67426890e609d13e2cd33f0a"
+  },
+  "q14_adapter_config": {
+    "path": "models/adapters_v5/q14v5/q14v5/adapter_config.json",
+    "bytes": 1272,
+    "sha256": "1f2c044ca59f117a2865ce91478f126d25f974224282b70d320828e8b504173e"
+  },
+  "q14_heads_pt": {
+    "path": "models/adapters_v5/q14v5/q14v5/heads.pt",
+    "bytes": 6231923,
+    "sha256": "cafdbade649017d666c2da623adb6539877e1125a996f2736133127ae6121b3d"
+  },
+  "exp64_metrics": {
+    "path": "experiments/EXP64_confidence_router/metrics.json",
+    "bytes": 2232,
+    "sha256": "3ae1a9431bfae898995dd5bdfa071ac3ea2807dde80651e4dd11cca7242e02d5"
+  },
+  "exp64_comparison_table": {
+    "path": "experiments/EXP64_confidence_router/comparison_table.csv",
+    "bytes": 1091,
+    "sha256": "6105a27a405c2266b4136561e13a173f620dfead178ab329499810e48d851e35"
+  },
+  "exp64_coefficients": {
+    "path": "experiments/EXP64_confidence_router/router_coefficients.csv",
+    "bytes": 2666,
+    "sha256": "41e05a73b8ad3fd6abdffb3ff9d9eb94d98b39f7dac42f5246f718bf4c13a76c"
+  },
+  "exp64_nb": {
+    "path": "notebooks/64_disagreement_confidence_routing.ipynb",
+    "bytes": 904389,
+    "sha256": "a91f1e8e30c0c3568e24ae743dfc47fa4a303c0e0f97bcc8b86ee7b411a4f43b"
+  },
+  "exp64_sub_nb": {
+    "path": "notebooks/64_confidence_router_submission_kernel.ipynb",
+    "bytes": 33168,
+    "sha256": "8251a2425be05b9edcf483ce355355c072c827a12a696faf02e07ec6c096b13c"
+  },
+  "exp64_sub_py": {
+    "path": "notebooks/64_confidence_router_submission_kernel.py",
+    "bytes": 23006,
+    "sha256": "7ed176d82f736b64303787b40aea42133e538b04cb6ef357ab226e8a90603951"
+  },
+  "exp65_summary": {
+    "path": "experiments/EXP65_llama_diverse/training_summary.json",
+    "bytes": 1169,
+    "sha256": "e49dfb2c05d22666c7521f8fbab591697e63985882325bdac9ef41fc4ca9b6fc"
+  },
+  "exp65_fold_results": {
+    "path": "experiments/EXP65_llama_diverse/fold_results.csv",
+    "bytes": 817,
+    "sha256": "fe1f2f8ef278ddcd8181d5b5db9a3466e50e77ddb64b229c92dd08cd55c12d6d"
+  },
+  "exp65_oof_predictions": {
+    "path": "experiments/EXP65_llama_diverse/oof_predictions.csv",
+    "bytes": 2262270,
+    "sha256": "8b94b502797cfbbde119a8dd7d428fd484e0b9c5adeec94df393c01200e00cd2"
+  },
+  "exp65_complementarity": {
+    "path": "experiments/EXP65_llama_diverse/complementarity.csv",
+    "bytes": 481,
+    "sha256": "0d1db316e3d9acfe3ba5ca96ff569842af881927059ac69bafef19aeda5488c4"
+  },
+  "exp65_oracle_results": {
+    "path": "experiments/EXP65_llama_diverse/oracle_results.csv",
+    "bytes": 190,
+    "sha256": "17eb793c357125acf3a0c1177b2b56d8923bb9ed9f8e6b217c2aea0c7dab7d26"
+  },
+  "exp65_nb": {
+    "path": "notebooks/65_llama_diverse_attribution.ipynb",
+    "bytes": 465663,
+    "sha256": "ec97c1a4cf6df21b609ee64f22a29cc4ecb3ae9da80ba356b753b986ee355d49"
+  },
+  "exp65_kaggle_nb": {
+    "path": "notebooks/65_llama_diverse_kaggle.ipynb",
+    "bytes": 10073,
+    "sha256": "ac68f14bf8e93395cafd8de64a66470e1cc6e630f36b77e8640644c9374fdac4"
+  },
+  "train_csv": {
+    "path": "data/train.csv",
+    "bytes": 2139418,
+    "sha256": "40a22ce8d88c5f46feb4637a099db815bef5f713ffe53e89dbe1b7b21de77707"
+  },
+  "test_csv": {
+    "path": "data/test.csv",
+    "bytes": 2218,
+    "sha256": "4545aa3a3459f4c0724f97ad5bd06c4caa3506bdfea5fab905e8203184fc0c57"
+  },
+  "sample_sub_parquet": {
+    "path": "data/sample_submission.parquet",
+    "bytes": 899,
+    "sha256": "ccf86796b80fd7f83d8463664603fd1208e17559abcf416f198776b819646188"
+  }
+}
